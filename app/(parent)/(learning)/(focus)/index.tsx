@@ -2,19 +2,19 @@ import { supabase } from '@/app/lib/supabase';
 import BottomNavBar from "@/components/BottomNavBar";
 import { FocusCard } from "@/components/FocusCard";
 import Header from "@/components/Header";
+import { ItemSeries } from '@/components/ItemSeries';
 import { CreatFocusModal } from "@/components/Modals";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { categoryData } from "@/data/libraryData";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
+import { useLearningCategoryStore } from '@/store/learningCategoryStore';
 import {
-  FlatList,
-  Image,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity
+    Image,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity
 } from "react-native";
 
 // Data arrays for each section
@@ -31,7 +31,8 @@ export default function Index() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const [modalVisible, setModalVisible] = React.useState(params.showModal === 'true');
-    const categories = categoryData;
+    // Use zustand store for categories
+    const { categories, setCategories } = useLearningCategoryStore();
     const [activeItem, setActiveItem] = React.useState('Stories');
     const [dropdownVisible, setDropdownVisible] = React.useState(false);
     const [focusModes, setFocusModes] = useState<any[]>([]);
@@ -63,6 +64,31 @@ export default function Index() {
         fetchFocusModes();
     }, []);
 
+    useEffect(() => {
+        async function fetchLearningTargets() {
+            setLoading(true);
+            try {
+                const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+                const { data, error } = await supabase.functions.invoke('learning_categories', {
+                    method: 'GET',
+                    headers: {
+                        Authorization: jwt ? `Bearer ${jwt}` : '',
+                    },
+                });
+                if (error) {
+                    console.error('Error fetching learning categories:', error.message);
+                } else if (data && Array.isArray(data.data)) {
+                    setCategories(data.data);
+                }
+            } catch (e) {
+                console.error('Error fetching learning categories:', e);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchLearningTargets();
+    }, [setCategories]);
+
     function handleItemSelection(item: string) {
         console.log("item selected::", item)
         setActiveItem(item)
@@ -73,16 +99,19 @@ export default function Index() {
         console.log("storyOption clicked::", item)
     }
 
-    function CreateNewPathway() {
+    function CreateNewFocus() {
         router.push('./new_focus')
     }
 
     function removeModal() {
         setModalVisible(false);
-        // router.replace('parent/learning/pathway')
+        // router.replace('parent/learning/focus')
     }
     function handleViewButton(id: string) {
         router.replace(`./view_focus?id=${id}`);
+    }
+    function handleEditButton(id: string) {
+        router.replace(`./edit_focus?id=${id}`);
     }
 
     return (
@@ -115,7 +144,7 @@ export default function Index() {
                             {/* Dropdown toggle */}
                             <TouchableOpacity
                                 style={styles.dropdownToggle}
-                                onPress={CreateNewPathway}
+                                onPress={CreateNewFocus}
                             >
                                 <Image source={plusIcon} tintColor={'rgba(173, 215, 218, 1)'} />
                                 <ThemedText style={styles.dropdownText}> Create New Focus </ThemedText>
@@ -123,30 +152,21 @@ export default function Index() {
                         </ThemedView>
 
                         {/* Category pills */}
-                        <FlatList
-                            horizontal
-                            data={categories}
-                            keyExtractor={(item) => item}
-                            renderItem={({ item }) => (
-                                <TouchableOpacity onPress={() => handleStoryItem(item)}>
-                                    <ThemedView style={styles.categoryPill}>
-                                        <ThemedText style={styles.categoryText}>{item}</ThemedText>
-                                    </ThemedView>
-                                </TouchableOpacity>
-                            )}
-                            style={{ paddingHorizontal: 16 }}
-                            showsHorizontalScrollIndicator={false}
-                        />
 
-                        <ThemedView style={{ paddingBottom: 100, marginBottom: 50 }}>
+                        <ItemSeries itemsData={categories} theme="dark"/>
+
+                        <ThemedView style={{ marginBottom: 50 }}>
                             {loading ? (
                                 <ThemedText>Loading focus modes...</ThemedText>
                             ) : focusModes?.length > 0 ? (
                                 focusModes.map((focus, idx) => (
-                                    <FocusCard key={focus.id || idx} focus={focus} handleViewButton={handleViewButton} />
+                                    <FocusCard
+                                        key={focus.id || idx} focus={focus}
+                                        handleEditButton={handleEditButton}
+                                        handleViewButton={handleViewButton} />
                                 ))
                             ) : (
-                                <ThemedText style={{color: 'white', textAlign: 'center', paddingTop : 150}}>No focus modes found.</ThemedText>
+                                <ThemedText style={{ color: 'white', textAlign: 'center', paddingTop: 150 }}>No focus modes found.</ThemedText>
                             )}
                         </ThemedView>
                     </ScrollView>

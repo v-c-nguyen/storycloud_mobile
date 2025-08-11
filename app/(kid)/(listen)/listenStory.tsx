@@ -7,7 +7,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { childrenData } from '@/data/childrenData';
 import { modesData } from '@/data/parent/dashboardData';
 import { Image } from 'expo-image';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { Modal, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -27,162 +27,13 @@ const insightIcons = {
   finished: require("@/assets/images/parent/finished.png"),
 };
 
-
-const storiesData = [
-  {
-    bgColor: "#F4A672",
-    textColor: "#053B4A",
-    subTextColor: "#F8ECAE",
-    progressColor: "#ADD7DA",
-    isBallonYellow: true,
-    number: "#1",
-    storyTitle: "Petal Tales: The Search for Rainbow Flowers",
-    seriesTitle: "KAI’S LIVING ADVENTURE",
-    duration: 32,
-    progress: 20,
-    image: "1",
-    featured: false,
-    isFavorite: true,
-    watched: false,
-  },
-  {
-    bgColor: "#053B4A",
-    textColor: "#FCFCFC",
-    subTextColor: "#F8ECAE",
-    progressColor: "#F8ECAE",
-    isBallonYellow: false,
-    number: "#2",
-    storyTitle: "Petal Tales: The Search for Rainbow Flowers",
-    seriesTitle: "Underwater Adventures",
-    duration: 32,
-    progress: 12,
-    image: "2",
-    featured: false,
-    isFavorite: true,
-    watched: false,
-  },
-  {
-    bgColor: "#F8ECAE",
-    textColor: "#053B4A",
-    subTextColor: "#048F99",
-    progressColor: "#ADD7DA",
-    isBallonYellow: false,
-    number: "#3",
-    storyTitle: "Muddy Mystery at the Pond",
-    seriesTitle: "KAI’S LIVING ADVENTURE",
-    duration: 32,
-    progress: 20,
-    image: "3",
-    featured: true,
-    isFavorite: true,
-    watched: false,
-  },
-  {
-    bgColor: "#053B4A",
-    textColor: "#FCFCFC",
-    subTextColor: "#F8ECAE",
-    progressColor: "#F8ECAE",
-    isBallonYellow: true,
-    number: "#4",
-    storyTitle: "Seeds of Surprise",
-    seriesTitle: "KAI’S LIVING ADVENTURE",
-    duration: 32,
-    progress: 12,
-    image: "2",
-    featured: true,
-    isFavorite: true,
-    watched: false,
-  },
-  {
-    bgColor: "#F8ECAE",
-    textColor: "#053B4A",
-    subTextColor: "#F8ECAE",
-    progressColor: "#F4A672",
-    isBallonYellow: true,
-    number: "#5",
-    storyTitle: "The Great Garden Clean-Up",
-    seriesTitle: "KAI’S LIVING ADVENTURE",
-    duration: 32,
-    progress: 20,
-    image: "1",
-    featured: false,
-    isFavorite: true,
-    watched: true,
-  },
-  {
-    bgColor: "#053B4A",
-    textColor: "#FCFCFC",
-    subTextColor: "#F8ECAE",
-    progressColor: "#ADD7DA",
-    isBallonYellow: false,
-    number: "#7",
-    storyTitle: "A Night with Nocturnal Neighbours",
-    seriesTitle: "KAI’S LIVING ADVENTURE",
-    duration: 32,
-    progress: 20,
-    image: "3",
-    featured: false,
-    isFavorite: false,
-    watched: true,
-  },
-];
-
-const seriesData = [
-  {
-    title: "KAI’S LIVING ADVENTURE",
-    image: "1",
-    count: 8,
-    isFavorite: true,
-  },
-  {
-    title: "KAI’S CLIMATE QUEST",
-    image: "2",
-    count: 8,
-    isFavorite: true,
-  },
-  {
-    title: "KAI’S INVESTIGATION STATION",
-    image: "3",
-    count: 8,
-    isFavorite: true,
-  },
-  {
-    title: "KAI’S BIG ADVENTURES",
-    image: "4",
-    count: 8,
-    isFavorite: true,
-  },
-  {
-    title: "KAI’S NEIGHBORHOOD ADVENTURES",
-    image: "5",
-    count: 8,
-    isFavorite: true,
-  },
-];
-
-const InsightItemsData: InsightItemProps[] = [
-  {
-    value: 48,
-    what: 'Total Story Time',
-    avatar: 'duration'
-  },
-  {
-    value: 5,
-    what: 'Total Pathway Steps Finished',
-    avatar: 'steps'
-  },
-  {
-    value: 5,
-    what: 'Total Stories Finished',
-    avatar: 'finished'
-  }
-]
+const musicIcon = require('@/assets/images/parent/music.png')
 
 export default function ListenStory() {
-
+  const router = useRouter();
   const children = childrenData;
   const modes = modesData;
-  const [modalVisible, setModalVisible] = React.useState(true);
+  const [modalVisible, setModalVisible] = React.useState(false);
   const [activeChild, setActiveChild] = React.useState(children[0]);
   const [activeMode, setActiveMode] = React.useState(modes[0]);
 
@@ -224,15 +75,16 @@ export default function ListenStory() {
             <ThemedView style={styles.container}>
               {/* Dots */}
               <ThemedView style={styles.cardFooter}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('./')}>
                   <Image source={require('@/assets/images/icons/arrow-left.png')} style={styles.leftBtn} />
                 </TouchableOpacity>
-                <TouchableOpacity>
-                  <Image source={require('@/assets/images/icons/arrow-right.png')} style={styles.rightBtn} />
+                <TouchableOpacity >
+                  <Image source={musicIcon} style={styles.rightBtn} />
                 </TouchableOpacity>
               </ThemedView>
 
-              <MediaPlayerCard />
+              <MediaPlayerCard onAudioEnd={() => setModalVisible(true)} />
+
 
               <AdventureStoryCarousel />
 
@@ -294,7 +146,7 @@ const styles = StyleSheet.create({
     tintColor: 'white',
   },
   rightBtn: {
-    width: 24,
+    width: 32,
     height: 24,
     tintColor: 'white',
   },

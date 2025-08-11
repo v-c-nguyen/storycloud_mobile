@@ -1,3 +1,4 @@
+import { supabase } from '@/app/lib/supabase';
 import BottomNavBar from '@/components/BottomNavBar';
 import DropDownMenu from '@/components/DropDownMenu';
 import Header from '@/components/Header';
@@ -5,8 +6,8 @@ import { TabBar } from '@/components/TabBar';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Image, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, Image, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 
 
 const refeshIcon = require('@/assets/images/parent/icon-refresh.png');
@@ -16,8 +17,18 @@ const starIcon = require('@/assets/images/parent/star.png');
 
 export default function LoginCredential() {
   const router = useRouter();
-  const [email, setEmail] = useState('zahranbm87@gmail.com');
-  const [password, setPassword] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('********'); // Passwords should not be fetched or displayed
+  // Fetch user email from Supabase on mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (data?.user?.email) {
+        setEmail(data.user.email);
+      }
+    };
+    fetchUser();
+  }, []);
   const [showStars, setShowStars] = useState(true);
   const [activeTab, setActiveTab] = React.useState('login');
   const [activeItem, setActiveItem] = React.useState('account');
@@ -29,9 +40,18 @@ export default function LoginCredential() {
     else if (tabId === 'content') router.navigate("/(parent)/(profiles)/(content)");
   };
 
-  const handleChangePassword = () => {
-    // handle password change
-    console.log('Password changed');
+  const handleChangePassword = async () => {
+    if (!password || password === '') {
+      Alert.alert('Please enter a new password.');
+      return;
+    }
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) {
+      Alert.alert('Failed to update password: ' + error.message);
+    } else {
+      Alert.alert('Password updated successfully!');
+      setPassword('');
+    }
   };
 
   const renderStars = () => {
@@ -121,8 +141,7 @@ export default function LoginCredential() {
                 <ThemedText style={styles.subLabel}>Email Address</ThemedText>
                 <TextInput
                   value={email}
-                  editable={true}
-                  onChangeText={setEmail}
+                  editable={false}
                   style={styles.input}
                 />
 
@@ -138,6 +157,7 @@ export default function LoginCredential() {
                       style={styles.pwd_input}
                       value={password}
                       onChangeText={setPassword}
+                      editable={true}
                       secureTextEntry={true}
                       autoCapitalize="none"
                       autoCorrect={false}
@@ -152,9 +172,11 @@ export default function LoginCredential() {
                 </ThemedView>
 
                 {/* Change Password Button */}
-                <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
-                  <Image source={refeshIcon}></Image>
-                  <ThemedText style={styles.buttonText}>Change Password</ThemedText>
+                <TouchableOpacity onPress={handleChangePassword}>
+                  <ThemedView style={styles.button} >
+                    <Image source={refeshIcon}></Image>
+                    <ThemedText style={styles.buttonText}>Change Password</ThemedText>
+                  </ThemedView>
                 </TouchableOpacity>
               </ThemedView>
 
@@ -249,6 +271,7 @@ const styles = StyleSheet.create({
   },
   tabContent: {
     marginHorizontal: 1,
+    marginBottom: 20,
     borderWidth: 2,
     borderColor: 'rgba(122, 193, 198, 0.2)',
     borderRadius: 20,

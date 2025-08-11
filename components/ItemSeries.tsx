@@ -10,7 +10,7 @@ interface ItemProp {
     symbol?: string
 }
 
-export function ItemSeries({ itemsData }: { itemsData: ItemProp[] }) {
+export function ItemSeries({ itemsData, theme = "light" }: { itemsData: ItemProp[], theme: string }) {
     const [selected, setSelected] = useState<string | null>(null);
 
     function handleStoryItem(item: string) {
@@ -28,10 +28,17 @@ export function ItemSeries({ itemsData }: { itemsData: ItemProp[] }) {
                     const isSelected = selected === item.name;
                     return (
                         <TouchableOpacity onPress={() => handleStoryItem(item.name)}>
-                            <ThemedView style={[styles.categoryPill, isSelected && styles.selectedPill]}>
-                                {item.avatar_url && <Image source={item.avatar_url} style={styles.categoryAvatar}/>}
+                            <ThemedView style={[styles.categoryPill, theme == "dark" && styles.activeCategoryPill, isSelected && styles.selectedPill]}>
+                                {item.avatar_url && <Image source={item.avatar_url} style={styles.categoryAvatar} />}
                                 {item.symbol && <ThemedText style={styles.symbol}>{item.symbol}</ThemedText>}
-                                <ThemedText style={[styles.categoryText, isSelected && styles.selectedText]}>{item.name}</ThemedText>
+                                <ThemedText
+                                    style={[
+                                        styles.categoryText,
+                                        isSelected && styles.selectedText,
+                                        theme == "dark" && {color: 'white'}]}
+                                >
+                                    {item.name}
+                                </ThemedText>
                             </ThemedView>
                         </TouchableOpacity>
                     );
@@ -58,6 +65,20 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         gap: 5
     },
+    activeCategoryPill: {
+        paddingVertical: 20,
+        paddingHorizontal: 12,
+        borderWidth: 1,
+        borderColor: '#add7da83',
+        borderRadius: 20,
+        backgroundColor: '#7AC1C614',
+        marginTop: 12,
+        marginRight: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 5
+    },
     selectedPill: {
         backgroundColor: '#fba864',
     },
@@ -75,7 +96,7 @@ const styles = StyleSheet.create({
     },
     categoryAvatar: {
         width: 42,
-        height: 42 
+        height: 42
     },
     symbol: {
         fontSize: 16,

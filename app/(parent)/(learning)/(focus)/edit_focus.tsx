@@ -1,6 +1,6 @@
 import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
-import { FocusDetailedCard } from "@/components/FocusCard";
+import { FocusEditCard } from "@/components/FocusCard";
 import Header from "@/components/Header";
 import { CreatPathwayModal } from "@/components/Modals";
 import { ThemedText } from "@/components/ThemedText";
@@ -23,10 +23,9 @@ const learningIcon = require("@/assets/images/parent/learning.png")
 const backIcon = require('@/assets/images/parent/icon-left.png')
 const searchIcon = require("@/assets/images/parent/icon-search.png")
 const listIcon = require("@/assets/images/parent/icon-list.png")
-const plusIcon = require("@/assets/images/parent/icon-plus.png")
 
 const HIGHLIGHT_INDEX = 0;
-export default function ViewFocus() {
+export default function EditFocus() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const focusId = params.id as string;
@@ -65,20 +64,6 @@ export default function ViewFocus() {
         fetchFocusModeByID();
     }, []);
 
-    function handleItemSelection(item: string) {
-        console.log("item selected::", item)
-        setActiveItem(item)
-        setDropdownVisible(false)
-    }
-
-    function handleStoryItem(item: string) {
-        console.log("storyOption clicked::", item)
-    }
-
-    function CreateNewPathway() {
-        // router.push('/parent/learning/pathway/new_pathway')
-    }
-
     function handleBackBtn() {
         router.push('./');
     }
@@ -115,7 +100,7 @@ export default function ViewFocus() {
 
 
                         <ThemedView style={{ paddingBottom: 80 }}>
-                            <FocusDetailedCard focus={focusMode} />
+                            <FocusEditCard focus={focusMode} />
                         </ThemedView>
                     </ScrollView>
                     {/* Sticky Bottom Navigation */}

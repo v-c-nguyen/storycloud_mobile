@@ -1,4 +1,4 @@
-export const categoryData = ['New Adventures', 'Best Buddies & Big Feelings']
+export const                                                categoryData = ['New Adventures', 'Best Buddies & Big Feelings']
 
 export const storyOptionsData = [
     'Stories',

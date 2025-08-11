@@ -11,6 +11,7 @@ export default function AuthLayout() {
     >
       <Stack.Screen name="new_focus"  />
       <Stack.Screen name="view_focus" />
+      <Stack.Screen name="edit_focus" />
       <Stack.Screen name="index"/>
     </Stack>
   );

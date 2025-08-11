@@ -1,3 +1,4 @@
+import { supabase } from '@/app/lib/supabase';
 import BottomNavBar from '@/components/BottomNavBar';
 import DropDownMenu from '@/components/DropDownMenu';
 import Header from '@/components/Header';
@@ -5,12 +6,12 @@ import { TabBar } from '@/components/TabBar';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+    Alert,
     Dimensions,
     Image,
-    Modal,
-    ScrollView,
+    Modal, Platform, ScrollView,
     StyleSheet,
     Switch,
     TouchableOpacity
@@ -58,12 +59,28 @@ const plans = [
         buttonLabel: 'Update Subscription',
     },
 ];
-
 export default function SubscriptionPlansScreen() {
+    let domain = '';
+    if (typeof window !== 'undefined' && Platform.OS === 'web') {
+        domain = window.location.origin;
+    }
     const router = useRouter();
     const [isMonthly, setIsMonthly] = useState(true);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
+
+    // Show modal if URL contains ?status=success (web only)
+    useEffect(() => {
+        if (Platform.OS === 'web' && typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('status') === 'success') {
+                setModalVisible(true);
+            }
+        }
+    }, []);
+
+    // Show modal if URL contains ?status=success
+   
     const [activeTab, setActiveTab] = React.useState('subscription');
 
     const handleScroll = (event: any) => {
@@ -72,11 +89,42 @@ export default function SubscriptionPlansScreen() {
         setCurrentIndex(newIndex);
     };
 
-    const handleButtonClick = (label: string) => {
+
+    const handleButtonClick = async (label: string, plan: any) => {
         if (label === 'Update Subscription') {
-            setModalVisible(true);
-        } else {
-            console.log('Cancel action or other logic');
+            try {
+                // Call your Supabase Edge Function to create a Stripe Checkout session
+                const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+                const res = await fetch('https://fzmutsehqndgqwprkxrm.supabase.co/functions/v1/create-stripe-checkout', {
+                    method: "POST",
+                    headers: {
+                        Authorization: jwt ? `Bearer ${jwt}` : '',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        plan: plan.name,
+                        interval: isMonthly ? 'month' : 'year',
+                        success_url: `${domain}/(parent)/(profiles)/(subscription)`,
+                        cancel_url: `${domain}/(parent)/(profiles)/(subscription)`,
+                    }),
+                });
+
+                const { url } = await res.json();
+
+                // Open Stripe Checkout in the browser
+                router.push(url);
+
+            } catch (err: any) {
+                Alert.alert('Stripe Error', err.message || 'Could not start checkout.');
+            }
+        } else if (label === 'Cancel Subscription') {
+            await fetch('https://fzmutsehqndgqwprkxrm.supabase.co/functions/v1/cancel-stripe-checkout', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    subscription_id: "sub_1PabcXYZ" // from Stripe's webhook or customer portal
+                })
+            });
         }
     };
 
@@ -210,7 +258,7 @@ export default function SubscriptionPlansScreen() {
                                             {/* Button */}
                                             <TouchableOpacity
                                                 style={styles.planButton}
-                                                onPress={() => handleButtonClick(plan.buttonLabel)}
+                                                onPress={() => handleButtonClick(plan.buttonLabel, plan)}
                                             >
                                                 {
                                                     plan.buttonLabel == "Cancel Subscription" &&

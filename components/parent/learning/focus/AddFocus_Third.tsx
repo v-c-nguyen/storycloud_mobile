@@ -1,4 +1,5 @@
 import { supabase } from '@/app/lib/supabase';
+import { ChildrenCard } from '@/components/ChildrenCard';
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
@@ -6,13 +7,11 @@ import React from "react";
 import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import StepIndicator_Focus from "./StepIndecator";
 
-const itemIcon = require('@/assets/images/parent/item.png')
-const activeItemIcon = require('@/assets/images/parent/activeItem.png')
 const docIcon = require('@/assets/images/parent/custom_pathway.png')
 const rightButton = require('@/assets/images/parent/icon-right.png')
 
 interface Child {
-    id: number,
+    id: string,
     name: string,
     age: number,
     mode: string,
@@ -52,14 +51,14 @@ export default function AddFocus_Third({ mode, currentStep, onPress }: { mode: n
     }, []);
 
     function handleChildSelected(child: Child) {
-        console.log("ASdfwerewrewr", child)
         setActiveChildren(prev =>
             prev.includes(child)
                 ? prev.filter(t => t !== child)
                 : [...prev, child]
         );
-        console.log("activeChild", activeChildren)
     }
+
+   
     return (
         <ThemedView style={styles.container}>
             {/* Step Indicators */}
@@ -86,20 +85,12 @@ export default function AddFocus_Third({ mode, currentStep, onPress }: { mode: n
                     >
                         {/* Children Cards */}
                         {children.length > 0 && children.map((child, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                style={styles.itemContainer}
-                                onPress={() => handleChildSelected(child)}>
-                                {activeChildren.includes(child) ?
-                                    <Image source={activeItemIcon} style={styles.itemIcon} />
-                                    :
-                                    <Image source={itemIcon} style={styles.itemIcon} />
-                                }
-                                <ThemedView style={styles.item}>
-                                    <Image source={child.avatar_url || require('@/assets/images/parent/avatar-parent-2.png')} style={styles.childIcon} />
-                                    <ThemedText style={[styles.childText, activeChildren.includes(child) && { color: 'rgba(5, 59, 74, 1)' }]}>{child?.name}</ThemedText>
-                                </ThemedView>
-                            </TouchableOpacity>
+                            <ChildrenCard
+                                key={child.id}
+                                child={child}
+                                isActive={activeChildren.includes(child)}
+                                onPress={() => handleChildSelected}
+                            />
                         ))}
                     </ScrollView>
                 )}

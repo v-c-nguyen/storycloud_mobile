@@ -13,9 +13,6 @@ import { Image, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity } from "r
 
 const focusIcon = require('@/assets/images/parent/icon-focus.png')
 const backIcon = require('@/assets/images/parent/icon-left.png')
-const quickIcon = require('@/assets/images/parent/quick_pathway.png')
-const customIcon = require('@/assets/images/parent/custom_pathway.png')
-const rightButton = require('@/assets/images/parent/icon-right.png')
 const information_circle = require("@/assets/images/parent/information_circle.png")
 
 interface Child {
@@ -140,7 +137,7 @@ export default function AddFocus() {
                             <AddFocus_Third
                                 mode={mode}
                                 currentStep={3}
-                                onPress={handleFourthNext}
+                                onPress={() => handleFourthNext}
                             />
                         }
                         {step == 4 &&

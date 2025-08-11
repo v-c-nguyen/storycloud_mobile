@@ -1,3 +1,5 @@
+import { supabase } from '@/app/lib/supabase';
+import { useUser } from '@/app/lib/UserContext';
 import BottomNavBar from '@/components/BottomNavBar';
 import { StoryCard } from '@/components/Cards';
 import Header from '@/components/Header';
@@ -5,11 +7,11 @@ import { ItemWithImage } from '@/components/ListItems';
 import SeriesCarousel from '@/components/SeriesCarosel';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { childrenData } from '@/data/childrenData';
 import { modesData } from '@/data/parent/dashboardData';
+import { useChildrenStore } from '@/store/childrenStore';
 import { Image } from 'expo-image';
 import { Stack } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 
 
@@ -181,12 +183,40 @@ const InsightItemsData: InsightItemProps[] = [
 
 export default function ParentListen() {
 
-  const children = childrenData;
+  const children = useChildrenStore((state: any) => state.children);
+  const setChildren = useChildrenStore((state: any) => state.setChildren);
   const modes = modesData;
+  const { user } = useUser();
+  const [loading, setLoading] = React.useState(false);
   const [activeChild, setActiveChild] = React.useState(children[0]);
   const [activeMode, setActiveMode] = React.useState(modes[0]);
 
 
+  useEffect(() => {
+    // Fetch children data from Supabase edge function and sync Zustand store
+    async function fetchChildren() {
+      if (!user?.id) return;
+      setLoading(true); // Start loading
+      const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+      const { data, error } = await supabase.functions.invoke('children', {
+        method: 'GET',
+        headers: {
+          Authorization: jwt ? `Bearer ${jwt}` : '',
+        },
+      });
+      if (error) {
+        setLoading(false); // Stop loading
+        console.error('Error fetching children:', error.message);
+        return;
+      }
+      if (data && Array.isArray(data.data)) {
+        setLoading(false); // Stop loading
+        setChildren(data.data);
+        setActiveChild(data.data[0]);
+      }
+    }
+    fetchChildren();
+  }, [user]);
   const handleChildSelect = (child: any) => {
     setActiveChild(child);
   };
@@ -231,7 +261,7 @@ export default function ParentListen() {
                   ))}
               </ScrollView>
 
-              <SeriesCarousel mode={"parent"}/>
+              <SeriesCarousel mode={"parent"} />
 
               <ThemedText style={styles.subTitle} >Watch Next</ThemedText>
               <ScrollView
@@ -259,7 +289,7 @@ export default function ParentListen() {
               zIndex: 1000,
             }}
           >
-            <BottomNavBar role="parent" active="Listen" theme='light' image={true}/>
+            <BottomNavBar role="parent" active="Listen" theme='light' image={true} />
           </ThemedView>
         </ThemedView>
       </SafeAreaView>
@@ -301,14 +331,14 @@ const styles = StyleSheet.create({
     zIndex: 100,
     paddingHorizontal: 16
   },
-  header : {
+  header: {
     color: 'white',
     fontSize: 28,
     fontWeight: 700,
     lineHeight: 30,
     marginBottom: 30
   },
-  subTitle : {
+  subTitle: {
     color: 'white',
     fontSize: 24,
     fontWeight: 700,
@@ -399,7 +429,7 @@ const styles = StyleSheet.create({
     height: 24,
   },
   cardScrollContainer: {
-    gap: 20,
+    gap: 10,
   },
   insightItem: {
     display: 'flex',

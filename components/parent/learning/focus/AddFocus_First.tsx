@@ -5,7 +5,7 @@ import React from "react";
 import { Image, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import StepIndicator_Focus from "./StepIndecator";
 
-const pathwayIcon = require('@/assets/images/parent/icon-pathway.png')
+const focusIcon = require('@/assets/images/parent/icon-focus.png')
 const docIcon = require('@/assets/images/parent/custom_pathway.png')
 const rightButton = require('@/assets/images/parent/icon-right.png')
 
@@ -33,12 +33,12 @@ export default function AddFocus_First( {
                 {/* Form */}
                 <ThemedView style={styles.formInput}>
                     <ThemedView style={styles.label}>
-                        <ThemedView style={styles.iconContainer}><Image source={pathwayIcon} style={styles.labelIcon}></Image></ThemedView>
-                        <ThemedText style={styles.labelText}>Pathway Name</ThemedText>
+                        <ThemedView style={styles.iconContainer}><Image source={focusIcon} style={styles.labelIcon}></Image></ThemedView>
+                        <ThemedText style={styles.labelText}>Focus Name</ThemedText>
                     </ThemedView>
                     <TextInput
                         value={name}
-                        placeholder="Pathway Name"
+                        placeholder="Focus Name"
                         placeholderTextColor={'rgba(122, 193, 198, 0.2)'}
                         editable={true}
                         onChangeText={setName}

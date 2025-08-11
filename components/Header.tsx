@@ -1,5 +1,6 @@
 import { supabase } from '@/app/lib/supabase';
 import { useUser } from '@/app/lib/UserContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { useRouter } from "expo-router";
 import React from "react";
@@ -16,32 +17,53 @@ interface HeaderProps {
     flag?: boolean
 }
 
+
 export default function Header({ icon, role = "kid", title = "", theme = "light", flag = false }: HeaderProps) {
     const router = useRouter();
     const [showMenu, setShowMenu] = React.useState(false);
-
+    const [checkingAuth, setCheckingAuth] = React.useState(true);
     const { user, setUser } = useUser();
 
     React.useEffect(() => {
+        let mounted = true;
         async function checkAuth() {
+            setCheckingAuth(true);
+            // Try to get user from AsyncStorage first
+            const storedUser = await AsyncStorage.getItem('user');
+            let hasLocalUser = false;
+            if (storedUser) {
+                try {
+                    const parsed = JSON.parse(storedUser);
+                    if (parsed && parsed.id) hasLocalUser = true;
+                } catch {}
+            }
+            // Check Supabase session
             const { data: { session } } = await supabase.auth.getSession();
             const token = session?.access_token;
             const expiresAt = session?.expires_at; // Unix timestamp (seconds)
             const now = Math.floor(Date.now() / 1000);
 
-            console.log("expiresAt:", expiresAt, "now:", now);
-
             if (
-                !user ||
-                !token ||
-                !expiresAt ||
-                expiresAt < now // Token is expired
+                (!token || !expiresAt || expiresAt < now) && !hasLocalUser
             ) {
-                handleSignout();
+                if (mounted) handleSignout();
+            } else {
+                // Optionally update user context from session
+                if (!user && session?.user) {
+                    setUser({
+                        id: session.user.id,
+                        email: session.user.email ?? '',
+                        name: session.user.user_metadata?.name ?? '',
+                        avatar_url: session.user.user_metadata?.avatar_url,
+                        phonenumber: session.user.user_metadata?.phonenumber,
+                    });
+                }
             }
+            setCheckingAuth(false);
         }
         checkAuth();
-    }, [user]);
+        return () => { mounted = false; };
+    }, []);
 
     async function handleSignout() {
         setShowMenu(!showMenu);
@@ -58,6 +80,7 @@ export default function Header({ icon, role = "kid", title = "", theme = "light"
         router.replace("/(auth)");
     }
 
+    if (checkingAuth) return <ThemedView><ThemedText>Loading...</ThemedText></ThemedView>;
     return (
         <ThemedView>
 

@@ -1,4 +1,6 @@
+
 import { supabase } from '@/app/lib/supabase';
+import { LearningTargetCard } from '@/components/LearningTargetCard';
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import React from "react";
@@ -85,26 +87,19 @@ export default function AddFocus_Second({ currentStep, onPress }: { currentStep:
                         scrollEventThrottle={16}
                     >
                         {/* Learning Target Card */}
-                        {learningTargets.length > 0 && learningTargets.map((target, index) => {
-                            const isSelected = selectedTargets.some(t => t.id === target.id);
-                            return (
-                                <TouchableOpacity key={target.id} onPress={() => handleTargetSelected(target)}>
-                                    <ThemedView style={[styles.targetCard, isSelected && styles.activeTargetCard]}>
-                                        <ThemedView style={{ borderWidth: 2, borderColor: 'rgba(252, 252, 252, 0.2)', borderRadius: '50%' }}>
-                                            <ThemedView style={[styles.circle, isSelected && styles.checkCircle]}>
-                                                {isSelected &&
-                                                    <Image
-                                                        source={checkIcon}
-                                                        style={[styles.checkMark]}
-                                                    ></Image>}
-                                            </ThemedView>
-                                        </ThemedView>
-                                        <ThemedText style={[styles.cardTitle, isSelected && { color: 'rgba(5, 59, 74, 1)' }]}>{target.name.split('&')[0] + (target.name.includes('&') ? ' &\n' + target.name.split('&')[1] : '')}</ThemedText>
-                                        <Image source={informationIcon} style={[styles.cardInfoIcon, isSelected && { tintColor: 'rgba(5, 59, 74, 1)' }]}></Image>
-                                    </ThemedView>
-                                </TouchableOpacity>
-                            );
-                        })}
+                                                {learningTargets.length > 0 && learningTargets.map((target, index) => {
+                                                    const isSelected = selectedTargets.some(t => t.id === target.id);
+                                                    return (
+                                                        <LearningTargetCard
+                                                            key={target.id}
+                                                            target={target}
+                                                            isSelected={isSelected}
+                                                            onPress={() => handleTargetSelected(target)}
+                                                            checkIcon={checkIcon}
+                                                            informationIcon={informationIcon}
+                                                        />
+                                                    );
+                                                })}
                     </ScrollView>
                 )}
 
@@ -287,6 +282,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     checkMark: {
+        width: 30,
+        height: 30
     },
     cardTitle: {
         fontSize: 18,

@@ -7,7 +7,6 @@ import React from "react";
 import { Image, StyleSheet, TouchableOpacity } from "react-native";
 import StepIndicator_Focus from "./StepIndecator";
 
-const pathwayIcon = require('@/assets/images/parent/icon-pathway.png')
 const checkIcon = require('@/assets/images/parent/dashboard/selected.png')
 const rightButton = require('@/assets/images/parent/icon-right.png')
 
@@ -34,7 +33,7 @@ export default function AddFocus_Final({
             {/* Step Indicators */}
             <StepIndicator_Focus currentStep={currentStep} />
 
-            {/* Custom Pathway Card */}
+            {/* Custom Focus Card */}
             <ThemedView style={styles.card}>
                 <ThemedText style={[styles.subtitle]}>Review</ThemedText>
                 {/* Form */}

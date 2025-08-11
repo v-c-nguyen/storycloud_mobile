@@ -8,6 +8,7 @@ import { TabBar } from '@/components/TabBar';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useChildrenStore } from '@/store/childrenStore';
+import * as ImagePicker from 'expo-image-picker';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import {
@@ -34,7 +35,7 @@ const information_circle = require('@/assets/images/parent/information_circle.pn
 const plusIcon = require('@/assets/images/parent/icon-plus.png')
 
 const AccountSettings = () => {
-    const { user } = useUser();
+    const { user, setUser } = useUser();
 
     const [fname, setFName] = React.useState(user?.name.split(' ')[0] ?? '');
     const [lname, setLName] = React.useState(user?.name.split(' ')[1] ?? '');
@@ -43,6 +44,8 @@ const AccountSettings = () => {
     const [activeChild, setActiveChild] = React.useState(children[0]);
     const router = useRouter();
     const [activeTab, setActiveTab] = React.useState('account');
+    const [avatar, setAvatar] = React.useState(user?.avatar_url || null);
+    const [uploading, setUploading] = React.useState(false);
     const setChildren = useChildrenStore((state: any) => state.setChildren);
 
     useEffect(() => {
@@ -119,6 +122,58 @@ const AccountSettings = () => {
         { id: 'account', label: 'Account', icon: require("@/assets/images/parent/icon-profile.png") },
         { id: 'content', label: 'Content', icon: require("@/assets/images/parent/icon-content.png") }
     ];
+    // Avatar upload handler
+    const handleUploadAvatar = async () => {
+        // Ask for permission
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permissionResult.granted) {
+            alert('Permission to access media library is required!');
+            return;
+        }
+        // Pick image
+        const pickerResult = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+        if (pickerResult.canceled || !pickerResult.assets || !pickerResult.assets[0].uri) return;
+        setUploading(true);
+        try {
+            const uri = pickerResult.assets[0].uri;
+            const fileName = `${user?.id}_${Date.now()}.jpg`;
+            const response = await fetch(uri);
+            const blob = await response.blob();
+            // Upload to Supabase Storage
+            const { data, error } = await supabase.storage.from('avatars').upload(fileName, blob, {
+                cacheControl: '3600',
+                upsert: true,
+                contentType: 'image/jpeg',
+            });
+            if (error) throw error;
+            // Get public URL
+            const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+            const publicUrl = publicUrlData?.publicUrl;
+            // Update user profile in DB
+            const { error: updateError } = await supabase
+                .from('users')
+                .update({ avatar_url: publicUrl })
+                .eq('id', user?.id);
+            if (updateError) throw updateError;
+            setAvatar(publicUrl);
+
+            // Update Zustand store (if you have a setUser or similar method)
+            if (user && typeof user === 'object') {
+                // If you have a setUser method in your UserContext or Zustand, call it here
+                setUser({ ...user, avatar_url: publicUrl });
+            }
+        } catch (e: any) {
+            alert('Upload failed: ' + (e));
+        } finally {
+            setUploading(false);
+        }
+    };
+
     return (
         <>
             <Stack.Screen options={{ headerShown: false }} />
@@ -179,16 +234,17 @@ const AccountSettings = () => {
                                     {/* Picture Section */}
                                     <ThemedText style={styles.sectionTitle}>Picture</ThemedText>
 
+
                                     <ThemedView style={styles.avatarWrapper}>
                                         <Image
-                                            source={require('@/assets/images/parent/avatar-parent-2.png')}
+                                            source={avatar ? { uri: avatar } : require('@/assets/images/parent/avatar-parent-2.png')}
                                             style={styles.avatar}
                                         />
                                     </ThemedView>
 
-                                    <TouchableOpacity style={styles.uploadButton}>
+                                    <TouchableOpacity style={styles.uploadButton} onPress={handleUploadAvatar} disabled={uploading}>
                                         <Image source={downloadIcon} />
-                                        <ThemedText style={styles.uploadButtonText}> Upload New Image</ThemedText>
+                                        <ThemedText style={styles.uploadButtonText}>{uploading ? ' Uploading...' : ' Upload New Image'}</ThemedText>
                                     </TouchableOpacity>
 
                                     <ThemedText style={styles.recommendationText}>
@@ -238,7 +294,7 @@ const AccountSettings = () => {
                                         {children.map((kid: Kid, index: number) => (
                                             <ThemedView key={index} style={styles.kidContainer}>
                                                 <ThemedView style={styles.header}>
-                                                    <Image source={require('@/assets/images/parent/avatar-parent-2.png')} style={styles.kid_avatar} />
+                                                    <Image source={kid.avatar_url? {uri: kid.avatar_url }: require('@/assets/images/parent/avatar-parent-2.png')} style={styles.kid_avatar} />
                                                     <ThemedText style={styles.name}>{kid.name}</ThemedText>
                                                     <ThemedView style={styles.infoIcons}>
                                                         <Image source={cakeIcon} style={{ width: 20, height: 20 }} />
@@ -479,7 +535,7 @@ const styles = StyleSheet.create({
     kid_avatar: {
         width: 60,
         height: 60,
-        borderRadius: 20,
+        borderRadius: 50,
     },
 
     name: {

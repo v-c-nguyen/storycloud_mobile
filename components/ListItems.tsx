@@ -30,7 +30,7 @@ export function ItemWithImage({ name, avatar, active, onPress }: ItemProps) {
                 style={[styles.itemStyleLeft, active && styles.itemActiveStyleLeft]}
             >
                 <Image
-                    source={require('@/assets/images/parent/avatar-parent-2.png')}
+                    source={avatar? {uri: avatar} : require('@/assets/images/parent/avatar-parent-2.png')}
                     style={styles.avatar_left}
                     contentFit="cover"
                 />

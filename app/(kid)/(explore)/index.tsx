@@ -257,7 +257,7 @@ export default function KidExplorer() {
               <CardSeries data={cardsData} active={'Series'} />
 
               {/* Series List */}
-              <ItemSeries itemsData={series} />
+              <ItemSeries itemsData={series} theme="light"/>
               <ThemedView style={{ paddingBottom: 80 }}>
                 {/* Continue Watching */}
                 <SectionHeader title="New Adventures" desc="Brand new stories and fun" link="continue" />
