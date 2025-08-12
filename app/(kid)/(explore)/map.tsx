@@ -1,16 +1,19 @@
 import BottomNavBar from "@/components/BottomNavBar";
 import CardSeries from "@/components/CardSeries";
+import MapWrapper from "@/components/MapWrapper";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Stack } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
   Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  TextInput
+  TextInput,
+  TouchableOpacity
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 
 const cardsData = [
@@ -22,12 +25,14 @@ const cardsData = [
 ];
 
 export default function Map() {
+  const [activeTab, setActiveTab] = useState('Characters');
 
   return (
     <>
       <Stack.Screen options={{
         headerShown: false
       }} />
+      <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView
           style={styles.rootContainer}
@@ -54,6 +59,9 @@ export default function Map() {
 
           {/* Header */}
           <ThemedText style={styles.headerTitle}>StoryCloud Map</ThemedText>
+          
+          {/* Characters and Landmarks buttons */}
+          
 
           <ThemedView style={styles.headerCloudWrap}>
             {/* Clouds */}
@@ -88,7 +96,60 @@ export default function Map() {
           {/* Tab Bar */}
           <CardSeries data={cardsData} active="Map"/>
           {/* Story List */}
-
+          <ThemedView style={{ height:800, width: "100%" }}>
+            <ThemedView style={styles.tabContainer}>
+            <TouchableOpacity 
+              style={[
+                styles.tabButton, 
+                activeTab === 'Characters' && styles.activeTabButton
+              ]}
+              onPress={() => setActiveTab('Characters')}
+            >
+              <ThemedText 
+                style={[
+                  styles.tabText, 
+                  activeTab === 'Characters' && styles.activeTabText
+                ]}
+              >
+                Characters
+              </ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[
+                styles.tabButton, 
+                activeTab === 'Landmarks' && styles.activeTabButton
+              ]}
+              onPress={() => setActiveTab('Landmarks')}
+            >
+              <ThemedText 
+                style={[
+                  styles.tabText, 
+                  activeTab === 'Landmarks' && styles.activeTabText
+                ]}
+              >
+                Landmarks
+              </ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+            
+            <MapWrapper/>
+              
+          </ThemedView>
+          <ThemedView>
+          
+          </ThemedView>
+            
+          <ThemedView style={{ paddingHorizontal: 16, paddingTop: 20, backgroundColor: '#F8ECAE' }}>
+            
+            <ThemedView style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+              <Image source={require('@/assets/images/avatars/mia_120.png')} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
+              <ThemedView>
+                <ThemedText style={{ color: '#fff', fontSize: 24, fontWeight: 'bold' }}>Kai the Australian Shepherd</ThemedText>
+                <ThemedText style={{ color: '#fff', fontSize: 16 }}>An enthusiastic pup ready to explore sky, sea, and everything in between</ThemedText>
+              </ThemedView>
+            </ThemedView>
+            <CardSeries data={cardsData} active=''/>
+          </ThemedView>
         </ScrollView>
         {/* Sticky Bottom Navigation */}
         <ThemedView
@@ -104,6 +165,7 @@ export default function Map() {
           <BottomNavBar active="Explore" theme="light" image={true} />
         </ThemedView>
       </SafeAreaView>
+      </GestureHandlerRootView>
     </>
   );
 }
@@ -113,6 +175,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F8ECAE",
     position: "relative",
+  },
+    cloudImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
   },
   topBackPattern: {
     width: "100%",
@@ -229,4 +299,43 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: 'center',
   },
+  // New styles for the Characters/Landmarks tab
+  tabContainer: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    marginTop: 30,
+    bottom: -120,
+    marginBottom: 20,
+    borderRadius: 999, // Makes it a full pill shape
+    borderWidth: 1,
+    borderColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Semi-transparent white
+    padding: 2,
+    zIndex: 900
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 999,
+  },
+  activeTabButton: {
+    backgroundColor: '#F4A672', // White background for the active button
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  tabText: {
+    fontSize: 14,
+    color: '#fff', // White text for inactive
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  activeTabText: {
+    color: '#053B4A', // Dark text for active
+  },
 });
+
+
