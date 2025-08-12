@@ -96,7 +96,7 @@ export default function Map() {
           {/* Tab Bar */}
           <CardSeries data={cardsData} active="Map"/>
           {/* Story List */}
-          <ThemedView style={{ height:800, width: "100%" }}>
+         
             <ThemedView style={styles.tabContainer}>
             <TouchableOpacity 
               style={[
@@ -131,7 +131,8 @@ export default function Map() {
               </ThemedText>
             </TouchableOpacity>
           </ThemedView>
-            
+            <ThemedView style={{ height:900, width: "100%",  marginBottom: 80 }}>
+
             <MapWrapper/>
               
           </ThemedView>
@@ -304,7 +305,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'center',
     marginTop: 30,
-    bottom: -120,
+    bottom: -250,
     marginBottom: 20,
     borderRadius: 999, // Makes it a full pill shape
     borderWidth: 1,
