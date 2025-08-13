@@ -9,13 +9,13 @@ import { series, stories } from "@/data/storyData";
 import { Stack } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-    Image,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    View
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 
@@ -164,14 +164,14 @@ export default function Collections() {
                     </View>
                     
                     <TouchableOpacity 
-                      style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, marginBottom: 20 }}
+                      style={{ flex:1, flexDirection: "row", alignItems: "center", marginBottom: 5,  justifyContent: "center",}}
                       onPress={handleBackToExplore}
                     >
                       <Image
                         source={require("@/assets/images/kid/arrow-left.png")}
-                        style={{ width: 20, height: 20, marginRight: 8 }}
+                        style={{ width: 20, height: 20, marginRight: 8 ,}}
                       />
-                      <ThemedText style={[styles.sectionTitle, { marginTop: 0, fontSize: 18 }]}>{"Back to Explore"}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, { marginTop: 10, fontSize: 18 }]}>{"Back to Explore"}</ThemedText>
                     </TouchableOpacity>
 
                     <SectionHeader title={selectedCollection} desc="Kai, the adventurous Australian Shepherd, explores forests, gardens, and ponds" link="collection"/>

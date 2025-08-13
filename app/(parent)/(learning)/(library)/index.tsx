@@ -1,12 +1,13 @@
+import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
 import { SeriesCard, StoryCard } from "@/components/Cards";
 import Header from "@/components/Header";
-
+import { PatternBackground } from "@/components/PatternBackground";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { categoryData, storyOptionsData } from "@/data/libraryData";
-import { Stack, router } from "expo-router";
-import React from "react";
+import { storyOptionsData } from "@/data/libraryData";
+import { Stack, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -15,6 +16,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  View,
 } from "react-native";
 
 
@@ -160,20 +162,51 @@ const downIcon = require("@/assets/images/parent/down.png")
 const HIGHLIGHT_INDEX = 0;
 export default function LearningLibrary() {
 
-  const categories = categoryData;
+  const [categories, setCategory] = useState<any[]>([]);
+  const [loading , setLoading] = useState(false);
+
   const storyOptions = storyOptionsData;
-  const [activeItem, setActiveItem] = React.useState('Stories');
-  const [dropdownVisible, setDropdownVisible] = React.useState(false);
+  const [activeItem, setActiveItem] = useState('Stories');
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
+  const router = useRouter();
+
+
+    useEffect(() => {
+      setLoading(true)
+      async function fetchSeries() {
+        try {
+          const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+          const { data, error } = await supabase.functions.invoke('series', {
+            method: 'GET',
+            headers: {
+              Authorization: jwt ? `Bearer ${jwt}` : '',
+            },
+          });
+          if (error) {
+            console.error('Error fetching series:', error.message);
+  
+          } else if (data && Array.isArray(data.data)) {
+            console.log("Series::", data.data)
+            setCategory(data.data);
+          }
+        } catch (e) {
+          console.error('Error fetching focus modes:', e);
+        }finally {
+          setLoading(false);
+        }
+      }
+      fetchSeries();
+    }, []);
+
 
   function handleItemSelection(item: string) {
     console.log("item selected::", item)
     setActiveItem(item)
     setDropdownVisible(false)
-    
-    // Navigate to the appropriate screen based on selection
-    switch(item) {
+
+    switch (item) {
       case 'Stories':
-        // Already on stories page, no navigation needed
         break;
       case 'Series':
         router.push('/(parent)/(learning)/(library)/series');
@@ -197,7 +230,7 @@ export default function LearningLibrary() {
   }
 
   function handleStoryItem(item: string) {
-    console.log("storyOption clicked::", item)
+    selectedSeries === item ? setSelectedSeries(null) : setSelectedSeries(item);
   }
 
 
@@ -207,14 +240,14 @@ export default function LearningLibrary() {
 
 
   return (
-    <>
+    <PatternBackground>
       <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={{ flex: 1, display: "flex", height: 500 }}>
-        <ThemedView style={{ flex: 1, display: "flex", position: "relative" }}>
+      <SafeAreaView style={styles.safeAreaContainer}>
+        <ThemedView style={styles.themedViewContainer}>
           <ScrollView
             style={styles.rootContainer}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 55 }}
+            contentContainerStyle={styles.scrollViewContent}
           >
             {/* Top background */}
             <Image
@@ -222,7 +255,6 @@ export default function LearningLibrary() {
               style={styles.topBackPattern}
               resizeMode="cover"
             />
-
             <Header icon={learningIcon} role="parent" title="Learning" theme="dark"></Header>
             {/* Header */}
             <ThemedView style={styles.topRow}>
@@ -249,16 +281,16 @@ export default function LearningLibrary() {
             {/* Category pills */}
             <FlatList
               horizontal
-              data={categories}
+              data={categories.map((ele) => ele.name)}
               keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => handleStoryItem(item)}>
-                  <ThemedView style={styles.categoryPill}>
-                    <ThemedText style={styles.categoryText}>{item}</ThemedText>
+                  <ThemedView style={[styles.categoryPill, selectedSeries === item ? styles.categoryPillActive : styles.categoryPillInactive]}>
+                    <ThemedText style={[styles.categoryText, selectedSeries === item ? {color:'rgba(5, 59, 74, 1)' } : null]}>{item}</ThemedText>
                   </ThemedView>
                 </TouchableOpacity>
               )}
-              style={{ paddingHorizontal: 16 }}
+              style={styles.categoryPillsContainer}
               showsHorizontalScrollIndicator={false}
             />
 
@@ -294,55 +326,147 @@ export default function LearningLibrary() {
             </Modal>
 
 
-            <ThemedView style={{ paddingBottom: 80 }}>
-              {/* Continue Watching */}
-              <SectionHeader title="New Adventures" desc="Brand new stories and fun" link="continue" />
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.cardScrollContainer}
-              >
-                {storiesData
-                  .filter((ele) => !ele.watched)
-                  .map((item, idx) => (
-                    <StoryCard key={idx} {...item} />
+            {selectedSeries ?
+              <ThemedView style={styles.selectionContainer}>
+                <View style={styles.detailsSection}>
+                  <View style={styles.selectionHeaderRow}>
+                    <View>
+                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLarge]}>{selectedSeries}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmall]}>{"Brand new stories and fun"}</ThemedText>
+                    </View>
+                    <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedSeries(null)}>
+                      <Image
+                        source={require("@/assets/images/kid/arrow-down.png")}
+                        style={styles.closeArrow}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.statsContainer}>
+                    {/* ALL */}
+                    <ThemedText style={styles.statsText}>
+                      ALL
+                    </ThemedText>
+
+                    {/* Divider */}
+                    <View style={styles.divider} />
+
+                    {/* 10 SERIES */}
+                    <View style={styles.statsIconContainer}>
+                      <Image
+                        source={require("@/assets/images/kid/check.png")}
+                        style={styles.statsIcon}
+                        resizeMode="contain"
+                      />
+                      <ThemedText style={styles.statsTextOrange}>
+                        10 SERIES
+                      </ThemedText>
+                    </View>
+
+                    {/* Divider */}
+                    <View style={styles.divider} />
+
+                    {/* 101 STORIES */}
+                    <ThemedText style={styles.statsText}>
+                      101 STORIES
+                    </ThemedText>
+                  </View>
+                </View>
+                <ScrollView
+                  horizontal={false}
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.cardScrollContent}
+                >
+                  {storiesData
+                    .filter((ele) => !ele.watched)
+                    .map((item, idx) => (
+                      <TouchableOpacity key={idx}
+                        activeOpacity={0.9}
+                        onPress={() => { router.push(`/details-screen?from=Stories`) }}>
+                        <StoryCard {...item} />
+                      </TouchableOpacity>
+                    ))}
+                </ScrollView>
+              </ThemedView> :
+              <ThemedView style={styles.bottomPadding}>
+                {/* Continue Watching */}
+                <View style={styles.headerTitleContainer}>  
+                  <SectionHeader title="New Adventures" desc="Brand new stories and fun" link="continue" />
+                  <TouchableOpacity
+                    onPress={() => handleStoryItem("New Adventures")}
+                  >
+                    <Image
+                      source={require("@/assets/images/kid/arrow-right.png")}
+                      style={styles.arrowIcon}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.horizontalScrollContent}
+                >
+                  {storiesData
+                    .filter((ele) => !ele.watched)
+                    .map((item, idx) => (
+                      <StoryCard key={idx} {...item} />
+                    ))}
+                </ScrollView>
+
+                {/* Watch Next */}
+                <View style={styles.headerTitleContainer}>
+                  <SectionHeader title="Best Buddies & Big Feelings" desc="Friendship, kindness, and emotions" link="continue" />
+                  <TouchableOpacity
+                    onPress={() => handleStoryItem("Best Buddies & Big Feelings")}
+                  >
+                    <Image
+                      source={require("@/assets/images/kid/arrow-right.png")}
+                      style={styles.arrowIcon}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.horizontalScrollContainer}
+                >
+                  {seriesData.map((item, idx) => (
+                    <SeriesCard key={idx} {...item} />
                   ))}
-              </ScrollView>
+                </ScrollView>
 
-              {/* Watch Next */}
-              <SectionHeader title="Best Buddies & Big Feelings" desc="Friendship, kindness, and emotions" link="continue" />
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.cardScrollContainer}
-              >
-                {seriesData.map((item, idx) => (
-                  <SeriesCard key={idx} {...item} />
-                ))}
-              </ScrollView>
+                {/* Featured Adventures */}
+                <View style={styles.headerTitleContainer}>
+                  <SectionHeader title="Giggles & Goofballs" desc="Silly, funny, and lough-out-loud stories" link="continue" />
+                  <TouchableOpacity
+                    onPress={() => handleStoryItem("Giggles & Goofballs")}
+                  >
+                    <Image
+                      source={require("@/assets/images/kid/arrow-right.png")}
+                      style={styles.arrowIcon}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.horizontalScrollContainer}
+                >
+                  {storiesData
+                    .filter((ele) => !ele.watched)
+                    .map((item, idx) => (
+                      <StoryCard key={idx} {...item} />
+                    ))}
+                </ScrollView>
 
-              {/* Featured Adventures */}
-              <SectionHeader title="Giggles & Goofballs" desc="Silly, funny, and lough-out-loud stories" link="continue" />
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.cardScrollContainer}
-              >
-                {storiesData
-                  .filter((ele) => !ele.watched)
-                  .map((item, idx) => (
-                    <StoryCard key={idx} {...item} />
-                  ))}
-              </ScrollView>
-
-              {/* Just Watched */}
-              {/* <SectionHeader title="Just Watched" link="watched" />
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardScrollContainer}>
+                {/* Just Watched */}
+                {/* <SectionHeader title="Just Watched" link="watched" />
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardScrollContainer}>
               {storiesData.filter(ele => ele.watched).map((item, idx) => (
                 <StoryCard key={idx} {...item} />
               ))}
-            </ScrollView> */}
-            </ThemedView>
+              </ScrollView> */}
+              </ThemedView>
+            }
           </ScrollView>
           {/* Sticky Bottom Navigation */}
           <ThemedView
@@ -355,11 +479,11 @@ export default function LearningLibrary() {
               zIndex: 1000,
             }}
           >
-            <BottomNavBar role="parent" active="Learning" subActive="Library"/>
+            <BottomNavBar role="parent" active="Learning" subActive="Library" />
           </ThemedView>
         </ThemedView>
       </SafeAreaView >
-    </>
+    </PatternBackground>
   );
 }
 
@@ -386,6 +510,16 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(5, 59, 74, 1)",
     position: "relative",
     paddingBottom: 60
+  },
+  selectionContainer: {
+    paddingBottom: 120,
+    alignItems: "center",
+    borderColor: "rgba(122, 193, 198, 0.5)",
+    borderWidth: 1,
+    backgroundColor: "rgba(5, 59, 74, 1)",
+    marginTop: 50,
+    borderRadius: 20,
+    marginHorizontal: 16,
   },
   topBackPattern: {
     width: "100%",
@@ -500,6 +634,116 @@ const styles = StyleSheet.create({
     borderRadius: '50%',
     padding: 3
   },
-
+  detailsSection: {
+    marginBottom: 5,
+    width: "100%",
+    borderColor: "rgba(122, 193, 198, 0.5)",
+    borderBottomWidth: 1,
+    marginTop: 40,
+  },
+  headerTitleContainer: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between"
+  },
+  safeAreaContainer: {
+    flex: 1,
+    display: "flex",
+    height: 500
+  },
+  themedViewContainer: {
+    flex: 1,
+    display: "flex",
+    position: "relative"
+  },
+  scrollViewContent: {
+    paddingBottom: 55
+  },
+  categoryPillActive: {
+    backgroundColor: 'rgba(122, 193, 198, 1)'
+  },
+  categoryPillInactive: {
+    backgroundColor: 'rgba(122, 193, 198, 0.2)'
+  },
+  categoryPillsContainer: {
+    paddingHorizontal: 16
+  },
+  selectionHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20
+  },
+  selectionTitleLarge: {
+    marginTop: 0,
+    fontSize: 30
+  },
+  selectionTitleSmall: {
+    marginTop: 5,
+    fontSize: 20,
+    fontWeight: "100"
+  },
+  closeButton: {
+    position: "absolute",
+    right: 20,
+    top: 20
+  },
+  closeArrow: {
+    tintColor: "#F4A672"
+  },
+  statsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 20,
+    justifyContent: "center"
+  },
+  statsText: {
+    color: "#048F99",
+    fontWeight: "700",
+    fontSize: 20
+  },
+  divider: {
+    width: 1,
+    height: 14,
+    backgroundColor: "#ccc",
+    marginHorizontal: 8
+  },
+  statsIconContainer: {
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  statsIcon: {
+    width: 14,
+    height: 14,
+    marginRight: 4,
+    tintColor: "#F4A672"
+  },
+  statsTextOrange: {
+    color: "#F4A672",
+    fontWeight: "700",
+    fontSize: 20
+  },
+  cardScrollContent: {
+    gap: 20,
+    paddingHorizontal: 16,
+    paddingLeft: 30,
+    paddingTop: 30
+  },
+  bottomPadding: {
+    paddingBottom: 80
+  },
+  arrowIcon: {
+    tintColor: "#F4A672",
+    marginRight: 16,
+    marginBottom: 10
+  },
+  horizontalScrollContent: {
+    gap: 20,
+    paddingHorizontal: 16
+  },
+  horizontalScrollContainer: {
+    gap: 20,
+    paddingHorizontal: 16
+  }
 
 });

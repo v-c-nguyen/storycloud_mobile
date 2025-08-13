@@ -302,7 +302,7 @@ export default function Themes() {
                         source={require("@/assets/images/kid/arrow-left.png")}
                         style={{ width: 20, height: 20, marginRight: 8 }}
                       />
-                      <ThemedText style={[styles.sectionTitle, { marginTop: 0, fontSize: 18 }]}>{"Back to Explore"}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, { marginTop: 10, fontSize: 18 }]}>{"Back to Explore"}</ThemedText>
                     </TouchableOpacity>
 
                     <ScrollView

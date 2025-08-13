@@ -18,7 +18,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.verilume113.StoryCloud"
+      "package": "com.nikhil_9_11.StoryCloud"
     },
     "web": {
       "bundler": "metro",
@@ -40,11 +40,12 @@
     "experiments": {
       "typedRoutes": true
     },
+    "router": {},
     "extra": {
+      "router": {},
       "eas": {
-        "projectId": "372e8c19-3894-41cb-9626-f088c30dd056"
-      },
-      "router": {}
+        "projectId": "93a5ddee-ebd2-409a-ad3a-18566d3d9b4a"
+      }
     }
   }
 }

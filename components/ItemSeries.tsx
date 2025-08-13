@@ -1,7 +1,7 @@
 // components/ItemSeries.tsx
 import { Image } from "expo-image";
 import React, { forwardRef, useImperativeHandle, useState } from "react";
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 
@@ -60,28 +60,20 @@ export const ItemSeries = forwardRef<ItemSeriesRef, ItemSeriesProps>(({ itemsDat
                   isSelected && styles.pillSelected
                 ]}
               >
-                {item.avatar_url ? (
+                {item.avatar_url && 
                   <Image
                     source={item.avatar_url}
                     style={styles.avatar}
                     contentFit="cover"
                   />
-                ) : item.symbol ? (
-                  <ThemedText style={styles.symbol}>{item.symbol}</ThemedText>
-                ) : (
-                  <View style={styles.fallbackAvatar}>
-                    <ThemedText style={styles.fallbackText}>
-                      {item.name?.[0] ?? "?"}
-                    </ThemedText>
-                  </View>
-                )}
+                }
                 <ThemedText
                   style={[
                     styles.pillText,
                     isSelected && styles.pillTextSelected
                   ]}
                 >
-                  {item.name}
+                  {item.name.trim()}
                 </ThemedText>
               </ThemedView>
             </TouchableOpacity>

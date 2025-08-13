@@ -303,7 +303,7 @@ export default function Characters() {
                         source={require("@/assets/images/kid/arrow-left.png")}
                         style={{ width: 20, height: 20, marginRight: 8 }}
                       />
-                      <ThemedText style={[styles.sectionTitle, { marginTop: 0, fontSize: 18 }]}>{"Back to Explore"}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, { marginTop: 10, fontSize: 18 }]}>{"Back to Explore"}</ThemedText>
                     </TouchableOpacity>
 
                     <View style={{ flexDirection: "row", alignItems: "center", marginTop: 10, marginBottom: 20 }}>
@@ -318,7 +318,7 @@ export default function Characters() {
                       {/* 10 SERIES */}
                       <View style={{ flexDirection: "row", alignItems: "center" }}>
                         <Image
-                          source={require("@/assets/images/kid/icon-check.png")}
+                          source={require("@/assets/images/kid/check.png")}
                           style={{ width: 14, height: 14, marginRight: 4 }}
                           resizeMode="contain"
                         />

@@ -2,8 +2,9 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar } from 'react-native';
 import 'react-native-reanimated';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { UserProvider } from './lib/UserContext';
 
 export default function RootLayout() {
@@ -18,6 +19,9 @@ export default function RootLayout() {
   }
 
   return (
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }}>
+        <StatusBar barStyle="dark-content"/>
         <UserProvider>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack>
@@ -26,8 +30,9 @@ export default function RootLayout() {
               <Stack.Screen name="(kid)" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />
             </Stack>
-            <StatusBar style="auto" />
           </ThemeProvider>
         </UserProvider>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
