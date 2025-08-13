@@ -251,13 +251,13 @@ export default function ParentListen() {
                 contentContainerStyle={styles.cardScrollContainer}
               >
                 {children
-                  .map((item, idx) => (
-                    <ItemWithImage
-                      key={idx}
-                      name={item.name}
-                      avatar={item.avatar_url}
-                      active={activeChild.name == item.name}
-                      onPress={() => handleChildSelect(item)} />
+                  .map((item: any, idx: any) => (
+                  <ItemWithImage
+                    key={idx}
+                    name={item.name}
+                    avatar={item.avatar_url}
+                    active={activeChild.name == item.name}
+                    onPress={() => handleChildSelect(item)} />
                   ))}
               </ScrollView>
 

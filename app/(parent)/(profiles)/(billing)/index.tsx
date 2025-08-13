@@ -5,7 +5,7 @@ import { TabBar } from '@/components/TabBar';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useNavigation } from '@react-navigation/native';
-import { Link, Stack, useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import React from 'react';
 import { FlatList, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -40,6 +40,7 @@ const refreshIcon = require('@/assets/images/parent/icon-refresh.png')
 const downloadIcon = require('@/assets/images/parent/icon-download.png')
 const tickIcon = require('@/assets/images/parent/icon-tick.png')
 const swapIcon = require('@/assets/images/parent/icon-swap.png')
+const stripeIcon = require('@/assets/images/parent/stripe.png')
 
 
 const Billing = () => {
@@ -146,7 +147,10 @@ const Billing = () => {
                             </ThemedView>
 
                             {/* Payment Method */}
-                            <ThemedText style={styles.sectionTitle}>Payment Method</ThemedText>
+                            <ThemedView style={[styles.flexRow]}>
+                                <ThemedText style={styles.sectionTitle}>Payment Method</ThemedText>
+                                <Image source={stripeIcon} style={[styles.icon24, {marginBottom: 30}]}></Image>
+                            </ThemedView>
                             <ThemedView style={styles.card}>
                                 <ThemedView style={styles.cardRow}>
                                     <Image
@@ -157,12 +161,10 @@ const Billing = () => {
                                         <ThemedText style={[styles.cardText, { fontWeight: 700 }]}>MasterCard</ThemedText>
                                         <ThemedText style={styles.cardText}>**** 3425</ThemedText>
                                     </ThemedView>
-                                    <Link href={`./PaymentMethod`}>
-                                        <TouchableOpacity style={styles.changeButton}>
+                                        <TouchableOpacity style={styles.changeButton} onPress={() => router.push('./PaymentMethod')}>
                                             <Image source={refreshIcon} />
                                             <ThemedText style={styles.changeBtnText}>Change</ThemedText>
                                         </TouchableOpacity>
-                                    </Link>
                                 </ThemedView>
                                 <ThemedText style={styles.cardExpiry}>02/26</ThemedText>
                             </ThemedView>
@@ -225,26 +227,33 @@ const styles = StyleSheet.create({
     },
     headerRocketWrap: {
         width: '100%',
-        height: 200,
+        height: 300,
         paddingLeft: 36,
         marginTop: -56,
         position: "relative",
     },
     imgCloudFar: {
-        width: 400,
-        height: 278,
+        width: '100%',
+        height: '100%',
         position: "absolute",
         top: 0,
         left: 0,
         zIndex: -100,
     },
     imgCloudNear: {
-        width: 400,
-        height: 279,
+        width: '100%',
+        height: '100%',
         position: "absolute",
         top: 42,
         left: 0,
         zIndex: -10
+    },
+    settingContentStyle: {
+        backgroundColor: '#fff',
+        paddingHorizontal: 3,
+        zIndex: 10,
+        paddingBottom: 100,
+        marginTop: -100
     },
     profileFrontBox: {
         position: "absolute",
@@ -255,12 +264,6 @@ const styles = StyleSheet.create({
     mainSettingStyle: {
         display: 'flex',
         flexDirection: 'column'
-    },
-    settingContentStyle: {
-        backgroundColor: '#fff',
-        paddingHorizontal: 3,
-        zIndex: 10,
-        paddingBottom: 100
     },
     tabContainer: {
         flexDirection: 'row',
@@ -434,6 +437,11 @@ const styles = StyleSheet.create({
         fontWeight: '400',
         fontSize: 16,
     },
+    flexRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10
+    }
 });
 
 export default Billing;

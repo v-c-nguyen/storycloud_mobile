@@ -171,147 +171,143 @@ export default function ParentDashboard() {
                 contentFit="cover"
               />
               {/* Clouds */}
-              <ThemedView style={styles.imgCloudFar}>
-                <Image
-                  style={{ width: '100%', height: '100%' }}
-                  source={require("@/assets/images/parent/cloud-group-far.png")}
-                  contentFit="cover"
-                />
-              </ThemedView>
-              <ThemedView style={styles.imgCloudNear}>
-                <Image
-                  style={{ width: '100%', height: '100%' }}
-                  source={require("@/assets/images/parent/cloud-group-near.png")}
-                  contentFit="cover"
-                />
-              </ThemedView>
+              <Image
+                style={styles.imgCloudFar}
+                source={require("@/assets/images/parent/cloud-group-far.png")}
+                contentFit="fill"
+              />
+              <Image
+                style={styles.imgCloudNear}
+                source={require("@/assets/images/parent/cloud-group-near.png")}
+                contentFit="fill"
+              />
             </ThemedView>
             {
               loading ? (
-              <ActivityIndicator color="#ffffff" />
-              ): 
-              children?.length > 0 ? (
-                <ThemedView style={{ marginTop: 26, marginBottom: 70, zIndex: 100 }}>
-                  {/* Continue Watching */}
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.cardScrollContainer}
-                  >
-                    {children
-                      .map((item: any, idx: any) => (
-                        <ItemWithImage
+                <ActivityIndicator color="#ffffff" />
+              ) :
+                children?.length > 0 ? (
+                  <ThemedView style={{ marginTop: -120, marginBottom: 70, zIndex: 100 }}>
+                    {/* Continue Watching */}
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {children
+                        .map((item: any, idx: any) => (
+                          <ItemWithImage
+                            key={idx}
+                            name={item.name}
+                            avatar={item.avatar_url}
+                            active={activeChild?.name == item.name}
+                            onPress={() => handleChildSelect(item)} />
+                        ))}
+                    </ScrollView>
+
+                    <ThemedView style={[{ marginTop: 50 }, styles.btnRow]}>
+                      <SectionHeader title="Learning Mode" avatar="learning" />
+                      <TouchableOpacity style={{ marginBottom: 20 }} onPress={() => setModalVisible(true)}>
+                        <Image source={parentIcons.information_circle} style={styles.informationBtn} />
+                      </TouchableOpacity>
+                    </ThemedView>
+                    <ThemedView style={styles.modesStyle}>
+                      <ModeList active={activeChild} selectActiveChild={setActiveChild} />
+                    </ThemedView>
+
+                    <SectionHeader title="Recent Learning" avatar="learning" />
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      onScroll={event => {
+                        const x = event.nativeEvent.contentOffset.x;
+                        const cardWidth = 290 + 25; // card width + gap (adjust if needed)
+                        const index = Math.round(x / cardWidth);
+                        setCurrentCardIndex(index);
+                      }}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {storiesData
+                        // .filter((ele) => !ele.watched)
+                        .map((item, idx) => (
+                          <StoryCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
+
+                    {/* Pagination Dots */}
+                    <ThemedView style={styles.pagination}>
+                      {storiesData.map((_, idx) => (
+                        <ThemedView
                           key={idx}
-                          name={item.name}
-                          avatar={item.avatar_url}
-                          active={activeChild?.name == item.name}
-                          onPress={() => handleChildSelect(item)} />
+                          style={[
+                            styles.dot,
+                            idx === currentCardIndex && styles.activeDot,
+                          ]}
+                        />
                       ))}
-                  </ScrollView>
+                    </ThemedView>
 
-                  <ThemedView style={[{ marginTop: 50 }, styles.btnRow]}>
-                    <SectionHeader title="Learning Mode" avatar="learning" />
-                    <TouchableOpacity style={{ marginBottom: 20 }} onPress={() => setModalVisible(true)}>
-                      <Image source={parentIcons.information_circle} style={styles.informationBtn} />
-                    </TouchableOpacity>
-                  </ThemedView>
-                  <ThemedView style={styles.modesStyle}>
-                    <ModeList active={activeChild} selectActiveChild={setActiveChild} />
-                  </ThemedView>
-
-                  <SectionHeader title="Recent Learning" avatar="learning" />
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    onScroll={event => {
-                      const x = event.nativeEvent.contentOffset.x;
-                      const cardWidth = 290 + 25; // card width + gap (adjust if needed)
-                      const index = Math.round(x / cardWidth);
-                      setCurrentCardIndex(index);
-                    }}
-                    contentContainerStyle={styles.cardScrollContainer}
-                  >
-                    {storiesData
-                      // .filter((ele) => !ele.watched)
-                      .map((item, idx) => (
-                        <StoryCard key={idx} {...item} />
+                    {/* Watch Next */}
+                    <SectionHeader title="Recommended" avatar="heart" />
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      onScroll={event => {
+                        const x = event.nativeEvent.contentOffset.x;
+                        const cardWidth = 290 + 25; // card width + gap (adjust if needed)
+                        const index = Math.round(x / cardWidth);
+                        setCurrentRecommendCardIndex(index);
+                      }}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {seriesData.map((item, idx) => (
+                        <SeriesCard key={idx} {...item} />
                       ))}
-                  </ScrollView>
+                    </ScrollView>
 
-                  {/* Pagination Dots */}
-                  <ThemedView style={styles.pagination}>
-                    {storiesData.map((_, idx) => (
-                      <ThemedView
-                        key={idx}
-                        style={[
-                          styles.dot,
-                          idx === currentCardIndex && styles.activeDot,
-                        ]}
-                      />
-                    ))}
-                  </ThemedView>
+                    {/* Pagination Dots */}
+                    <ThemedView style={styles.pagination}>
+                      {seriesData.map((_, idx) => (
+                        <ThemedView
+                          key={idx}
+                          style={[
+                            styles.dot,
+                            idx === currentRecommendCardIndex && styles.activeDot,
+                          ]}
+                        />
+                      ))}
+                    </ThemedView>
+                    {/* Featured Adventures */}
+                    <SectionHeader title="Insights" avatar="star" />
 
-                  {/* Watch Next */}
-                  <SectionHeader title="Recommended" avatar="heart" />
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    onScroll={event => {
-                      const x = event.nativeEvent.contentOffset.x;
-                      const cardWidth = 290 + 25; // card width + gap (adjust if needed)
-                      const index = Math.round(x / cardWidth);
-                      setCurrentRecommendCardIndex(index);
-                    }}
-                    contentContainerStyle={styles.cardScrollContainer}
-                  >
-                    {seriesData.map((item, idx) => (
-                      <SeriesCard key={idx} {...item} />
-                    ))}
-                  </ScrollView>
-
-                  {/* Pagination Dots */}
-                  <ThemedView style={styles.pagination}>
-                    {seriesData.map((_, idx) => (
-                      <ThemedView
-                        key={idx}
-                        style={[
-                          styles.dot,
-                          idx === currentRecommendCardIndex && styles.activeDot,
-                        ]}
-                      />
-                    ))}
-                  </ThemedView>
-                  {/* Featured Adventures */}
-                  <SectionHeader title="Insights" avatar="star" />
-
-                  <ThemedView style={styles.insightStyles}>
-                    <ThemedText style={{ fontSize: 20, fontWeight: 700, color: 'rgba(173,215,218,1)' }}>Daily</ThemedText>
-                    {
-                      InsightItemsData?.map((item, index) => {
-                        return (
-                          <InsightItem key={index} value={item.value} what={item.what} avatar={item.avatar} />
-                        )
-                      })
-                    }
-                  </ThemedView>
-                  {/* Just Watched */}
-                  {/* <SectionHeader title="Just Watched" link="watched" />
+                    <ThemedView style={styles.insightStyles}>
+                      <ThemedText style={{ fontSize: 20, fontWeight: 700, color: 'rgba(173,215,218,1)' }}>Daily</ThemedText>
+                      {
+                        InsightItemsData?.map((item, index) => {
+                          return (
+                            <InsightItem key={index} value={item.value} what={item.what} avatar={item.avatar} />
+                          )
+                        })
+                      }
+                    </ThemedView>
+                    {/* Just Watched */}
+                    {/* <SectionHeader title="Just Watched" link="watched" />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardScrollContainer}>
               {storiesData.filter(ele => ele.watched).map((item, idx) => (
                 <StoryCard key={idx} {...item} />
               ))}
             </ScrollView> */}
-                </ThemedView>
-              ) : (
-                <ThemedView style={{ marginTop: 60, alignItems: 'center', justifyContent: 'center', zIndex:999 }}>
-                  <ThemedText style={{ fontSize: 18, color: '#ffffff', marginBottom: 16 }}>
-                    No children data
-                  </ThemedText>
-                  <Link href="/(parent)/(profiles)/(account)">
-                    <ThemedText style={{textDecorationLine: 'underline',color: '#F4A672',fontStyle: 'italic', fontSize: 16 }}>Go to Profile Settings</ThemedText>
-                  </Link>
-                </ThemedView>
-              )
+                  </ThemedView>
+                ) : (
+                  <ThemedView style={{ marginTop: 60, alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
+                    <ThemedText style={{ fontSize: 18, color: '#ffffff', marginBottom: 16 }}>
+                      No children data
+                    </ThemedText>
+                    <Link href="/(parent)/(profiles)/(account)">
+                      <ThemedText style={{ textDecorationLine: 'underline', color: '#F4A672', fontStyle: 'italic', fontSize: 16 }}>Go to Profile Settings</ThemedText>
+                    </Link>
+                  </ThemedView>
+                )
             }
           </ScrollView>
           {/* Sticky Bottom Navigation */}
@@ -412,7 +408,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 225,
     zIndex: 1,
-    width: 554,
+    width: '100%',
     height: 2157,
   },
   headingWrap: {
@@ -457,24 +453,26 @@ const styles = StyleSheet.create({
   headerRocket: { width: 74.68, height: 130.21, zIndex: -1 },
   headerRocketWrap: {
     display: "flex",
+    width: '100%',
+    height: 300,
     flexDirection: "row",
     justifyContent: "center",
     position: "relative",
     zIndex: -1
   },
   imgCloudFar: {
-    width: 435,
-    height: 200,
+    width: '110%',
+    height: '100%',
     position: "absolute",
-    top: 5,
+    top: -40,
     left: -37.5,
     zIndex: -100,
   },
   imgCloudNear: {
-    width: 427,
-    height: 220,
+    width: '110%',
+    height: '100%',
     position: "absolute",
-    top: 37,
+    top: 10,
     left: -20,
   },
   sectionHeader: {

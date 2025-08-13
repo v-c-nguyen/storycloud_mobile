@@ -11,6 +11,7 @@ import {
     Alert,
     Dimensions,
     Image,
+    Linking,
     Modal, Platform, ScrollView,
     StyleSheet,
     Switch,
@@ -71,16 +72,16 @@ export default function SubscriptionPlansScreen() {
 
     // Show modal if URL contains ?status=success (web only)
     useEffect(() => {
-        if (Platform.OS === 'web' && typeof window !== 'undefined') {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('status') === 'success') {
-                setModalVisible(true);
-            }
+        let domain = '';
+        if (typeof window !== 'undefined' && Platform.OS === 'web') {
+            domain = window.location.origin;
+        } else {
+            domain = 'https://storycloud.com'; // Replace with your tunnel URL
         }
     }, []);
 
     // Show modal if URL contains ?status=success
-   
+
     const [activeTab, setActiveTab] = React.useState('subscription');
 
     const handleScroll = (event: any) => {
@@ -109,10 +110,15 @@ export default function SubscriptionPlansScreen() {
                     }),
                 });
 
-                const { url } = await res.json();
+                const { url, error } = await res.json();
+
+                if (!url || typeof url !== "string") {
+                    Alert.alert("Stripe Error", error || "No checkout URL returned.");
+                    return;
+                }
 
                 // Open Stripe Checkout in the browser
-                router.push(url);
+                Linking.openURL(url);
 
             } catch (err: any) {
                 Alert.alert('Stripe Error', err.message || 'Could not start checkout.');
@@ -330,26 +336,33 @@ const styles = StyleSheet.create({
     },
     headerRocketWrap: {
         width: '100%',
-        height: 200,
+        height: 300,
         paddingLeft: 36,
         marginTop: -56,
         position: "relative",
     },
     imgCloudFar: {
-        width: 400,
-        height: 278,
+        width: '100%',
+        height: '100%',
         position: "absolute",
         top: 0,
         left: 0,
         zIndex: -100,
     },
     imgCloudNear: {
-        width: 400,
-        height: 279,
+        width: '100%',
+        height: '100%',
         position: "absolute",
         top: 42,
         left: 0,
         zIndex: -10
+    },
+    settingContentStyle: {
+        backgroundColor: '#fff',
+        paddingHorizontal: 3,
+        zIndex: 10,
+        paddingBottom: 100,
+        marginTop: -100
     },
     profileFrontBox: {
         position: "absolute",
@@ -360,12 +373,6 @@ const styles = StyleSheet.create({
     mainSettingStyle: {
         display: 'flex',
         flexDirection: 'column'
-    },
-    settingContentStyle: {
-        backgroundColor: '#fff',
-        paddingHorizontal: 3,
-        zIndex: 10,
-        paddingBottom: 100
     },
     tabContainer: {
         flexDirection: 'row',

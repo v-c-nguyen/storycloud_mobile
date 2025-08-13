@@ -1,17 +1,19 @@
 import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
+import { SeriesCard } from "@/components/Cards";
 import CardSeries from "@/components/CardSeries";
-import { ItemSeries } from "@/components/ItemSeries";
+import { ItemSeries, ItemSeriesRef } from "@/components/ItemSeries";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Stack } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  TextInput
+  TextInput,
+  TouchableOpacity
 } from "react-native";
 
 
@@ -23,13 +25,163 @@ const cardsData = [
   { color: '#053B4A', icon: require('@/assets/images/parent/characters.png'), text: 'Characters' },
 ];
 
-export default function Themes() {
 
+const seriesData = [
+  {
+    title: "ADVENTURE & EXPLORATION",
+    image: "1",
+    count: 8,
+    isFavorite: true,
+  },
+  {
+    title: "FRIENDSHIP & KINDNESS",
+    image: "2",
+    count: 8,
+    isFavorite: true,
+  },
+  {
+    title: "LEARNING & DISCOVERY",
+    image: "3",
+    count: 8,
+    isFavorite: true,
+  },
+  {
+    title: "NATURE & ENVIRONMENT",
+    image: "4",
+    count: 8,
+    isFavorite: true,
+  },
+  {
+    title: "CREATIVITY & IMAGINATION",
+    image: "5",
+    count: 8,
+    isFavorite: true,
+  },
+];
+
+
+const storiesData = [
+  {
+    bgColor: "#F4A672",
+    textColor: "#053B4A",
+    subTextColor: "#F8ECAE",
+    progressColor: "#ADD7DA",
+    isBallonYellow: true,
+    number: "#1",
+    storyTitle: "The Adventure Begins",
+    seriesTitle: "ADVENTURE & EXPLORATION",
+    duration: 32,
+    progress: 20,
+    image: "1",
+    featured: false,
+    isFavorite: true,
+    watched: false,
+  },
+  {
+    bgColor: "#053B4A",
+    textColor: "#FCFCFC",
+    subTextColor: "#F8ECAE",
+    progressColor: "#F8ECAE",
+    isBallonYellow: false,
+    number: "#2",
+    storyTitle: "Friendship Tales",
+    seriesTitle: "FRIENDSHIP & KINDNESS",
+    duration: 32,
+    progress: 12,
+    image: "2",
+    featured: false,
+    isFavorite: true,
+    watched: false,
+  },
+  {
+    bgColor: "#F8ECAE",
+    textColor: "#053B4A",
+    subTextColor: "#048F99",
+    progressColor: "#ADD7DA",
+    isBallonYellow: false,
+    number: "#3",
+    storyTitle: "Learning Adventures",
+    seriesTitle: "LEARNING & DISCOVERY",
+    duration: 32,
+    progress: 20,
+    image: "3",
+    featured: true,
+    isFavorite: true,
+    watched: false,
+  },
+  {
+    bgColor: "#053B4A",
+    textColor: "#FCFCFC",
+    subTextColor: "#F8ECAE",
+    progressColor: "#F8ECAE",
+    isBallonYellow: true,
+    number: "#4",
+    storyTitle: "Nature's Wonders",
+    seriesTitle: "NATURE & ENVIRONMENT",
+    duration: 32,
+    progress: 12,
+    image: "2",
+    featured: true,
+    isFavorite: true,
+    watched: false,
+  },
+  {
+    bgColor: "#F8ECAE",
+    textColor: "#053B4A",
+    subTextColor: "#F8ECAE",
+    progressColor: "#F4A672",
+    isBallonYellow: true,
+    number: "#5",
+    storyTitle: "Creative Journeys",
+    seriesTitle: "CREATIVITY & IMAGINATION",
+    duration: 32,
+    progress: 20,
+    image: "1",
+    featured: false,
+    isFavorite: true,
+    watched: true,
+  },
+  {
+    bgColor: "#053B4A",
+    textColor: "#FCFCFC",
+    subTextColor: "#F8ECAE",
+    progressColor: "#ADD7DA",
+    isBallonYellow: false,
+    number: "#7",
+    storyTitle: "Magical Stories",
+    seriesTitle: "CREATIVITY & IMAGINATION",
+    duration: 32,
+    progress: 20,
+    image: "3",
+    featured: false,
+    isFavorite: false,
+    watched: true,
+  },
+];
+
+export default function Themes() {
   const [themes, setThemes] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const itemSeriesRef = useRef<ItemSeriesRef>(null);
+
+  // Filter data based on search query
+  const filteredThemes = themes.filter(item =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleBackToExplore = () => {
+    setSelectedTheme(null);
+    setSearchQuery("");
+    // Reset ItemSeries selection
+    if (itemSeriesRef.current) {
+      itemSeriesRef.current.resetSelection();
+    }
+  };
 
   useEffect(() => {
-    async function fetchSeries() {
+    async function fetchThemes() {
       setLoading(true);
       try {
         const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
@@ -40,20 +192,21 @@ export default function Themes() {
           },
         });
         if (error) {
-          console.error('Error fetching series:', error.message);
+          console.error('Error fetching themes:', error.message);
 
         } else if (data && Array.isArray(data.data)) {
           console.log("Themes::", data.data)
           setThemes(data.data);
         }
       } catch (e) {
-        console.error('Error fetching focus modes:', e);
+        console.error('Error fetching themes:', e);
       } finally {
         setLoading(false);
       }
     }
-    fetchSeries();
+    fetchThemes();
   }, []);
+
   return (
     <>
       <Stack.Screen options={{
@@ -109,19 +262,111 @@ export default function Themes() {
                   placeholder="Search for your next adventure..."
                   placeholderTextColor={'#D9D9D9'}
                   style={styles.searchText}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
                 />
                 <Image source={require('@/assets/images/parent/Microphone4.png')} style={styles.searchIcon}></Image>
               </ThemedView>
             </ThemedView>
           </ThemedView>
 
-
           <ThemedView style={styles.mainContent}>
             <ThemedView style={styles.content}>
               {/* Tab Bar */}
-              <CardSeries data={cardsData} active="Themes" />
+              <CardSeries data={cardsData} active={'Themes'} />
+
+              {/* Themes List */}
+              <ItemSeries
+                ref={itemSeriesRef}
+                itemsData={filteredThemes}
+                onSelect={(item) => {
+                  setSelectedTheme(item ? item.name : null);
+                }}
+              />
+              {
+                selectedTheme ?
+                  <ThemedView style={{ paddingBottom: 80, alignItems: "center", paddingLeft: 20 }}>
+                    <Image
+                      source={require("@/assets/images/kid/icon-heart.png")}
+                      style={{ marginTop: 20 }}
+                    />
+                    <ThemedText style={[styles.sectionTitle, { marginTop: 10 , color : "#048F99"}]}>{"theme"}</ThemedText>
+                    <ThemedText style={[styles.sectionTitle, { marginTop: 10 }]}>{selectedTheme}</ThemedText>
+                    <ThemedText style={[styles.sectiondesc, { marginBottom: 5 , padding:20 , textAlign:"center"}]}>{" Discover amazing stories that teach important life lessons and values. Each theme brings unique adventures that inspire courage, kindness, and imagination in young minds."}</ThemedText>
+                    
+                    <TouchableOpacity 
+                      style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, marginBottom: 20 }}
+                      onPress={handleBackToExplore}
+                    >
+                      <Image
+                        source={require("@/assets/images/kid/arrow-left.png")}
+                        style={{ width: 20, height: 20, marginRight: 8 }}
+                      />
+                      <ThemedText style={[styles.sectionTitle, { marginTop: 0, fontSize: 18 }]}>{"Back to Explore"}</ThemedText>
+                    </TouchableOpacity>
+
+                    <ScrollView
+                      horizontal={false}
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {seriesData
+                        .map((item, idx) => (
+                          <SeriesCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
+                  </ThemedView>
+
+                  :
+                  <ThemedView style={{ paddingBottom: 80 }}>
+                    {/* Continue Watching */}
+                    <SectionHeader title="Adventure & Exploration" desc="Brand new stories and fun" link="continue" />
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {seriesData
+                        .map((item, idx) => (
+                          <SeriesCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
+
+                    {/* Watch Next */}
+                    <SectionHeader title="Friendship & Kindness" desc="Friendship, kindness, and emotions" link="continue" />
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {seriesData.map((item, idx) => (
+                        <SeriesCard key={idx} {...item} />
+                      ))}
+                    </ScrollView>
+
+                    {/* Featured Adventures */}
+                    <SectionHeader title="Learning & Discovery" desc="Educational and inspiring stories" link="continue" />
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {seriesData
+                        .map((item, idx) => (
+                          <SeriesCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
+
+                    {/* Just Watched */}
+                    {/* <SectionHeader title="Just Watched" link="watched" />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardScrollContainer}>
+              {storiesData.filter(ele => ele.watched).map((item, idx) => (
+                <StoryCard key={idx} {...item} />
+              ))}
+            </ScrollView> */}
+                  </ThemedView>
+              }
               {/* Story List */}
-              <ItemSeries itemsData={themes} />
             </ThemedView>
           </ThemedView>
         </ScrollView>
@@ -143,6 +388,22 @@ export default function Themes() {
   );
 }
 
+
+function SectionHeader({ title, desc, link }: { title: string; desc: string, link: string }) {
+  return (
+    <ThemedView >
+      <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
+      <ThemedView style={styles.sectionHeader}>
+        <ThemedText style={styles.sectiondesc}>{desc}</ThemedText>
+        <TouchableOpacity>
+          <Image
+            source={require("@/assets/images/kid/arrow-right.png")}
+          />
+        </TouchableOpacity>
+      </ThemedView>
+    </ThemedView>
+  );
+}
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
@@ -155,6 +416,30 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     left: 0,
+  },
+  sectionHeader: {
+    marginTop: 0,
+    marginBottom: 8,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  sectionTitle: {
+    color: "#053B4A",
+    fontSize: 24,
+    marginTop: 60,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    fontWeight: "700",
+    lineHeight: 24,
+  },
+  sectiondesc: {
+    color: "#053B4A",
+    fontSize: 16,
+    fontWeight: "400",
+    fontStyle: 'italic',
+    lineHeight: 24,
   },
   headingWrap: {
     flexDirection: "row",
@@ -173,14 +458,6 @@ const styles = StyleSheet.create({
     marginTop: 67,
     marginBottom: 66,
   },
-  mainContent: {
-    height: '100%',
-    marginTop: 90,
-    backgroundColor: '#ffffff'
-  },
-  content: {
-    marginTop: -90
-  },
   backWrap: {
     marginLeft: "auto",
     marginRight: "auto",
@@ -190,6 +467,10 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 84,
     marginBottom: 58,
+  },
+  cardScrollContainer: {
+    gap: 20,
+    paddingHorizontal: 16,
   },
   imgArrowLeft: {
     width: 20,
@@ -207,6 +488,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: -90,
     position: "relative",
+  },
+  mainContent: {
+    height: '100%',
+    marginTop: 90,
+    backgroundColor: '#ffffff',
+  },
+  content: {
+    marginTop: -90
   },
   imgCloudFar: {
     width: "100%",

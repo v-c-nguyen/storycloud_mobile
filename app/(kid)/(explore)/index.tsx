@@ -2,17 +2,18 @@ import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
 import { SeriesCard, StoryCard } from "@/components/Cards";
 import CardSeries from "@/components/CardSeries";
-import { ItemSeries } from "@/components/ItemSeries";
+import { ItemSeries, ItemSeriesRef } from "@/components/ItemSeries";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Stack } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  TextInput
+  TextInput,
+  TouchableOpacity
 } from "react-native";
 
 
@@ -162,6 +163,15 @@ export default function KidExplorer() {
 
   const [series, setSeries] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
+  const itemSeriesRef = useRef<ItemSeriesRef>(null);
+
+  const handleBackToExplore = () => {
+    setSelectedSeries(null);
+    if (itemSeriesRef.current) {
+      itemSeriesRef.current.resetSelection();
+    }
+  };
 
   useEffect(() => {
     async function fetchSeries() {
@@ -257,56 +267,96 @@ export default function KidExplorer() {
               <CardSeries data={cardsData} active={'Series'} />
 
               {/* Series List */}
-              <ItemSeries itemsData={series} theme="light"/>
-              <ThemedView style={{ paddingBottom: 80 }}>
-                {/* Continue Watching */}
-                <SectionHeader title="New Adventures" desc="Brand new stories and fun" link="continue" />
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                >
-                  {storiesData
-                    .filter((ele) => !ele.watched)
-                    .map((item, idx) => (
-                      <StoryCard key={idx} {...item} />
-                    ))}
-                </ScrollView>
+              <ItemSeries
+                ref={itemSeriesRef}
+                itemsData={series}
+                onSelect={(item) => {
+                  setSelectedSeries(item ? item.name : null);
+                }}
+              />
+              {
+                selectedSeries ?
+                  <ThemedView style={{ paddingBottom: 80, alignItems: "center", paddingLeft: 20 }}>
+                    <Image
+                      source={require("@/assets/images/kid/icon-heart.png")}
+                      style={{ marginTop: 20 }}
+                    />
+                    <ThemedText style={[styles.sectionTitle, { marginTop: 10 , color : "#048F99"}]}>{"series"}</ThemedText>
+                    <ThemedText style={[styles.sectionTitle, { marginTop: 10 }]}>{selectedSeries}</ThemedText>
+                    <ThemedText style={[styles.sectiondesc, { marginBottom: 5 , padding:20 , textAlign:"center"}]}>{"  Kai, the adventurous Australian Shepherd, explores forests, gardens, and ponds to discover how plants and animals live together in an interconnected world. He takes his friends on fun quests—like finding missing pollinators, rescuing a burrow from collapse, or learning about hidden seeds—that reveal the wonders of nature."}</ThemedText>
+                    <TouchableOpacity style={{ flex: 1, flexDirection: "row" , alignItems:"center"}}
+                    onPress={handleBackToExplore}
+                    >
+                      <Image
+                        source={require("@/assets/images/kid/arrow-left.png")}
+                        style={{marginTop:47}}
+                      />
+                      <ThemedText style={styles.sectionTitle}>{"Back to Explore"}</ThemedText>
+                    </TouchableOpacity>
+                    <ScrollView
+                      horizontal={false}
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {storiesData
+                        .filter((ele) => !ele.watched)
+                        .map((item, idx) => (
+                          <StoryCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
+                  </ThemedView>
 
-                {/* Watch Next */}
-                <SectionHeader title="Best Buddies & Big Feelings" desc="Friendship, kindness, and emotions" link="continue" />
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                >
-                  {seriesData.map((item, idx) => (
-                    <SeriesCard key={idx} {...item} />
-                  ))}
-                </ScrollView>
+                  :
+                  <ThemedView style={{ paddingBottom: 80 }}>
+                    {/* Continue Watching */}
+                    <SectionHeader title="New Adventures" desc="Brand new stories and fun" link="continue" />
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {storiesData
+                        .filter((ele) => !ele.watched)
+                        .map((item, idx) => (
+                          <StoryCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
 
-                {/* Featured Adventures */}
-                <SectionHeader title="Giggles & Goofballs" desc="Silly, funny, and lough-out-loud stories" link="continue" />
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                >
-                  {storiesData
-                    .filter((ele) => ele.featured)
-                    .map((item, idx) => (
-                      <StoryCard key={idx} {...item} />
-                    ))}
-                </ScrollView>
+                    {/* Watch Next */}
+                    <SectionHeader title="Best Buddies & Big Feelings" desc="Friendship, kindness, and emotions" link="continue" />
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {seriesData.map((item, idx) => (
+                        <SeriesCard key={idx} {...item} />
+                      ))}
+                    </ScrollView>
 
-                {/* Just Watched */}
-                {/* <SectionHeader title="Just Watched" link="watched" />
+                    {/* Featured Adventures */}
+                    <SectionHeader title="Giggles & Goofballs" desc="Silly, funny, and lough-out-loud stories" link="continue" />
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {storiesData
+                        .filter((ele) => ele.featured)
+                        .map((item, idx) => (
+                          <StoryCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
+
+                    {/* Just Watched */}
+                    {/* <SectionHeader title="Just Watched" link="watched" />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardScrollContainer}>
               {storiesData.filter(ele => ele.watched).map((item, idx) => (
                 <StoryCard key={idx} {...item} />
               ))}
             </ScrollView> */}
-              </ThemedView>
+                  </ThemedView>
+                  }
               {/* Story List */}
             </ThemedView>
           </ThemedView>
@@ -342,6 +392,11 @@ function SectionHeader({ title, desc, link }: { title: string; desc: string, lin
             style={styles.sectionArrow}
           />
         </Link> */}
+        <TouchableOpacity>
+          <Image
+            source={require("@/assets/images/kid/arrow-right.png")}
+          />
+        </TouchableOpacity>
       </ThemedView>
     </ThemedView>
   );
@@ -434,7 +489,7 @@ const styles = StyleSheet.create({
   mainContent: {
     height: '100%',
     marginTop: 90,
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
   },
   content: {
     marginTop: -90

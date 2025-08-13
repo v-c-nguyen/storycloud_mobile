@@ -1,10 +1,11 @@
 import BottomNavBar from "@/components/BottomNavBar";
 import { SeriesCard, StoryCard } from "@/components/Cards";
 import Header from "@/components/Header";
+
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { categoryData, storyOptionsData } from "@/data/libraryData";
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import React from "react";
 import {
   FlatList,
@@ -15,8 +16,6 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-
-// Data arrays for each section
 
 
 const storiesData = [
@@ -170,11 +169,43 @@ export default function LearningLibrary() {
     console.log("item selected::", item)
     setActiveItem(item)
     setDropdownVisible(false)
+    
+    // Navigate to the appropriate screen based on selection
+    switch(item) {
+      case 'Stories':
+        // Already on stories page, no navigation needed
+        break;
+      case 'Series':
+        router.push('/(parent)/(learning)/(library)/series');
+        break;
+      case 'Collections':
+        router.push('/(parent)/(learning)/(library)/collections');
+        break;
+      case 'Themes':
+        router.push('/(parent)/(learning)/(library)/themes');
+        break;
+      case 'Characters':
+        router.push('/(parent)/(learning)/(library)/characters');
+        break;
+      case 'Learning Target':
+        router.push('/(parent)/(learning)/(library)/learning-target');
+        break;
+      case 'Storyland Map':
+        router.push('/(parent)/(learning)/(library)/storyland-map');
+        break;
+    }
   }
 
   function handleStoryItem(item: string) {
     console.log("storyOption clicked::", item)
   }
+
+
+
+
+
+
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -298,7 +329,7 @@ export default function LearningLibrary() {
                 contentContainerStyle={styles.cardScrollContainer}
               >
                 {storiesData
-                  .filter((ele) => ele.featured)
+                  .filter((ele) => !ele.watched)
                   .map((item, idx) => (
                     <StoryCard key={idx} {...item} />
                   ))}
@@ -468,5 +499,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(244, 166, 114, 1)',
     borderRadius: '50%',
     padding: 3
-  }
+  },
+
+
 });

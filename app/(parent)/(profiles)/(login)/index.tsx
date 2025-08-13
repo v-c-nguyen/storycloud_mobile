@@ -18,7 +18,7 @@ const starIcon = require('@/assets/images/parent/star.png');
 export default function LoginCredential() {
   const router = useRouter();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('********'); // Passwords should not be fetched or displayed
+  const [password, setPassword] = useState(''); // Passwords should not be fetched or displayed
   // Fetch user email from Supabase on mount
   useEffect(() => {
     const fetchUser = async () => {
@@ -204,26 +204,33 @@ const styles = StyleSheet.create({
   },
   headerRocketWrap: {
     width: '100%',
-    height: 200,
+    height: 300,
     paddingLeft: 36,
     marginTop: -56,
     position: "relative",
   },
   imgCloudFar: {
-    width: 400,
-    height: 278,
+    width: '100%',
+    height: '100%',
     position: "absolute",
     top: 0,
     left: 0,
     zIndex: -100,
   },
   imgCloudNear: {
-    width: 400,
-    height: 279,
+    width: '100%',
+    height: '100%',
     position: "absolute",
     top: 42,
     left: 0,
     zIndex: -10
+  },
+  settingContentStyle: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 3,
+    zIndex: 10,
+    paddingBottom: 100,
+    marginTop: -100
   },
   profileFrontBox: {
     position: "absolute",
@@ -234,12 +241,6 @@ const styles = StyleSheet.create({
   mainSettingStyle: {
     display: 'flex',
     flexDirection: 'column'
-  },
-  settingContentStyle: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 3,
-    zIndex: 10,
-    paddingBottom: 100
   },
   tabContainer: {
     flexDirection: 'row',

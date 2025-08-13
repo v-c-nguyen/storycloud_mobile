@@ -33,7 +33,7 @@ const EditChild = () => {
     const [firstName, setFirstName] = React.useState(kid.name ?? '');
     const [age, setAge] = React.useState(kid.age?.toString() ?? '');
     const [uploading, setUploading] = React.useState(false);
-    const [avatar, setAvatar] = React.useState(kid.avatar_url ?? '@/assets/images/parent/avatar-parent-2.png');
+    const [avatar, setAvatar] = React.useState(kid.avatar_url ?? '');
     // For ModeList, update mode in kid state
     const handleModeChange = (newKid: any) => {
         setKid((prev: any) => ({ ...prev, ...newKid }));
@@ -156,7 +156,7 @@ const EditChild = () => {
 
                             <ThemedView style={styles.avatarWrapper}>
                                 <Image
-                                    source={{uri: avatar}}
+                                    source={avatar ? {uri: avatar}: require('@/assets/images/parent/avatar-parent-2.png')}
                                     style={styles.avatar}
                                 />
                             </ThemedView>

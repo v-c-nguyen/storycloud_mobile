@@ -47,7 +47,8 @@ export function ChildrenCard({
 const styles = StyleSheet.create({
     childIcon: {
         width: 56,
-        height: 56
+        height: 56,
+        borderRadius:50
     },
     childText: {
         fontSize: 14,

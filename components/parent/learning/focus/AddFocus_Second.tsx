@@ -66,7 +66,7 @@ export default function AddFocus_Second({ currentStep, onPress }: { currentStep:
                 <ThemedView style={styles.section}>
                     <ThemedView style={styles.labelContainer}>
                         <ThemedView style={styles.iconContainer}>
-                            <Image source={targetIcon}></Image>
+                            <Image source={targetIcon} style={{width: 20, height: 20, tintColor: '#5CE1E6'}}></Image>
                         </ThemedView>
                         <ThemedText style={styles.learningHeader}>Learning Target</ThemedText>
                     </ThemedView>

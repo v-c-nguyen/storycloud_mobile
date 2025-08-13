@@ -2,18 +2,20 @@ import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
 import { SeriesCard, StoryCard } from "@/components/Cards";
 import CardSeries from "@/components/CardSeries";
-import { ItemSeries } from "@/components/ItemSeries";
+import { ItemSeries, ItemSeriesRef } from "@/components/ItemSeries";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { series, stories } from "@/data/storyData";
 import { Stack } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  TextInput
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 
@@ -28,8 +30,25 @@ const cardsData = [
 export default function Collections() {
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const itemSeriesRef = useRef<ItemSeriesRef>(null);
   const storiesData = stories
   const seriesData = series
+
+  // Filter data based on search query
+  const filteredCollections = collections.filter(item =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleBackToExplore = () => {
+    setSelectedCollection(null);
+    setSearchQuery("");
+    // Reset ItemSeries selection
+    if (itemSeriesRef.current) {
+      itemSeriesRef.current.resetSelection();
+    }
+  };
 
   useEffect(() => {
     async function fetchSeries() {
@@ -113,6 +132,8 @@ export default function Collections() {
                   placeholder="Search for your next adventure..."
                   placeholderTextColor={'#D9D9D9'}
                   style={styles.searchText}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
                 />
                 <Image source={require('@/assets/images/parent/Microphone4.png')} style={styles.searchIcon}></Image>
               </ThemedView>
@@ -125,55 +146,108 @@ export default function Collections() {
               {/* Tab Bar */}
               <CardSeries data={cardsData} active="Collections" />
               {/* Story List */}
-              <ItemSeries itemsData={collections} />
+              <ItemSeries 
+                ref={itemSeriesRef}
+                itemsData={filteredCollections} 
+                onSelect={(item) => {
+                  setSelectedCollection(item ? item.name : null);
+                }} 
+              />
 
-              <ThemedView style={{ paddingBottom: 80 }}>
-                {/* Continue Watching */}
-                <SectionHeader title="The High Seas & Polar Realms" desc="Brand new stories and fun" link="continue" />
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                >
-                  {seriesData.map((item, idx) => (
-                    <SeriesCard key={idx} {...item} />
-                  ))}
-                </ScrollView>
+              {
+                selectedCollection ?
+                  <ThemedView style={{ paddingBottom: 80 }}>
+                    <View style={{alignItems:"center"}}>
+                      <ThemedText style={[styles.sectionTitle, { marginTop: 10 , color : "#048F99"}]}>{"collection"}</ThemedText>
+                    <ThemedText style={[styles.sectionTitle, { marginTop: 10 }]}>{selectedCollection}</ThemedText>
+                    <ThemedText style={[styles.sectiondesc, { marginBottom: 5 , padding:20 , textAlign:"center" }]}>{" Explore vast jungles, soaring mountains, and sweeping grasslands—Earth's wildest places await."}</ThemedText>
+                    </View>
+                    
+                    <TouchableOpacity 
+                      style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, marginBottom: 20 }}
+                      onPress={handleBackToExplore}
+                    >
+                      <Image
+                        source={require("@/assets/images/kid/arrow-left.png")}
+                        style={{ width: 20, height: 20, marginRight: 8 }}
+                      />
+                      <ThemedText style={[styles.sectionTitle, { marginTop: 0, fontSize: 18 }]}>{"Back to Explore"}</ThemedText>
+                    </TouchableOpacity>
 
-                {/* Watch Next */}
-                <SectionHeader title="Wonders of the Wild World" desc="Friendship, kindness, and emotions" link="continue" />
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                >
-                  {seriesData.map((item, idx) => (
-                    <SeriesCard key={idx} {...item} />
-                  ))}
-                </ScrollView>
+                    <SectionHeader title={selectedCollection} desc="Kai, the adventurous Australian Shepherd, explores forests, gardens, and ponds" link="collection"/>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {storiesData
+                        .filter((ele) => !ele.watched)
+                        .map((item, idx) => (
+                          <StoryCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
+                    <SectionHeader title={selectedCollection} desc="Kai, the adventurous Australian Shepherd, explores forests, gardens, and ponds" link="collection"/>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {storiesData
+                        .filter((ele) => !ele.watched)
+                        .map((item, idx) => (
+                          <StoryCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
+                  </ThemedView>
+                  :
+                  <ThemedView style={{ paddingBottom: 80 }}>
+                    {/* Continue Watching */}
+                    <SectionHeader title="The High Seas & Polar Realms" desc="Brand new stories and fun" link="continue" />
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {seriesData.map((item, idx) => (
+                        <SeriesCard key={idx} {...item} />
+                      ))}
+                    </ScrollView>
 
-                {/* Featured Adventures */}
-                <SectionHeader title="Journey Across Lands and Cultures" desc="Silly, funny, and lough-out-loud stories" link="continue" />
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                >
-                  {storiesData
-                    .filter((ele) => ele.featured)
-                    .map((item, idx) => (
-                      <StoryCard key={idx} {...item} />
-                    ))}
-                </ScrollView>
+                    {/* Watch Next */}
+                    <SectionHeader title="Wonders of the Wild World" desc="Friendship, kindness, and emotions" link="continue" />
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {seriesData.map((item, idx) => (
+                        <SeriesCard key={idx} {...item} />
+                      ))}
+                    </ScrollView>
 
-                {/* Just Watched */}
-                {/* <SectionHeader title="Just Watched" link="watched" />
+                    {/* Featured Adventures */}
+                    <SectionHeader title="Journey Across Lands and Cultures" desc="Silly, funny, and lough-out-loud stories" link="continue" />
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {storiesData
+                        .filter((ele) => ele.featured)
+                        .map((item, idx) => (
+                          <StoryCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
+
+                    {/* Just Watched */}
+                    {/* <SectionHeader title="Just Watched" link="watched" />
                           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardScrollContainer}>
                             {storiesData.filter(ele => ele.watched).map((item, idx) => (
                               <StoryCard key={idx} {...item} />
                             ))}
                           </ScrollView> */}
-              </ThemedView>
+                  </ThemedView>
+              }
             </ThemedView>
           </ThemedView>
         </ScrollView>
@@ -269,7 +343,7 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     fontStyle: 'italic',
     lineHeight: 24,
-  },  
+  },
   backWrap: {
     marginLeft: "auto",
     marginRight: "auto",

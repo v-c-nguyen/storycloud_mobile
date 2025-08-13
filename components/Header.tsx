@@ -195,11 +195,11 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        width: 50,
+        width: 64,
         height: 50
     },
     parentIcon: {
-        width: 32,
+        width: 42,
         height: 32,
         position: 'absolute',
         right: 5
