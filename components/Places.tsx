@@ -3,7 +3,9 @@ import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+          ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    
   },
   placeContainer: {
     position: 'absolute',

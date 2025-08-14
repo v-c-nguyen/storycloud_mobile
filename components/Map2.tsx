@@ -3,7 +3,7 @@ import Svg, { Defs, FeBlend, FeColorMatrix, FeComposite, FeFlood, FeGaussianBlur
 
 // A React Native functional component for the SVG graphic.
 // It accepts standard SvgProps, allowing for customization of width, height, etc.
-const CountryMapSvg = (props: SvgProps) => {
+const Map2 = (props: SvgProps) => {
   return (
     <Svg width="297" height="484" viewBox="0 0 297 484" fill="none" {...props}>
       {/* The main SVG group, which applies the drop shadow filter to the path inside it */}
@@ -63,4 +63,4 @@ const CountryMapSvg = (props: SvgProps) => {
   );
 };
 
-export default CountryMapSvg;
+export default Map2;

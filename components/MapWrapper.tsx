@@ -1,13 +1,15 @@
-import React from 'react';
-import { Image, StyleSheet, View, useWindowDimensions } from 'react-native';
+import React, { useState } from 'react';
+import { Image, ImageBackground, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-import CountrySvg from './CountrySvg';
+import Characters from './Characters';
 import Forests from './Forests';
 import Heaps from './heaps';
-import Map2 from './Map2';
+import Landmarks from './Landmarks';
 import Montains from './Montains';
 import Places from './Places';
+import { ThemedText } from './ThemedText';
+import { ThemedView } from './ThemedView';
 
 const MapWrapper = () => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
@@ -15,13 +17,33 @@ const MapWrapper = () => {
   const y = useSharedValue(0);
   const savedX = useSharedValue(0);
   const savedY = useSharedValue(0);
+  const scale = useSharedValue(1.3);
+  const savedScale = useSharedValue(1.3);
+  const [activeTab, setActiveTab] = useState('Characters');
+  // const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+
+  // useEffect(() => {
+  //   Image.getSize(require('@/assets/images/maps/Central.png'), (width, height) => {
+  //     setImageSize({ width, height });
+  //   });
+  // }, []);
+
+  const pinchGesture = Gesture.Pinch()
+    .onUpdate((e) => {
+      const minScale = 0.1;
+      const maxScale = 2;
+      scale.value = Math.max(minScale, Math.min(savedScale.value * e.scale, maxScale));
+    })
+    .onEnd(() => {
+      savedScale.value = scale.value;
+    });
 
   const panGesture = Gesture.Pan()
     .onUpdate((e) => {
       const newX = savedX.value + e.translationX;
       const newY = savedY.value + e.translationY;
 
-      const maxX = (windowWidth * (2.5 - 1)) / 2;
+      const maxX = (2500 * 1.2 - windowWidth) / 2;
       const minX = -maxX;
 
       // const maxY = (windowHeight * (2.5 - 1)) / 2;
@@ -36,40 +58,99 @@ const MapWrapper = () => {
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: x.value }, { translateY: y.value }, { scale: 1.3 }],
+    transform: [{ translateX: x.value }, { translateY: y.value }, { scale: scale.value }],
   }));
+
+  const nativeGesture = Gesture.Native();
+  const composedGesture = Gesture.Simultaneous(panGesture, pinchGesture, nativeGesture);
 
   return (
     
     <View style={styles.container}>
-            <Image
-        source={require('@/assets/images/kid/map-background.png')}
-        // style={styles.mapImage}
-      />
-      <Image
-        source={require('@/assets/images/kid/map-cloud.png')}
-        style={styles.cloudImage}
-      />
-      
-      
-       <GestureDetector gesture={panGesture}>
-        <Animated.View style={[styles.animatedView, animatedStyle]}>
-      
-          <CountrySvg/>
-          <Map2/>
-          <Forests />
-          <Heaps/>
-          <Places/>
-          <Montains/>
-
-
-          
+        <Image
+          source={require('@/assets/images/kid/map-cloud.png')}
+          style={styles.cloudImage}
+        />
+        <ThemedView style={styles.tabContainer}>
          
-        </Animated.View>
-      </GestureDetector>
-     
+          <TouchableOpacity 
+            style={[
+              styles.tabButton, 
+              activeTab === 'Characters' && styles.activeTabButton
+            ]}
+            onPress={() => setActiveTab('Characters')}
+          >
+            <ThemedText 
+              style={[
+                styles.tabText, 
+                activeTab === 'Characters' && styles.activeTabText
+              ]}
+            >
+              Characters
+            </ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[
+              styles.tabButton, 
+              activeTab === 'Landmarks' && styles.activeTabButton
+            ]}
+            onPress={() => setActiveTab('Landmarks')}
+          >
+            <ThemedText 
+              style={[
+                styles.tabText, 
+                activeTab === 'Landmarks' && styles.activeTabText
+              ]}
+            >
+              Landmarks
+            </ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+               <Image
+          source={require('@/assets/images/kid/map-background.png')}
+          // style={styles.mapImage}
+        />
+       
+        {/* <Image
+          source={require('@/assets/images/kid/map-cloud.png')}
+          style={styles.cloudImage}
+        /> */}
+      
+        <GestureDetector gesture={composedGesture}>
+          <Animated.View style={[styles.animatedView, animatedStyle]}>
+            
+            <Montains
+            noofmontainsdisplay={10} />
+            <ImageBackground source={require('@/assets/images/maps/Central.png')} style={styles.mapImage}>
+            <Montains/>
+            <Image source={require('@/assets/images/maps/Water.png')} style={{top: "50%", left: "40%"}}></Image>
+              <Forests />
+              <Montains/>
+              <Places/>
+            </ImageBackground>
+            {/* <Map2/> */}
+             <ImageBackground source={require('@/assets/images/maps/Volga.png')} style={styles.mapImage2}>
+              <Heaps/>
+               <Forests />
+             </ImageBackground>
+             <ImageBackground source={require('@/assets/images/maps/path5292.png')} style={styles.mapImage3}>
+             
+              
+              <Forests />
+              
+             </ImageBackground>
+            
+            
+           
+             {activeTab === 'Characters' && < Characters/>}
+            {/* Conditionally render Landmarks for Landmarks tab */}
+            {activeTab === 'Landmarks' && <Landmarks/>}
+          
+          </Animated.View>
+        </GestureDetector>
+      
     </View>
-   
+    
   );
 };
 
@@ -85,15 +166,72 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
   },
+
+    tabContainer: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    marginTop: 30,
+    bottom: -170,
+    marginBottom: 20,
+    borderRadius: 999, // Makes it a full pill shape
+    borderWidth: 1,
+    borderColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Semi-transparent white
+    padding: 2,
+    zIndex: 900
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 999,
+  },
+  activeTabButton: {
+    backgroundColor: '#F4A672', // White background for the active button
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  tabText: {
+    fontSize: 14,
+    color: '#fff', // White text for inactive
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  activeTabText: {
+    color: '#053B4A', // Dark text for active
+  },
   mapImage: {
-    width: '100%',
-    height: 700,
+    width: '80%',
+    height: "100%",
     resizeMode: 'cover',
+    top: 300,
+  },
+
+   mapImage2: {
+    width: '50%',
+    height: "80%",
+    resizeMode: 'cover',
+    
+    top: "7%",
+  },
+
+   mapImage3: {
+    width: "40%",
+    height: "60%",
+    resizeMode: 'cover',
+    
+    top: "-100%",
+    left: "1%",
   },
   animatedView: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    width: 2500,
+    height: 1000,
   },
   characterImage: {
     position: 'absolute',
@@ -105,11 +243,12 @@ const styles = StyleSheet.create({
   },
   cloudImage: {
     position: 'absolute',
-    top: 0,
+    top: 70,
     left: 0,
     width: '100%',
     height: 200,
     resizeMode: 'cover',
+    marginBottom: 90,
   },
 });
 

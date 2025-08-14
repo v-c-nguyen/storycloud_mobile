@@ -1,10 +1,14 @@
+import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
+import { StoryCard } from "@/components/Cards";
 import CardSeries from "@/components/CardSeries";
+import { ItemSeries } from "@/components/ItemSeries";
 import MapWrapper from "@/components/MapWrapper";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { stories } from "@/data/storyData";
 import { Stack } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -25,7 +29,42 @@ const cardsData = [
 ];
 
 export default function Map() {
-  const [activeTab, setActiveTab] = useState('Characters');
+  
+  const [collections, setCollections] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedCollection, setSelectedCollection] = useState<any | null>(null);
+  const storiesData = stories
+
+  function handleCollectionPress(collection: any) {
+    setSelectedCollection(collection);
+  }
+
+  useEffect(() => {
+    async function fetchSeries() {
+      setLoading(true);
+      try {
+        const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+        const { data, error } = await supabase.functions.invoke('collections', {
+          method: 'GET',
+          headers: {
+            Authorization: jwt ? `Bearer ${jwt}` : '',
+          },
+        });
+        if (error) {
+          console.error('Error fetching series:', error.message);
+
+        } else if (data && Array.isArray(data.data)) {
+          console.log("Collections::", data.data)
+          setCollections(data.data);
+        }
+      } catch (e) {
+        console.error('Error fetching focus modes:', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSeries();
+  }, []);
 
   return (
     <>
@@ -95,62 +134,69 @@ export default function Map() {
 
           {/* Tab Bar */}
           <CardSeries data={cardsData} active="Map"/>
-          {/* Story List */}
-         
-            <ThemedView style={styles.tabContainer}>
-            <TouchableOpacity 
-              style={[
-                styles.tabButton, 
-                activeTab === 'Characters' && styles.activeTabButton
-              ]}
-              onPress={() => setActiveTab('Characters')}
-            >
-              <ThemedText 
-                style={[
-                  styles.tabText, 
-                  activeTab === 'Characters' && styles.activeTabText
-                ]}
-              >
-                Characters
-              </ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[
-                styles.tabButton, 
-                activeTab === 'Landmarks' && styles.activeTabButton
-              ]}
-              onPress={() => setActiveTab('Landmarks')}
-            >
-              <ThemedText 
-                style={[
-                  styles.tabText, 
-                  activeTab === 'Landmarks' && styles.activeTabText
-                ]}
-              >
-                Landmarks
-              </ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
-            <ThemedView style={{ height:900, width: "100%",  marginBottom: 80 }}>
-
-            <MapWrapper/>
-              
-          </ThemedView>
-          <ThemedView>
           
-          </ThemedView>
-            
-          <ThemedView style={{ paddingHorizontal: 16, paddingTop: 20, backgroundColor: '#F8ECAE' }}>
-            
-            <ThemedView style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-              <Image source={require('@/assets/images/avatars/mia_120.png')} style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }} />
-              <ThemedView>
-                <ThemedText style={{ color: '#fff', fontSize: 24, fontWeight: 'bold' }}>Kai the Australian Shepherd</ThemedText>
-                <ThemedText style={{ color: '#fff', fontSize: 16 }}>An enthusiastic pup ready to explore sky, sea, and everything in between</ThemedText>
+          {selectedCollection ? (
+            <ThemedView style={styles.mainContent}>
+              <ThemedView style={styles.content}>
+                <TouchableOpacity onPress={() => setSelectedCollection(null)}>
+                  <ThemedView style={styles.backWrap}>
+                    <Image
+                      source={require("@/assets/images/kid/arrow-left.png")}
+                      style={styles.imgArrowLeft}
+                    />
+                    <ThemedText style={styles.backText}>Back</ThemedText>
+                  </ThemedView>
+                </TouchableOpacity>
+                <ThemedText style={styles.headerTitle}>{selectedCollection.name}</ThemedText>
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={styles.listContent}
+                >
+                  {storiesData
+                    .filter((ele) => ele.collection === selectedCollection.name)
+                    .map((item, idx) => (
+                      <StoryCard key={idx} {...item} />
+                    ))}
+                </ScrollView>
               </ThemedView>
             </ThemedView>
-            <CardSeries data={cardsData} active=''/>
-          </ThemedView>
+          ) : (
+            <>
+              <ThemedView style={{ height:1700, width: "100%",  marginBottom: 80 }}>
+                <MapWrapper/>
+              </ThemedView>
+              <ThemedView style={styles.mainContent}>
+              <ThemedView style={styles.content}>
+                {/* Story List */}
+                <ItemSeries itemsData={collections} theme="light" />
+
+                <ThemedView style={{ paddingBottom: 80, paddingTop: 40, gap: 20 }}>
+                  {collections.map((collection, index) => (
+                    <React.Fragment key={index}>
+                      <SectionHeader
+                        title={collection.name}
+                        desc={collection.description}
+                        link="continue"
+                        onPress={() => handleCollectionPress(collection)}
+                      />
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.cardScrollContainer}
+                      >
+                        {storiesData
+                          .filter((ele) => ele.collection === collection.name)
+                          .map((item, idx) => (
+                            <StoryCard key={idx} {...item} />
+                          ))}
+                      </ScrollView>
+                    </React.Fragment>
+                  ))}
+                </ThemedView>
+              </ThemedView>
+              </ThemedView>
+            </>
+          )}
         </ScrollView>
         {/* Sticky Bottom Navigation */}
         <ThemedView
@@ -171,7 +217,53 @@ export default function Map() {
   );
 }
 
+function SectionHeader({ title, desc, link, onPress }: { title: string; desc: string, link: string, onPress: any }) {
+  return (
+    <TouchableOpacity onPress={onPress}>
+       <Image source={require('@/assets/images/avatars/mia_120.png')} style={styles.avatar} />
+       <ThemedText style={styles.title}>{title}</ThemedText>
+      <ThemedView style={styles.sectionContainer}>
+        
+        <ThemedView>
+          
+          <ThemedText style={styles.description}>{desc}</ThemedText>
+        </ThemedView>
+      </ThemedView>
+    </TouchableOpacity>
+  );
+}
+
 const styles = StyleSheet.create({
+  sectionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    paddingHorizontal: 16,
+    width: 289,
+    height: 116,
+    gap: 10,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  },
+  title: {
+    fontFamily: 'Sitara',
+    fontWeight: '700',
+    fontSize: 24,
+    lineHeight: 32.4,
+    color: '#053B4A',
+  },
+  description: {
+    fontFamily: 'Sitara',
+    fontWeight: '400',
+    fontStyle: 'italic',
+    fontSize: 16,
+    lineHeight: 21.6,
+    color: '#053B4A',
+  },
   rootContainer: {
     flex: 1,
     backgroundColor: "#F8ECAE",
@@ -253,6 +345,8 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 24,
+    alignItems: 'center',
+    gap: 20,
   },
   cardWrap: {
     marginBottom: 16,
@@ -300,43 +394,41 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: 'center',
   },
+  mainContent: {
+    height: '100%',
+    backgroundColor: '#ffffff'
+  },
+  content: {
+    marginTop: 0
+  },
+  cardScrollContainer: {
+    gap: 20,
+    paddingHorizontal: 16,
+  },
+  sectionHeader: {
+    marginTop: 0,
+    marginBottom: 8,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  sectionTitle: {
+    color: "#053B4A",
+    fontSize: 24,
+    marginTop: 60,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    fontWeight: "700",
+    lineHeight: 24,
+  },
+  sectiondesc: {
+    color: "#053B4A",
+    fontSize: 16,
+    fontWeight: "400",
+    fontStyle: 'italic',
+    lineHeight: 24,
+  },
   // New styles for the Characters/Landmarks tab
-  tabContainer: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    marginTop: 30,
-    bottom: -250,
-    marginBottom: 20,
-    borderRadius: 999, // Makes it a full pill shape
-    borderWidth: 1,
-    borderColor: 'white',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Semi-transparent white
-    padding: 2,
-    zIndex: 900
-  },
-  tabButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 999,
-  },
-  activeTabButton: {
-    backgroundColor: '#F4A672', // White background for the active button
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  tabText: {
-    fontSize: 14,
-    color: '#fff', // White text for inactive
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  activeTabText: {
-    color: '#053B4A', // Dark text for active
-  },
+ 
 });
-
-

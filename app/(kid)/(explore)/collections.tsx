@@ -125,7 +125,7 @@ export default function Collections() {
               {/* Tab Bar */}
               <CardSeries data={cardsData} active="Collections" />
               {/* Story List */}
-              <ItemSeries itemsData={collections} />
+              <ItemSeries itemsData={collections} theme="light"/>
 
               <ThemedView style={{ paddingBottom: 80 }}>
                 {/* Continue Watching */}
