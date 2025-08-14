@@ -2,11 +2,10 @@ import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
 import { SeriesCard, StoryCard } from "@/components/Cards";
 import Header from "@/components/Header";
-import { PatternBackground } from "@/components/PatternBackground";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { storyOptionsData } from "@/data/libraryData";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
@@ -240,8 +239,6 @@ export default function LearningLibrary() {
 
 
   return (
-    <PatternBackground>
-      <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.safeAreaContainer}>
         <ThemedView style={styles.themedViewContainer}>
           <ScrollView
@@ -258,7 +255,7 @@ export default function LearningLibrary() {
             <Header icon={learningIcon} role="parent" title="Learning" theme="dark"></Header>
             {/* Header */}
             <ThemedView style={styles.topRow}>
-              <TouchableOpacity style={styles.iconBtn}>
+              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/(parent)/search-screen')}>
                 <Image source={searchIcon} tintColor={'white'} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>
@@ -331,7 +328,7 @@ export default function LearningLibrary() {
                 <View style={styles.detailsSection}>
                   <View style={styles.selectionHeaderRow}>
                     <View>
-                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLarge]}>{selectedSeries}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLarge , {lineHeight: 40}]}>{selectedSeries}</ThemedText>
                       <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmall]}>{"Brand new stories and fun"}</ThemedText>
                     </View>
                     <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedSeries(null)}>
@@ -483,7 +480,6 @@ export default function LearningLibrary() {
           </ThemedView>
         </ThemedView>
       </SafeAreaView >
-    </PatternBackground>
   );
 }
 

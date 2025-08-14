@@ -5,10 +5,10 @@ import CardSeries from "@/components/CardSeries";
 import { ItemSeries, ItemSeriesRef } from "@/components/ItemSeries";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { Image } from "expo-image";
 import { Stack } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -180,7 +180,29 @@ export default function Characters() {
       itemSeriesRef.current.resetSelection();
     }
   };
-
+  function SectionHeader({ title, desc, photoLink }: { title: string; desc: string, photoLink: string }) {
+    return (
+      <ThemedView style={[styles.cardWrap, { marginTop: 20, alignItems: "flex-start" }]}>
+        <View style={styles.avatarContainer}>
+          <Image
+            source={photoLink}
+            style={styles.avatar}
+            contentFit="cover"
+          />
+        </View>
+        <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
+        <ThemedView style={styles.sectionHeader}>
+          <ThemedText style={[styles.sectiondesc, { flex: 1 }]}>{desc}</ThemedText>
+          <TouchableOpacity onPress={() => { setSelectedCharacter(title) }}>
+            <Image
+              source={require("@/assets/images/kid/arrow-right.png")}
+              style={styles.imgArrowLeft}
+            />
+          </TouchableOpacity>
+        </ThemedView>
+      </ThemedView>
+    );
+  }
   useEffect(() => {
     async function fetchCharacters() {
       setLoading(true);
@@ -287,23 +309,24 @@ export default function Characters() {
               {
                 selectedCharacter ?
                   <ThemedView style={{ paddingBottom: 80, alignItems: "center", paddingLeft: 20 }}>
-                    <Image
-                      source={require("@/assets/images/kid/icon-heart.png")}
-                      style={{ marginTop: 20 }}
-                    />
-                    {/* <ThemedText style={[styles.sectionTitle, { marginTop: 10 , color : "#048F99"}]}>{"character"}</ThemedText> */}
+                    <View style={[styles.avatarContainer, { marginBottom: 20, padding: 15 }]}>
+                      <Image
+                        source={require("@/assets/images/avatars/lara_wombat.png")}
+                        style={styles.mainAvatar}
+                        contentFit="cover"
+                      />
+                    </View>
                     <ThemedText style={[styles.sectionTitle, { marginTop: 10 }]}>{selectedCharacter}</ThemedText>
                     <ThemedText style={[styles.sectiondesc, { marginBottom: 5, padding: 20, textAlign: "center" }]}>{" Meet amazing characters who will take you on incredible adventures and teach you valuable lessons. Each character has their own unique personality and special stories to share."}</ThemedText>
-                    
-                    <TouchableOpacity 
-                      style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, marginBottom: 20 }}
-                      onPress={handleBackToExplore}
+                    <View style={{backgroundColor:"#d0d0d0ff", height:1 , width:200}}></View>
+                    <TouchableOpacity style={{ flex: 1, flexDirection: "row" , alignItems:"center", justifyContent:"center" , margin:20}}
+                    onPress={handleBackToExplore}
                     >
                       <Image
                         source={require("@/assets/images/kid/arrow-left.png")}
                         style={{ width: 20, height: 20, marginRight: 8 }}
                       />
-                      <ThemedText style={[styles.sectionTitle, { marginTop: 10, fontSize: 18 }]}>{"Back to Explore"}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle , {marginTop:0 , marginBottom:0}]}>{"Back to Explore"}</ThemedText>
                     </TouchableOpacity>
 
                     <View style={{ flexDirection: "row", alignItems: "center", marginTop: 10, marginBottom: 20 }}>
@@ -351,7 +374,7 @@ export default function Characters() {
                   :
                   <ThemedView style={{ paddingBottom: 80 }}>
                     {/* Continue Watching */}
-                    <SectionHeader title="Brave Heroes" desc="Courageous characters and their adventures" link="continue" />
+                    <SectionHeader title="Brave Heroes" desc="Courageous characters and their adventures" photoLink={require("@/assets/images/avatars/lara_wombat.png")}/>
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}
@@ -364,7 +387,7 @@ export default function Characters() {
                     </ScrollView>
 
                     {/* Watch Next */}
-                    <SectionHeader title="Friendly Companions" desc="Kind and helpful characters" link="continue" />
+                    <SectionHeader title="Friendly Companions" desc="Kind and helpful characters" photoLink={require("@/assets/images/avatars/lara_wombat.png")}/>
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}
@@ -376,7 +399,7 @@ export default function Characters() {
                     </ScrollView>
 
                     {/* Featured Adventures */}
-                    <SectionHeader title="Magical Creatures" desc="Enchanting characters and their stories" link="continue" />
+                    <SectionHeader title="Magical Creatures" desc="Enchanting characters and their stories" photoLink={require("@/assets/images/avatars/lara_wombat.png")}/>
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}
@@ -419,24 +442,6 @@ export default function Characters() {
   );
 }
 
-
-function SectionHeader({ title, desc, link }: { title: string; desc: string, link: string }) {
-  return (
-    <ThemedView >
-      <ThemedView style={{ alignItems: "center", marginBottom: 10 }}>
-      </ThemedView>
-      <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
-      <ThemedView style={styles.sectionHeader}>
-        <ThemedText style={styles.sectiondesc}>{desc}</ThemedText>
-        <TouchableOpacity>
-          <Image
-            source={require("@/assets/images/kid/arrow-right.png")}
-          />
-        </TouchableOpacity>
-      </ThemedView>
-    </ThemedView>
-  );
-}
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
@@ -461,7 +466,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: "#053B4A",
     fontSize: 24,
-    marginTop: 60,
+    marginTop: 10,
     marginBottom: 16,
     paddingHorizontal: 16,
     fontWeight: "700",
@@ -508,6 +513,7 @@ const styles = StyleSheet.create({
   imgArrowLeft: {
     width: 20,
     height: 20,
+    alignSelf: "flex-end",
   },
   backText: {
     color: "#F4A672",
@@ -594,4 +600,23 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: 'center',
   },
+  avatar: {
+    width: 36,
+    height: 36,
+  },
+  avatarContainer: {
+    marginLeft: 16,
+    padding: 4,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#fff",
+    backgroundColor: "#F8ECAE",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 60,
+  },
+  mainAvatar: {
+    width: 80,
+    height: 80,
+  }
 });

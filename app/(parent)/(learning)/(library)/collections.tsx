@@ -98,7 +98,7 @@ const downIcon = require("@/assets/images/parent/down.png")
 export default function CollectionsLibrary() {
   const [collections, setCollections] = React.useState<any[]>([]);
   const storyOptions = storyOptionsData;
-    const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
   const [activeItem, setActiveItem] = React.useState('Collections');
   const [dropdownVisible, setDropdownVisible] = React.useState(false);
   const [selectedSeries, setSelectedSeries] = React.useState<string | null>(null);
@@ -187,7 +187,7 @@ export default function CollectionsLibrary() {
 
             {/* Header */}
             <ThemedView style={styles.topRow}>
-              <TouchableOpacity style={styles.iconBtn}>
+              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/(parent)/search-screen')}>
                 <Image source={searchIcon} tintColor={'white'} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>
@@ -264,7 +264,7 @@ export default function CollectionsLibrary() {
                   </TouchableOpacity>
                   <View style={styles.selectionTitleRow}>
                     <View>
-                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLargeCenter , {textAlign:"center"}]}>{selectedSeries}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLargeCenter , {textAlign:"center"}, {lineHeight: 40}]}>{selectedSeries}</ThemedText>
                       <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmallCenter , {textAlign:"center"}]}>{"Brand new stories and fun"}</ThemedText>
                     </View>
                   </View>
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
     paddingBottom: 55
   },
   categoryPillActive: {
-    backgroundColor: 'rgba(244, 166, 114, 1)'
+    backgroundColor: 'rgba(122, 193, 198, 1)'
   },
   categoryPillInactive: {
     backgroundColor: 'rgba(122, 193, 198, 0.2)'

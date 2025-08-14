@@ -1,13 +1,13 @@
 import { useUser } from "@/app/lib/UserContext";
 import BottomNavBar from "@/components/BottomNavBar";
 import { SeriesCard, StoryCard } from "@/components/Cards";
-import Header from "@/components/Header";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import Ionicons from '@expo/vector-icons/Feather';
+import { Image } from 'expo-image';
 import { RelativePathString, Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -154,6 +154,7 @@ export default function FreeModeHome() {
   const router = useRouter();
   const { child } = useUser();
   const [name, setName] = useState(child?.name || "");
+  const [showSignOut, setShowSignOut] = useState(false);
 
   //  useEffect(() => {
   //      switch (mode) {
@@ -182,24 +183,59 @@ export default function FreeModeHome() {
             contentContainerStyle={{ paddingBottom: 55 }}
           >
             {/* Top background */}
-            <Image
-              source={require("@/assets/images/kid/top-back-pattern.png")}
-              style={styles.topBackPattern}
-              resizeMode="cover"
-            />
-
-            <Header role="kid" title="" theme="light"></Header>
-            {/* Header */}
-            <ThemedView style={styles.headerWrap}>
-              <ThemedText style={styles.headerTitle}>Hey, {name}</ThemedText>
-              <Image
-                source={require("@/assets/images/kid/star-with-circle.png")}
-                style={styles.headerStar}
-              />
+            <ThemedView style={showSignOut && { backgroundColor: "#fff" }}>
+              <ThemedView style={styles.headingWrap}>
+                <Image
+                  source={require("@/assets/images/kid/logo-ballon.png")}
+                  style={[styles.logoBallon, { tintColor: 'rgba(5, 59, 74, 1)' }]}
+                  contentFit="cover"
+                />
+                <TouchableOpacity onPress={() => { setShowSignOut(!showSignOut); }}>
+                  <Image
+                    source={require("@/assets/images/kid/logo-baby.png")}
+                    style={[styles.logoBallon,]}
+                    contentFit="cover"
+                  />
+                </TouchableOpacity>
+              </ThemedView>
             </ThemedView>
-            <ThemedText style={styles.headerSubtitle}>
-              Let’s watch something and have fun!
-            </ThemedText>
+            {/* Header */}
+            {
+              showSignOut ? <>
+                <ThemedView style={[styles.headerWrap, { backgroundColor: "#fff" , marginBottom: 140}]}>
+                  <TouchableOpacity
+                    style={[styles.signOutButton]}
+                    onPress={() => console.log("Sign Out")}
+                  >
+                    <Ionicons
+                      name="log-out"
+                      size={24}
+                      color="#053B4A"
+                    />
+                    <ThemedText style={{ color: "#053B4A", fontSize: 18, marginLeft: 8 }}>
+                      Sign Out
+                    </ThemedText>
+                  </TouchableOpacity>
+                  <Image
+                    source={require("@/assets/images/kid/cloud-group-bottom.png")}
+                    style={[styles.imgCloudFar, { transform: [{ rotate: '180deg' }]}]}
+                    resizeMode="cover"
+                  />
+                </ThemedView>
+              </> :
+                <>
+                  <ThemedView style={styles.headerWrap}>
+                    <ThemedText style={styles.headerTitle}>Hey, {name}</ThemedText>
+                    <Image
+                      source={require("@/assets/images/kid/star-with-circle.png")}
+                      style={styles.headerStar}
+                    />
+                  </ThemedView>
+                  <ThemedText style={styles.headerSubtitle}>
+                    Let’s watch something and have fun!
+                  </ThemedText>
+                </>
+            }
             <ThemedView style={styles.headerRocketWrap}>
               <Image
                 source={require("@/assets/images/kid/rocket.png")}
@@ -327,7 +363,8 @@ const styles = StyleSheet.create({
     left: 0,
   },
   headerWrap: {
-    marginTop: 48,
+    paddingTop: 40,
+    paddingBottom: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -399,5 +436,27 @@ const styles = StyleSheet.create({
     gap: 20,
     paddingHorizontal: 16,
     paddingBottom: 60,
+  },
+  logoBallon: {
+    width: 48,
+    height: 48,
+  },
+  headingWrap: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginLeft: 16,
+    marginRight: 16,
+    marginTop: 23,
+  },
+  signOutButton: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 16,
+    paddingVertical: 5,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#053B4A",
   },
 });

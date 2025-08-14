@@ -8,11 +8,14 @@ export default function AuthLayout() {
 
   return (
     <Stack
+      screenOptions={{
+        headerShown: false
+      }}
     >
-      <Stack.Screen name="(library)" options={{headerShown: false}}/>
-      <Stack.Screen name="(focus)" options={{headerShown: false}} />
-      <Stack.Screen name="(pathway)" options={{headerShown: false}} />
-      <Stack.Screen name="index"/>
+      <Stack.Screen name="(library)" />
+      <Stack.Screen name="(focus)"  />
+      <Stack.Screen name="(pathway)"  />
+      <Stack.Screen name="index"  />
     </Stack>
   );
 }

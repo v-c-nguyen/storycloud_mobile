@@ -8,12 +8,12 @@ import { ThemedView } from "./ThemedView";
 export interface ItemSeriesType {
   name: string;
   avatar_url?: string;
-  symbol?: string; 
+  symbol?: string;
 }
 
 interface ItemSeriesProps {
   itemsData: ItemSeriesType[];
-  onSelect?: (item: ItemSeriesType | null) => void; 
+  onSelect?: (item: ItemSeriesType | null) => void;
 }
 
 export interface ItemSeriesRef {
@@ -60,13 +60,20 @@ export const ItemSeries = forwardRef<ItemSeriesRef, ItemSeriesProps>(({ itemsDat
                   isSelected && styles.pillSelected
                 ]}
               >
-                {item.avatar_url && 
+                {item.avatar_url &&
                   <Image
                     source={item.avatar_url}
                     style={styles.avatar}
                     contentFit="cover"
                   />
                 }
+                {/* <View style={styles.avatarContainer}>
+                  <Image
+                  source={item.avatar_url ? null : require("../assets/images/avatars/lara_wombat.png")}
+                  style={styles.avatar}
+                  contentFit="cover"
+                />
+                </View> */}
                 <ThemedText
                   style={[
                     styles.pillText,
@@ -102,23 +109,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#053b4a17",
   },
-  
+
   pillSelected: {
     backgroundColor: "#fba864",
-    borderWidth: 0, 
+    borderWidth: 0,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-  
+
   pillText: {
     fontSize: 16,
     fontWeight: "400",
     color: "#053B4A",
   },
-  
+
   pillTextSelected: {
     color: "#053B4A",
     fontWeight: "600",
@@ -127,7 +134,17 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
+  },
+  avatarContainer: {
     marginRight: 8,
+    padding: 4,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#fff",
+    backgroundColor: "#F8ECAE",
+    alignItems: "center",
+    justifyContent: "center",
+
   },
   fallbackAvatar: {
     width: 36,

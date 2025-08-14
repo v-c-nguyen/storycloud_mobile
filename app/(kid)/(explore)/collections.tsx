@@ -50,6 +50,28 @@ export default function Collections() {
     }
   };
 
+  function SectionHeader({ title, desc, link }: { title: string; desc: string, link: string }) {
+    return (
+      <ThemedView >
+        <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
+        <ThemedView style={styles.sectionHeader}>
+          <ThemedText style={styles.sectiondesc}>{desc}</ThemedText>
+          {/* <Link href={`/kid/dashboard/${link}`}>
+          <Image
+            source={require("@/assets/images/kid/arrow-right.png")}
+            style={styles.sectionArrow}
+          />
+        </Link> */}
+          <TouchableOpacity onPress={() => { setSelectedCollection(title) }}>
+            <Image
+              source={require("@/assets/images/kid/arrow-right.png")}
+            />
+          </TouchableOpacity>
+        </ThemedView>
+      </ThemedView>
+    );
+  }
+
   useEffect(() => {
     async function fetchSeries() {
       setLoading(true);
@@ -146,35 +168,34 @@ export default function Collections() {
               {/* Tab Bar */}
               <CardSeries data={cardsData} active="Collections" />
               {/* Story List */}
-              <ItemSeries 
+              <ItemSeries
                 ref={itemSeriesRef}
-                itemsData={filteredCollections} 
+                itemsData={filteredCollections}
                 onSelect={(item) => {
                   setSelectedCollection(item ? item.name : null);
-                }} 
+                }}
               />
 
               {
                 selectedCollection ?
                   <ThemedView style={{ paddingBottom: 80 }}>
-                    <View style={{alignItems:"center"}}>
-                      <ThemedText style={[styles.sectionTitle, { marginTop: 10 , color : "#048F99"}]}>{"collection"}</ThemedText>
-                    <ThemedText style={[styles.sectionTitle, { marginTop: 10 }]}>{selectedCollection}</ThemedText>
-                    <ThemedText style={[styles.sectiondesc, { marginBottom: 5 , padding:20 , textAlign:"center" }]}>{" Explore vast jungles, soaring mountains, and sweeping grasslands—Earth's wildest places await."}</ThemedText>
+                    <View style={{ alignItems: "center" }}>
+                      <ThemedText style={[styles.sectionTitle, { marginTop: 10, color: "#048F99" }]}>{"collection"}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, { marginTop: 10 }]}>{selectedCollection}</ThemedText>
+                      <ThemedText style={[styles.sectiondesc, { marginBottom: 5, padding: 20, textAlign: "center" }]}>{" Explore vast jungles, soaring mountains, and sweeping grasslands—Earth's wildest places await."}</ThemedText>
+                    <View style={{ backgroundColor: "#d0d0d0ff", height: 1, width: 200 }}></View>
                     </View>
                     
-                    <TouchableOpacity 
-                      style={{ flex:1, flexDirection: "row", alignItems: "center", marginBottom: 5,  justifyContent: "center",}}
+                    <TouchableOpacity style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", margin: 20 }}
                       onPress={handleBackToExplore}
                     >
                       <Image
                         source={require("@/assets/images/kid/arrow-left.png")}
-                        style={{ width: 20, height: 20, marginRight: 8 ,}}
                       />
-                      <ThemedText style={[styles.sectionTitle, { marginTop: 10, fontSize: 18 }]}>{"Back to Explore"}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, { marginTop: 0, marginBottom: 0 }]}>{"Back to Explore"}</ThemedText>
                     </TouchableOpacity>
 
-                    <SectionHeader title={selectedCollection} desc="Kai, the adventurous Australian Shepherd, explores forests, gardens, and ponds" link="collection"/>
+                    <SectionHeader title={selectedCollection} desc="Kai, the adventurous Australian Shepherd, explores forests, gardens, and ponds" link="collection" />
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}
@@ -186,7 +207,7 @@ export default function Collections() {
                           <StoryCard key={idx} {...item} />
                         ))}
                     </ScrollView>
-                    <SectionHeader title={selectedCollection} desc="Kai, the adventurous Australian Shepherd, explores forests, gardens, and ponds" link="collection"/>
+                    <SectionHeader title={selectedCollection} desc="Kai, the adventurous Australian Shepherd, explores forests, gardens, and ponds" link="collection" />
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}
@@ -270,22 +291,7 @@ export default function Collections() {
 }
 
 
-function SectionHeader({ title, desc, link }: { title: string; desc: string, link: string }) {
-  return (
-    <ThemedView >
-      <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
-      <ThemedView style={styles.sectionHeader}>
-        <ThemedText style={styles.sectiondesc}>{desc}</ThemedText>
-        {/* <Link href={`/kid/dashboard/${link}`}>
-          <Image
-            source={require("@/assets/images/kid/arrow-right.png")}
-            style={styles.sectionArrow}
-          />
-        </Link> */}
-      </ThemedView>
-    </ThemedView>
-  );
-}
+
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,

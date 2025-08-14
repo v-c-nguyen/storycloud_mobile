@@ -13,6 +13,7 @@ export default function ParentLayout() {
       <Stack.Screen name="(learning)" options={{ headerShown: false }}/>
       <Stack.Screen name="(listen)" options={{ headerShown: false }}/>
       <Stack.Screen name="(profiles)" options={{ headerShown: false }}/>
+      <Stack.Screen name="search-screen" options={{ headerShown: false }}/>
     </Stack>
   );
 }

@@ -186,7 +186,7 @@ export default function SeriesLibrary() {
 
             {/* Header */}
             <ThemedView style={styles.topRow}>
-              <TouchableOpacity style={styles.iconBtn}>
+              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/(parent)/search-screen')}>
                 <Image source={searchIcon} tintColor={'white'} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>
@@ -209,7 +209,7 @@ export default function SeriesLibrary() {
             {/* Category pills */}
             <FlatList
               horizontal
-              data={categories}
+              data={categories.map((item) => item.name)}
               keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => handleStoryItem(item)}>
@@ -257,7 +257,7 @@ export default function SeriesLibrary() {
                 <View style={styles.detailsSection}>
                   <View style={styles.selectionHeaderRow}>
                     <View>
-                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLarge]}>{selectedSeries}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLarge , {lineHeight: 40}]}>{selectedSeries}</ThemedText>
                       <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmall]}>{"Brand new stories and fun"}</ThemedText>
                     </View>
                     <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedSeries(null)}>

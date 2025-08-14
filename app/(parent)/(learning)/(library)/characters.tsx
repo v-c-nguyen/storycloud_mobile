@@ -181,7 +181,7 @@ export default function CharactersLibrary() {
 
             {/* Header */}
             <ThemedView style={styles.topRow}>
-              <TouchableOpacity style={styles.iconBtn}>
+              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/(parent)/search-screen')}>
                 <Image source={searchIcon} tintColor={'white'} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>
@@ -264,7 +264,7 @@ export default function CharactersLibrary() {
                           style={[styles.avatarImg]}
                         />
                       </View>
-                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLarge]}>{selectedSeries}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLarge , {lineHeight: 40}]}>{selectedSeries}</ThemedText>
                       <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmall]}>{"Brand new stories and fun"}</ThemedText>
                     </View>
                     <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedSeries(null)}>

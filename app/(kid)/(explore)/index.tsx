@@ -13,7 +13,8 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  View
 } from "react-native";
 
 
@@ -173,6 +174,28 @@ export default function KidExplorer() {
     }
   };
 
+  function SectionHeader({ title, desc, link }: { title: string; desc: string, link: string }) {
+  return (
+    <ThemedView >
+      <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
+      <ThemedView style={styles.sectionHeader}>
+        <ThemedText style={styles.sectiondesc}>{desc}</ThemedText>
+        {/* <Link href={`/kid/dashboard/${link}`}>
+          <Image
+            source={require("@/assets/images/kid/arrow-right.png")}
+            style={styles.sectionArrow}
+          />
+        </Link> */}
+        <TouchableOpacity onPress={() => {setSelectedSeries(title)}}>
+          <Image
+            source={require("@/assets/images/kid/arrow-right.png")}
+          />
+        </TouchableOpacity>
+      </ThemedView>
+    </ThemedView>
+  );
+}
+
   useEffect(() => {
     async function fetchSeries() {
       setLoading(true);
@@ -284,14 +307,14 @@ export default function KidExplorer() {
                     <ThemedText style={[styles.sectionTitle, { marginTop: 10 , color : "#048F99"}]}>{"series"}</ThemedText>
                     <ThemedText style={[styles.sectionTitle, { marginTop: 10 }]}>{selectedSeries}</ThemedText>
                     <ThemedText style={[styles.sectiondesc, { marginBottom: 5 , padding:20 , textAlign:"center"}]}>{"  Kai, the adventurous Australian Shepherd, explores forests, gardens, and ponds to discover how plants and animals live together in an interconnected world. He takes his friends on fun quests—like finding missing pollinators, rescuing a burrow from collapse, or learning about hidden seeds—that reveal the wonders of nature."}</ThemedText>
-                    <TouchableOpacity style={{ flex: 1, flexDirection: "row" , alignItems:"center"}}
+                    <View style={{backgroundColor:"#d0d0d0ff", height:1 , width:200}}></View>
+                    <TouchableOpacity style={{ flex: 1, flexDirection: "row" , alignItems:"center", justifyContent:"center" , margin:20}}
                     onPress={handleBackToExplore}
                     >
                       <Image
                         source={require("@/assets/images/kid/arrow-left.png")}
-                        style={{marginTop:47}}
                       />
-                      <ThemedText style={styles.sectionTitle}>{"Back to Explore"}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle , {marginTop:0 , marginBottom:0}]}>{"Back to Explore"}</ThemedText>
                     </TouchableOpacity>
                     <ScrollView
                       horizontal={false}
@@ -379,28 +402,6 @@ export default function KidExplorer() {
   );
 }
 
-
-function SectionHeader({ title, desc, link }: { title: string; desc: string, link: string }) {
-  return (
-    <ThemedView >
-      <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
-      <ThemedView style={styles.sectionHeader}>
-        <ThemedText style={styles.sectiondesc}>{desc}</ThemedText>
-        {/* <Link href={`/kid/dashboard/${link}`}>
-          <Image
-            source={require("@/assets/images/kid/arrow-right.png")}
-            style={styles.sectionArrow}
-          />
-        </Link> */}
-        <TouchableOpacity>
-          <Image
-            source={require("@/assets/images/kid/arrow-right.png")}
-          />
-        </TouchableOpacity>
-      </ThemedView>
-    </ThemedView>
-  );
-}
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
