@@ -103,33 +103,33 @@ export default function CollectionsLibrary() {
   const [dropdownVisible, setDropdownVisible] = React.useState(false);
   const [selectedSeries, setSelectedSeries] = React.useState<string | null>(null);
 
-  
-    useEffect(() => {
-      async function fetchCharacters() {
-        setLoading(true);
-        try {
-          const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
-          const { data, error } = await supabase.functions.invoke('collections', {
-            method: 'GET',
-            headers: {
-              Authorization: jwt ? `Bearer ${jwt}` : '',
-            },
-          });
-          if (error) {
-            console.error('Error fetching characters:', error.message);
-  
-          } else if (data && Array.isArray(data.data)) {
-            console.log("Characters::", data.data)
-            setCollections(data.data);
-          }
-        } catch (e) {
-          console.error('Error fetching characters:', e);
-        } finally {
-          setLoading(false);
+
+  useEffect(() => {
+    async function fetchCharacters() {
+      setLoading(true);
+      try {
+        const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+        const { data, error } = await supabase.functions.invoke('collections', {
+          method: 'GET',
+          headers: {
+            Authorization: jwt ? `Bearer ${jwt}` : '',
+          },
+        });
+        if (error) {
+          console.error('Error fetching characters:', error.message);
+
+        } else if (data && Array.isArray(data.data)) {
+          console.log("Characters::", data.data)
+          setCollections(data.data);
         }
+      } catch (e) {
+        console.error('Error fetching characters:', e);
+      } finally {
+        setLoading(false);
       }
-      fetchCharacters();
-    }, []);
+    }
+    fetchCharacters();
+  }, []);
 
   function handleItemSelection(item: string) {
     console.log("item selected::", item)
@@ -215,7 +215,7 @@ export default function CollectionsLibrary() {
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => handleStoryItem(item)}>
                   <ThemedView style={[styles.categoryPill, selectedSeries === item ? styles.categoryPillActive : styles.categoryPillInactive]}>
-                  <ThemedText style={[styles.categoryText, selectedSeries === item ? {color:'rgba(5, 59, 74, 1)' } : null]}>{item}</ThemedText>
+                    <ThemedText style={[styles.categoryText, selectedSeries === item ? { color: 'rgba(5, 59, 74, 1)' } : null]}>{item}</ThemedText>
                   </ThemedView>
                 </TouchableOpacity>
               )}
@@ -264,8 +264,8 @@ export default function CollectionsLibrary() {
                   </TouchableOpacity>
                   <View style={styles.selectionTitleRow}>
                     <View>
-                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLargeCenter , {textAlign:"center"}, {lineHeight: 40}]}>{selectedSeries}</ThemedText>
-                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmallCenter , {textAlign:"center"}]}>{"Brand new stories and fun"}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLargeCenter, { textAlign: "center" }, { lineHeight: 40 }]}>{selectedSeries}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmallCenter, { textAlign: "center" }]}>{"Brand new stories and fun"}</ThemedText>
                     </View>
                   </View>
                   <View style={styles.statsContainer}>
@@ -289,19 +289,23 @@ export default function CollectionsLibrary() {
                     </View>
                   </TouchableOpacity>
                 </View>
-                <View style={styles.selectionTitleRowAlt}>
-                  <View>
-                    <ThemedText style={[styles.sectionTitle, styles.selectionTitleLargeCenter]}>{selectedSeries}</ThemedText>
-                    <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmallCenter]}>{"Brand new stories and fun"}</ThemedText>
-                  </View>
-                  <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedSeries(null)}>
+                <View style={[styles.headerTitleContainer, { width: "100%", justifyContent: "space-between" }]}>
+
+                  <ThemedView >
+                    <ThemedText style={[styles.sectionTitle, styles.selectionTitleLargeCenter, { lineHeight: 40,  marginBottom:0, marginLeft:16 , marginTop:20}]}>{"Kai’s Living Adventure"}</ThemedText>
+                    <ThemedView style={styles.sectionHeader}>
+                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmallCenter]}>{"Kai, the adventurous Australian Shepherd, explores forests, gardens, and ponds"}</ThemedText>
+                    </ThemedView>
+                  </ThemedView>
+                  <TouchableOpacity
+                    onPress={() => handleStoryItem("Popular Themes")}
+                  >
                     <Image
                       source={require("@/assets/images/kid/arrow-right.png")}
-                      style={styles.closeArrow}
+                      style={[styles.arrowIcon , {position: "absolute", right: 16, bottom: 10}]}
                     />
                   </TouchableOpacity>
                 </View>
-
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -449,17 +453,6 @@ export default function CollectionsLibrary() {
         </ThemedView>
       </SafeAreaView >
     </PatternBackground>
-  );
-}
-
-function SectionHeader({ title, desc, link }: { title: string; desc: string, link: string }) {
-  return (
-    <ThemedView >
-      <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
-      <ThemedView style={styles.sectionHeader}>
-        <ThemedText style={styles.sectiondesc}>{desc}</ThemedText>
-      </ThemedView>
-    </ThemedView>
   );
 }
 
@@ -727,25 +720,25 @@ const styles = StyleSheet.create({
     marginRight: 16,
     marginBottom: 10
   },
-     statsContainerAlt: {
-     flexDirection: "row",
-     alignItems: "center",
-     marginBottom: 10,
-     marginLeft: 16,
-     justifyContent: "center"
-   },
-   button: {
-     flexDirection: "row",
-     alignItems: "center",
-     backgroundColor: "#ECA36D",
-     paddingVertical: 8,
-     paddingHorizontal: 14,
-     borderRadius: 50,
-     marginHorizontal: 16,
-   },
-   ButtonText: {
-     color: "#0D4B4F",
-     fontSize: 20,
-     fontWeight: "400",
-   }
+  statsContainerAlt: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    marginLeft: 16,
+    justifyContent: "center"
+  },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ECA36D",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 50,
+    marginHorizontal: 16,
+  },
+  ButtonText: {
+    color: "#0D4B4F",
+    fontSize: 20,
+    fontWeight: "400",
+  }
 });
