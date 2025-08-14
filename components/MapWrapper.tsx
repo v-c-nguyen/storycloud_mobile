@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
-import { Image, ImageBackground, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import Characters from './Characters';
-import Forests from './Forests';
-import Heaps from './heaps';
 import Landmarks from './Landmarks';
-import Montains from './Montains';
-import Places from './Places';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
 
@@ -17,8 +13,8 @@ const MapWrapper = () => {
   const y = useSharedValue(0);
   const savedX = useSharedValue(0);
   const savedY = useSharedValue(0);
-  const scale = useSharedValue(1.3);
-  const savedScale = useSharedValue(1.3);
+  const scale = useSharedValue(9.7);
+  const savedScale = useSharedValue(0.7);
   const [activeTab, setActiveTab] = useState('Characters');
   // const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
@@ -119,26 +115,13 @@ const MapWrapper = () => {
         <GestureDetector gesture={composedGesture}>
           <Animated.View style={[styles.animatedView, animatedStyle]}>
             
-            <Montains
-            noofmontainsdisplay={10} />
-            <ImageBackground source={require('@/assets/images/maps/Central.png')} style={styles.mapImage}>
-            <Montains/>
-            <Image source={require('@/assets/images/maps/Water.png')} style={{top: "50%", left: "40%"}}></Image>
-              <Forests />
-              <Montains/>
-              <Places/>
-            </ImageBackground>
-            {/* <Map2/> */}
-             <ImageBackground source={require('@/assets/images/maps/Volga.png')} style={styles.mapImage2}>
-              <Heaps/>
-               <Forests />
-             </ImageBackground>
-             <ImageBackground source={require('@/assets/images/maps/path5292.png')} style={styles.mapImage3}>
+            
              
               
-              <Forests />
-              
-             </ImageBackground>
+                   <Image
+          source={require('@/assets/images/maps/Map1.png')}
+          style={styles.mapImage}
+        />
             
             
            
@@ -205,7 +188,7 @@ const styles = StyleSheet.create({
   },
   mapImage: {
     width: '80%',
-    height: "100%",
+    height: "110%",
     resizeMode: 'cover',
     top: 300,
   },
@@ -220,7 +203,7 @@ const styles = StyleSheet.create({
 
    mapImage3: {
     width: "40%",
-    height: "60%",
+    height: "80%",
     resizeMode: 'cover',
     
     top: "-100%",
@@ -231,7 +214,7 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     // alignItems: 'center',
     width: 2500,
-    height: 1000,
+    height: 1200,
   },
   characterImage: {
     position: 'absolute',

@@ -8,7 +8,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { stories } from "@/data/storyData";
 import { Stack } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -34,10 +34,19 @@ export default function Map() {
   const [loading, setLoading] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState<any | null>(null);
   const storiesData = stories
+  const scrollViewRef = useRef<ScrollView>(null);
 
   function handleCollectionPress(collection: any) {
     setSelectedCollection(collection);
   }
+
+  useEffect(() => {
+    if (selectedCollection) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      }, 100);
+    }
+  }, [selectedCollection]);
 
   useEffect(() => {
     async function fetchSeries() {
@@ -74,6 +83,7 @@ export default function Map() {
       <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView
+          ref={scrollViewRef}
           style={styles.rootContainer}
           showsVerticalScrollIndicator={false}
         >
@@ -138,20 +148,31 @@ export default function Map() {
           {selectedCollection ? (
             <ThemedView style={styles.mainContent}>
               <ThemedView style={styles.content}>
+                <ThemedView style={styles.collectionHeader}>
+                   <Image source={require('@/assets/images/avatars/mia_120.png')} style={styles.avatar} />
+                  <ThemedText style={styles.collectionTitle}>{selectedCollection.name}</ThemedText>
+                  <ThemedText style={styles.collectionDescription}>{selectedCollection.description}</ThemedText>
+                  <ThemedView style={styles.statsContainer}>
+                    <ThemedText style={styles.statsText}>ALL</ThemedText>
+                    {/* <ThemedText style={styles.statsText}>✓ 10 SERIES</ThemedText> */}
+                    <Image source={require('@/assets/images/mark.png')} style={{width: 40, height: 30,}}/>
+                    <ThemedText style={styles.statsText}>101 STORIES</ThemedText>
+                  </ThemedView>
+                </ThemedView>
                 <TouchableOpacity onPress={() => setSelectedCollection(null)}>
                   <ThemedView style={styles.backWrap}>
                     <Image
                       source={require("@/assets/images/kid/arrow-left.png")}
                       style={styles.imgArrowLeft}
                     />
-                    <ThemedText style={styles.backText}>Back</ThemedText>
+                    <ThemedText style={styles.backText}>Back to Storyland Map</ThemedText>
                   </ThemedView>
                 </TouchableOpacity>
-                <ThemedText style={styles.headerTitle}>{selectedCollection.name}</ThemedText>
                 <ScrollView
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.listContent}
                 >
+              
                   {storiesData
                     .filter((ele) => ele.collection === selectedCollection.name)
                     .map((item, idx) => (
@@ -162,9 +183,14 @@ export default function Map() {
             </ThemedView>
           ) : (
             <>
-              <ThemedView style={{ height:1700, width: "100%",  marginBottom: 80 }}>
+              <ThemedView style={{ height:1200, width: "100%",  marginBottom: 80 }}>
                 <MapWrapper/>
               </ThemedView>
+              <Image
+              source={require("@/assets/images/kid/cloud-group-near.png")}
+              style={styles.imgCloudNear2}
+              resizeMode="cover"
+            />
               <ThemedView style={styles.mainContent}>
               <ThemedView style={styles.content}>
                 {/* Story List */}
@@ -220,7 +246,7 @@ export default function Map() {
 function SectionHeader({ title, desc, link, onPress }: { title: string; desc: string, link: string, onPress: any }) {
   return (
     <TouchableOpacity onPress={onPress}>
-       <Image source={require('@/assets/images/avatars/mia_120.png')} style={styles.avatar} />
+       <Image source={require('@/assets/images/avatars/dog.png')} style={styles.avatar} />
        <ThemedText style={styles.title}>{title}</ThemedText>
       <ThemedView style={styles.sectionContainer}>
         
@@ -248,6 +274,8 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     marginRight: 10,
+    marginBottom:50,
+    marginTop:50,
   },
   title: {
     fontFamily: 'Sitara',
@@ -309,17 +337,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     marginTop: 84,
+    height:40,
     marginBottom: 58,
   },
   imgArrowLeft: {
-    width: 20,
-    height: 20,
+    width: 40,
+    height: 40,
   },
   backText: {
     color: "#F4A672",
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
-    lineHeight: 18,
+    lineHeight: 40,
+    height:40,
+
   },
   headerCloudWrap: {
     display: "flex",
@@ -341,6 +372,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 42,
     left: 0,
+  },
+   imgCloudNear2: {
+    width: "150%",
+    height: "5%",
+    position: "absolute",
+    top: "22.3%",
+    left: 0,
+    
   },
   listContent: {
     paddingHorizontal: 16,
@@ -429,6 +468,42 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     lineHeight: 24,
   },
-  // New styles for the Characters/Landmarks tab
- 
+  collectionHeader: {
+    alignItems: 'center',
+    paddingVertical: 20,
+   
+  },
+  collectionImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 20,
+  },
+  collectionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#38A3A5',
+    marginBottom: 10,
+    fontFamily:"Sitara"
+  },
+  collectionDescription: {
+    fontSize: 16,
+    color: '#38A3A5',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+    fontFamily:"Sitara"
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  statsText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#38A3A5',
+  },
 });
