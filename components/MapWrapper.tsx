@@ -13,8 +13,8 @@ const MapWrapper = () => {
   const y = useSharedValue(0);
   const savedX = useSharedValue(0);
   const savedY = useSharedValue(0);
-  const scale = useSharedValue(9.7);
-  const savedScale = useSharedValue(0.7);
+  const scale = useSharedValue(1.3);
+  const savedScale = useSharedValue(1.3);
   const [activeTab, setActiveTab] = useState('Characters');
   // const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
@@ -42,11 +42,11 @@ const MapWrapper = () => {
       const maxX = (2500 * 1.2 - windowWidth) / 2;
       const minX = -maxX;
 
-      // const maxY = (windowHeight * (2.5 - 1)) / 2;
-      // const minY = -maxY;
+      const maxY = (1200 * 1.2 - windowHeight) / 2;
+      const minY = -maxY;
 
       x.value = Math.max(minX, Math.min(newX, maxX));
-      // y.value = Math.max(minY, Math.min(newY, maxY));
+      y.value = Math.max(minY, Math.min(newY, maxY));
     })
     .onEnd(() => {
       savedX.value = x.value;
