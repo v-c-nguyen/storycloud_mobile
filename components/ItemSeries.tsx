@@ -1,167 +1,121 @@
-// components/ItemSeries.tsx
 import { Image } from "expo-image";
-import React, { forwardRef, useImperativeHandle, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 
-export interface ItemSeriesType {
-  name: string;
-  avatar_url?: string;
-  symbol?: string;
+interface ItemProp {
+    name: string,
+    avatar_url?: any,
+    symbol?: string
 }
 
-interface ItemSeriesProps {
-  itemsData: ItemSeriesType[];
-  onSelect?: (item: ItemSeriesType | null) => void;
-}
+export function ItemSeries({ itemsData, theme = "light", selectedItem, onSelectItem }: { itemsData: ItemProp[], theme: string, selectedItem: string | null, onSelectItem: (item: string) => void }) {
+    const flatListRef = useRef<FlatList<ItemProp>>(null);
 
-export interface ItemSeriesRef {
-  resetSelection: () => void;
-}
+    useEffect(() => {
+        if (selectedItem) {
+            const index = itemsData.findIndex(item => item.name === selectedItem);
+            if (index !== -1) {
+                flatListRef.current?.scrollToIndex({ index, animated: true });
+            }
+        }
+    }, [selectedItem, itemsData]);
 
-export const ItemSeries = forwardRef<ItemSeriesRef, ItemSeriesProps>(({ itemsData, onSelect }, ref) => {
-  const [selected, setSelected] = useState<string | null>(null);
-
-  useImperativeHandle(ref, () => ({
-    resetSelection: () => {
-      setSelected(null);
-      if (onSelect) onSelect(null);
+    function handleStoryItem(item: string) {
+        onSelectItem(item);
+        console.log("storyOption clicked::", item)
     }
-  }), [onSelect]);
-
-  function handlePress(item: ItemSeriesType) {
-    if (selected === item.name) {
-      // Toggle off
-      setSelected(null);
-      if (onSelect) onSelect(null);
-    } else {
-      // Select new
-      setSelected(item.name);
-      if (onSelect) onSelect(item);
-    }
-  }
-
-  return (
-    <ThemedView>
-      <FlatList
-        data={itemsData}
-        horizontal
-        keyExtractor={(item) => item.name}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => {
-          const isSelected = selected === item.name;
-          return (
-            <TouchableOpacity onPress={() => handlePress(item)}>
-              <ThemedView
-                style={[
-                  styles.pill,
-                  isSelected && styles.pillSelected
-                ]}
-              >
-                {item.avatar_url &&
-                  <Image
-                    source={item.avatar_url}
-                    style={styles.avatar}
-                    contentFit="cover"
-                  />
-                }
-                {/* <View style={styles.avatarContainer}>
-                  <Image
-                  source={item.avatar_url ? null : require("../assets/images/avatars/lara_wombat.png")}
-                  style={styles.avatar}
-                  contentFit="cover"
-                />
-                </View> */}
-                <ThemedText
-                  style={[
-                    styles.pillText,
-                    isSelected && styles.pillTextSelected
-                  ]}
-                >
-                  {item.name.trim()}
-                </ThemedText>
-              </ThemedView>
-            </TouchableOpacity>
-          );
-        }}
-      />
-    </ThemedView>
-  );
-});
-
-ItemSeries.displayName = 'ItemSeries';
+    return (
+        <ThemedView>
+            {/* Category pills */}
+            <FlatList
+                ref={flatListRef}
+                horizontal
+                data={itemsData}
+                keyExtractor={(item) => item.name}
+                onScrollToIndexFailed={info => {
+                    const wait = new Promise(resolve => setTimeout(resolve, 500));
+                    wait.then(() => {
+                      flatListRef.current?.scrollToIndex({ index: info.index, animated: true });
+                    });
+                  }}
+                renderItem={({ item }) => {
+                    const isSelected = selectedItem === item.name;
+                    return (
+                        <TouchableOpacity onPress={() => handleStoryItem(item.name)}>
+                            <ThemedView style={[styles.categoryPill, theme == "dark" && styles.activeCategoryPill, isSelected && styles.selectedPill]}>
+                                {item.avatar_url && <Image source={item.avatar_url} style={styles.categoryAvatar} />}
+                                {item.symbol && <ThemedText style={styles.symbol}>{item.symbol}</ThemedText>}
+                                <ThemedText
+                                    style={[
+                                        styles.categoryText,
+                                        isSelected && styles.selectedText,
+                                        theme == "dark" && {color: 'white'}]}
+                                >
+                                    {item.name}
+                                </ThemedText>
+                            </ThemedView>
+                        </TouchableOpacity>
+                    );
+                }}
+                style={{ paddingHorizontal: 16 }}
+                showsHorizontalScrollIndicator={false}
+            />
+        </ThemedView>
+    )
+}
 
 const styles = StyleSheet.create({
-  listContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  pill: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 25,
-    backgroundColor: "#fff",
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: "#053b4a17",
-  },
 
-  pillSelected: {
-    backgroundColor: "#fba864",
-    borderWidth: 0,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-  },
-
-  pillText: {
-    fontSize: 16,
-    fontWeight: "400",
-    color: "#053B4A",
-  },
-
-  pillTextSelected: {
-    color: "#053B4A",
-    fontWeight: "600",
-  },
-  avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-  },
-  avatarContainer: {
-    marginRight: 8,
-    padding: 4,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#fff",
-    backgroundColor: "#F8ECAE",
-    alignItems: "center",
-    justifyContent: "center",
-
-  },
-  fallbackAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#ADD7DA",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
-  },
-  fallbackText: {
-    fontSize: 16,
-    color: "#053B4A",
-    fontWeight: "600",
-  },
-  symbol: {
-    fontSize: 18,
-    marginRight: 6,
-  },
-});
+    categoryPill: {
+        paddingVertical: 20,
+        paddingHorizontal: 12,
+        borderWidth: 1,
+        borderColor: '#053b4a17',
+        borderRadius: 20,
+        marginTop: 12,
+        marginRight: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 5
+    },
+    activeCategoryPill: {
+        paddingVertical: 20,
+        paddingHorizontal: 12,
+        borderWidth: 1,
+        borderColor: '#add7da83',
+        borderRadius: 20,
+        backgroundColor: '#7AC1C614',
+        marginTop: 12,
+        marginRight: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 5
+    },
+    selectedPill: {
+        backgroundColor: '#fba864',
+    },
+    categoryText: {
+        fontSize: 16,
+        color: '#053B4A',
+        fontWeight: '400',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    selectedText: {
+        color: '#053B4A',
+        fontWeight: '400',
+    },
+    categoryAvatar: {
+        width: 42,
+        height: 42
+    },
+    symbol: {
+        fontSize: 16,
+        color: '#053B4A',
+    }
+})
