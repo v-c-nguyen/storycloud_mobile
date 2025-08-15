@@ -1,11 +1,12 @@
 import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
-import { SeriesCard, StoryCard2 } from "@/components/Cards";
+import { StoryCard } from "@/components/Cards";
 import CardSeries from "@/components/CardSeries";
-import { ItemSeries, ItemSeriesRef } from "@/components/ItemSeries";
+import { ItemSeries } from "@/components/ItemSeries";
+import MapWrapper from "@/components/MapWrapper";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { series, stories } from "@/data/storyData";
+import { stories } from "@/data/storyData";
 import { Stack } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -14,9 +15,9 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
-  View
+  TouchableOpacity
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 
 const cardsData = [
@@ -27,50 +28,30 @@ const cardsData = [
   { color: '#053B4A', icon: require('@/assets/images/parent/characters.png'), text: 'Characters' },
 ];
 
-export default function Collections() {
+export default function Map() {
+  
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const itemSeriesRef = useRef<ItemSeriesRef>(null);
+  const [selectedCollection, setSelectedCollection] = useState<any | null>(null);
   const storiesData = stories
-  const seriesData = series
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  // Filter data based on search query
-  const filteredCollections = collections.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleBackToExplore = () => {
-    setSelectedCollection(null);
-    setSearchQuery("");
-    // Reset ItemSeries selection
-    if (itemSeriesRef.current) {
-      itemSeriesRef.current.resetSelection();
-    }
-  };
-
-  function SectionHeader({ title, desc, link }: { title: string; desc: string, link: string }) {
-    return (
-      <ThemedView >
-        <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
-        <ThemedView style={styles.sectionHeader}>
-          <ThemedText style={styles.sectiondesc}>{desc}</ThemedText>
-          {/* <Link href={`/kid/dashboard/${link}`}>
-          <Image
-            source={require("@/assets/images/kid/arrow-right.png")}
-            style={styles.sectionArrow}
-          />
-        </Link> */}
-          <TouchableOpacity onPress={() => { setSelectedCollection(title) }}>
-            <Image
-              source={require("@/assets/images/kid/arrow-right.png")}
-            />
-          </TouchableOpacity>
-        </ThemedView>
-      </ThemedView>
-    );
+  function handleCollectionPress(collection: any) {
+    setSelectedCollection(collection);
   }
+
+  function handleSelectItem(itemName: string) {
+    const selected = collections.find(c => c.name === itemName);
+    setSelectedCollection(selected || null);
+  }
+
+  useEffect(() => {
+    if (selectedCollection) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      }, 100);
+    }
+  }, [selectedCollection]);
 
   useEffect(() => {
     async function fetchSeries() {
@@ -104,8 +85,10 @@ export default function Collections() {
       <Stack.Screen options={{
         headerShown: false
       }} />
+      <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView
+          ref={scrollViewRef}
           style={styles.rootContainer}
           showsVerticalScrollIndicator={false}
         >
@@ -129,7 +112,10 @@ export default function Collections() {
           </ThemedView>
 
           {/* Header */}
-          <ThemedText style={styles.headerTitle}>StoryCloud Collections</ThemedText>
+          <ThemedText style={styles.headerTitle}>StoryCloud Map</ThemedText>
+          
+          {/* Characters and Landmarks buttons */}
+          
 
           <ThemedView style={styles.headerCloudWrap}>
             {/* Clouds */}
@@ -154,126 +140,107 @@ export default function Collections() {
                   placeholder="Search for your next adventure..."
                   placeholderTextColor={'#D9D9D9'}
                   style={styles.searchText}
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
                 />
                 <Image source={require('@/assets/images/parent/Microphone4.png')} style={styles.searchIcon}></Image>
               </ThemedView>
             </ThemedView>
           </ThemedView>
 
-          <ThemedView style={styles.mainContent}>
-            <ThemedView style={styles.content}>
 
-              {/* Tab Bar */}
-              <CardSeries data={cardsData} active="Collections" />
-              {/
-              <ItemSeries
-                ref={itemSeriesRef}
-                itemsData={filteredCollections}
-                onSelect={(item) => {
-                  setSelectedCollection(item ? item.name : null);
-                }}
-              />
-
-              <ItemSeries itemsData={collections} theme="light"/>
-
-
-              {
-                selectedCollection ?
-                  <ThemedView style={{ paddingBottom: 80 }}>
-                    <View style={{ alignItems: "center" }}>
-                      <ThemedText style={[styles.sectionTitle, { marginTop: 10, color: "#048F99" }]}>{"collection"}</ThemedText>
-                      <ThemedText style={[styles.sectionTitle, { marginTop: 10 }]}>{selectedCollection}</ThemedText>
-                      <ThemedText style={[styles.sectiondesc, { marginBottom: 5, padding: 20, textAlign: "center" }]}>{" Explore vast jungles, soaring mountains, and sweeping grasslands—Earth's wildest places await."}</ThemedText>
-                    <View style={{ backgroundColor: "#d0d0d0ff", height: 1, width: 200 }}></View>
-                    </View>
-                    
-                    <TouchableOpacity style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", margin: 20 }}
-                      onPress={handleBackToExplore}
-                    >
-                      <Image
-                        source={require("@/assets/images/kid/arrow-left.png")}
-                      />
-                      <ThemedText style={[styles.sectionTitle, { marginTop: 0, marginBottom: 0 }]}>{"Back to Explore"}</ThemedText>
-                    </TouchableOpacity>
-
-                    <SectionHeader title={selectedCollection} desc="Kai, the adventurous Australian Shepherd, explores forests, gardens, and ponds" link="collection" />
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={styles.cardScrollContainer}
-                    >
-                      {storiesData
-                        .filter((ele) => !ele.watched)
-                        .map((item, idx) => (
-                          <StoryCard2 key={idx} {...item} />
-                        ))}
-                    </ScrollView>
-                    <SectionHeader title={selectedCollection} desc="Kai, the adventurous Australian Shepherd, explores forests, gardens, and ponds" link="collection" />
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={styles.cardScrollContainer}
-                    >
-                      {storiesData
-                        .filter((ele) => !ele.watched)
-                        .map((item, idx) => (
-                          <StoryCard2 key={idx} {...item} />
-                        ))}
-                    </ScrollView>
+          {/* Tab Bar */}
+          <CardSeries data={cardsData} active="Map"/>
+          
+          {selectedCollection ? (
+            <ThemedView style={styles.mainContent}>
+              <ThemedView style={styles.content}>
+                <ItemSeries 
+                  itemsData={collections} 
+                  theme="light" 
+                  selectedItem={selectedCollection ? selectedCollection.name : null}
+                  onSelectItem={handleSelectItem}
+                />
+                <ThemedView style={styles.collectionHeader}>
+                  
+                   <Image source={require('@/assets/images/avatars/mia_120.png')} style={styles.avatar} />
+                  <ThemedText style={styles.collectionTitle}>{selectedCollection.name}</ThemedText>
+                  <ThemedText style={styles.collectionDescription}>{selectedCollection.description}</ThemedText>
+                  <ThemedView style={styles.statsContainer}>
+                    <ThemedText style={styles.statsText}>ALL</ThemedText>
+                    {/* <ThemedText style={styles.statsText}>✓ 10 SERIES</ThemedText> */}
+                    <Image source={require('@/assets/images/mark.png')} style={{width: 40, height: 30,}}/>
+                    <ThemedText style={styles.statsText}>101 STORIES</ThemedText>
                   </ThemedView>
-                  :
-                  <ThemedView style={{ paddingBottom: 80 }}>
-                    {/* Continue Watching */}
-                    <SectionHeader title="The High Seas & Polar Realms" desc="Brand new stories and fun" link="continue" />
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={styles.cardScrollContainer}
-                    >
-                      {seriesData.map((item, idx) => (
-                        <SeriesCard key={idx} {...item} />
-                      ))}
-                    </ScrollView>
-
-                    {/* Watch Next */}
-                    <SectionHeader title="Wonders of the Wild World" desc="Friendship, kindness, and emotions" link="continue" />
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={styles.cardScrollContainer}
-                    >
-                      {seriesData.map((item, idx) => (
-                        <SeriesCard key={idx} {...item} />
-                      ))}
-                    </ScrollView>
-
-                    {/* Featured Adventures */}
-                    <SectionHeader title="Journey Across Lands and Cultures" desc="Silly, funny, and lough-out-loud stories" link="continue" />
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={styles.cardScrollContainer}
-                    >
-                      {storiesData
-                        .filter((ele) => ele.featured)
-                        .map((item, idx) => (
-                          <StoryCard2 key={idx} {...item} />
-                        ))}
-                    </ScrollView>
-
-                    {/* Just Watched */}
-                    {/* <SectionHeader title="Just Watched" link="watched" />
-                          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardScrollContainer}>
-                            {storiesData.filter(ele => ele.watched).map((item, idx) => (
-                              <StoryCard key={idx} {...item} />
-                            ))}
-                          </ScrollView> */}
+                </ThemedView>
+                <TouchableOpacity onPress={() => setSelectedCollection(null)}>
+                  <ThemedView style={styles.backWrap}>
+                    <Image
+                      source={require("@/assets/images/kid/arrow-left.png")}
+                      style={styles.imgArrowLeft}
+                    />
+                    <ThemedText style={styles.backText}>Back to Storyland Map</ThemedText>
                   </ThemedView>
-              }
+                </TouchableOpacity>
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={styles.listContent}
+                >
+              
+                  {storiesData
+                    .filter((ele) => ele.collection === selectedCollection.name)
+                    .map((item, idx) => (
+                      <StoryCard key={idx} {...item} />
+                    ))}
+                </ScrollView>
+              </ThemedView>
             </ThemedView>
-          </ThemedView>
+          ) : (
+            <>
+              <ThemedView style={{ height:1000, width: "100%",  marginBottom: 80 }}>
+                <MapWrapper/>
+              </ThemedView>
+                 <Image
+              source={require("@/assets/images/kid/cloud-group-near.png")}
+              style={styles.imgCloudNear2}
+              resizeMode="cover"
+            />
+              <ThemedView style={styles.mainContent}>
+              <ThemedView style={styles.content}>
+             
+                {/* Story List */}
+                <ItemSeries 
+                  itemsData={collections} 
+                  theme="light" 
+                  selectedItem={selectedCollection ? selectedCollection.name : null}
+                  onSelectItem={handleSelectItem}
+                />
+
+                <ThemedView style={{ paddingBottom: 80, paddingTop: 40, gap: 20 }}>
+                  {collections.map((collection, index) => (
+                    <React.Fragment key={index}>
+                      <SectionHeader
+                        title={collection.name}
+                        desc={collection.description}
+                        link="continue"
+                        onPress={() => handleCollectionPress(collection)}
+                      />
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.cardScrollContainer}
+                      >
+                        {storiesData
+                          .filter((ele) => ele.collection === collection.name)
+                          .map((item, idx) => (
+                            <StoryCard key={idx} {...item} />
+                          ))}
+                      </ScrollView>
+                    </React.Fragment>
+                  ))}
+                </ThemedView>
+              </ThemedView>
+              </ThemedView>
+            </>
+          )}
         </ScrollView>
         {/* Sticky Bottom Navigation */}
         <ThemedView
@@ -289,17 +256,72 @@ export default function Collections() {
           <BottomNavBar active="Explore" theme="light" image={true} />
         </ThemedView>
       </SafeAreaView>
+      </GestureHandlerRootView>
     </>
   );
 }
 
-
+function SectionHeader({ title, desc, link, onPress }: { title: string; desc: string, link: string, onPress: any }) {
+  return (
+    <TouchableOpacity onPress={onPress}>
+       <Image source={require('@/assets/images/avatars/dog.png')} style={styles.avatar} />
+       <ThemedText style={styles.title}>{title}</ThemedText>
+      <ThemedView style={styles.sectionContainer}>
+        
+        <ThemedView>
+          
+          <ThemedText style={styles.description}>{desc}</ThemedText>
+        </ThemedView>
+      </ThemedView>
+    </TouchableOpacity>
+  );
+}
 
 const styles = StyleSheet.create({
+  sectionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    paddingHorizontal: 16,
+    width: 289,
+    height: 116,
+    gap: 10,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+    marginBottom:50,
+    marginTop:50,
+  },
+  title: {
+    fontFamily: 'Sitara',
+    fontWeight: '700',
+    fontSize: 24,
+    lineHeight: 32.4,
+    color: '#053B4A',
+  },
+  description: {
+    fontFamily: 'Sitara',
+    fontWeight: '400',
+    fontStyle: 'italic',
+    fontSize: 16,
+    lineHeight: 21.6,
+    color: '#053B4A',
+  },
   rootContainer: {
     flex: 1,
     backgroundColor: "#F8ECAE",
     position: "relative",
+  },
+    cloudImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
   },
   topBackPattern: {
     width: "100%",
@@ -307,10 +329,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     left: 0,
-  },
-  cardScrollContainer: {
-    gap: 20,
-    paddingHorizontal: 16,
   },
   headingWrap: {
     flexDirection: "row",
@@ -329,30 +347,6 @@ const styles = StyleSheet.create({
     marginTop: 67,
     marginBottom: 66,
   },
-  sectionHeader: {
-    marginTop: 0,
-    marginBottom: 8,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  sectionTitle: {
-    color: "#053B4A",
-    fontSize: 24,
-    marginTop: 60,
-    marginBottom: 16,
-    paddingHorizontal: 16,
-    fontWeight: "700",
-    lineHeight: 24,
-  },
-  sectiondesc: {
-    color: "#053B4A",
-    fontSize: 16,
-    fontWeight: "400",
-    fontStyle: 'italic',
-    lineHeight: 24,
-  },
   backWrap: {
     marginLeft: "auto",
     marginRight: "auto",
@@ -361,25 +355,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     marginTop: 84,
+    height:40,
     marginBottom: 58,
   },
   imgArrowLeft: {
-    width: 20,
-    height: 20,
-  },
-  mainContent: {
-    height: '100%',
-    marginTop: 90,
-    backgroundColor: '#ffffff'
-  },
-  content: {
-    marginTop: -90
+    width: 40,
+    height: 40,
   },
   backText: {
     color: "#F4A672",
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
-    lineHeight: 18,
+    lineHeight: 40,
+    height:40,
+
   },
   headerCloudWrap: {
     display: "flex",
@@ -402,9 +391,19 @@ const styles = StyleSheet.create({
     top: 42,
     left: 0,
   },
+   imgCloudNear2: {
+    width: "150%",
+    height: "7%",
+    position: "absolute",
+    top: 10 * 120,
+    left: 0,
+    
+  },
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 24,
+    alignItems: 'center',
+    gap: 20,
   },
   cardWrap: {
     marginBottom: 16,
@@ -451,5 +450,78 @@ const styles = StyleSheet.create({
   },
   tabItem: {
     alignItems: 'center',
+  },
+  mainContent: {
+    height: '100%',
+    backgroundColor: '#ffffff'
+  },
+  content: {
+    marginTop: 0
+  },
+  cardScrollContainer: {
+    gap: 20,
+    paddingHorizontal: 16,
+  },
+  sectionHeader: {
+    marginTop: 0,
+    marginBottom: 8,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  sectionTitle: {
+    color: "#053B4A",
+    fontSize: 24,
+    marginTop: 60,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    fontWeight: "700",
+    lineHeight: 24,
+  },
+  sectiondesc: {
+    color: "#053B4A",
+    fontSize: 16,
+    fontWeight: "400",
+    fontStyle: 'italic',
+    lineHeight: 24,
+  },
+  collectionHeader: {
+    alignItems: 'center',
+    paddingVertical: 20,
+   
+  },
+  collectionImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 20,
+  },
+  collectionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#38A3A5',
+    marginBottom: 10,
+    fontFamily:"Sitara"
+  },
+  collectionDescription: {
+    fontSize: 16,
+    color: '#38A3A5',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+    fontFamily:"Sitara"
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  statsText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#38A3A5',
   },
 });

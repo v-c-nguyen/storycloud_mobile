@@ -1,6 +1,6 @@
 import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
-import { StoryCard } from "@/components/Cards";
+import { StoryCard2 } from "@/components/Cards";
 import CardSeries from "@/components/CardSeries";
 import { ItemSeries } from "@/components/ItemSeries";
 import MapWrapper from "@/components/MapWrapper";
@@ -188,7 +188,7 @@ export default function Map() {
                   {storiesData
                     .filter((ele) => ele.collection === selectedCollection.name)
                     .map((item, idx) => (
-                      <StoryCard key={idx} {...item} />
+                      <StoryCard2 key={idx} {...item} />
                     ))}
                 </ScrollView>
               </ThemedView>
@@ -231,7 +231,7 @@ export default function Map() {
                         {storiesData
                           .filter((ele) => ele.collection === collection.name)
                           .map((item, idx) => (
-                            <StoryCard key={idx} {...item} />
+                            <StoryCard2 key={idx} {...item} />
                           ))}
                       </ScrollView>
                     </React.Fragment>
@@ -259,7 +259,7 @@ export default function Map() {
       </GestureHandlerRootView>
     </>
   );
-}
+
 
 function SectionHeader({ title, desc, link, onPress }: { title: string; desc: string, link: string, onPress: any }) {
   return (
@@ -275,6 +275,7 @@ function SectionHeader({ title, desc, link, onPress }: { title: string; desc: st
       </ThemedView>
     </TouchableOpacity>
   );
+}
 }
 
 const styles = StyleSheet.create({

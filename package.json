@@ -9,9 +9,10 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "tunnel": "dotenv -e .env.local -- npx expo start --tunnel"
+    "tunnel": "expo start --tunnel"
   },
   "dependencies": {
+    "@expo/ngrok": "^4.1.3",
     "@expo/vector-icons": "^14.1.0",
     "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-native-community/slider": "4.5.6",
@@ -60,6 +61,7 @@
     "babel-plugin-module-resolver": "^5.0.2",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
+    "ngrok": "^5.0.0-beta.2",
     "typescript": "~5.8.3"
   },
   "private": true,
