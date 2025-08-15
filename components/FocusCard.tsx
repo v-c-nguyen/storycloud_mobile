@@ -2,7 +2,7 @@ import { useChildrenStore } from '@/store/childrenStore';
 import { useLearningCategoryStore } from '@/store/learningCategoryStore';
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { FlatList, Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { ChildrenCard } from './ChildrenCard';
 import { LearningTargetCard } from './LearningTargetCard';
 import { ThemedText } from "./ThemedText";
@@ -38,6 +38,9 @@ export function FocusCard({ focus, handleEditButton, handleViewButton }: { focus
     const formattedDate = focus?.created_at
         ? new Date(focus.created_at).toLocaleDateString()
         : '';
+    useEffect(() => {
+        console.log(focus)
+    }, [])
     return (
         <ThemedView style={styles.container}>
             <ThemedView style={styles.overview}>
@@ -68,7 +71,6 @@ export function FocusCard({ focus, handleEditButton, handleViewButton }: { focus
                         </TouchableOpacity>
                     </ThemedView>
                 </ThemedView>
-
                 <ThemedView style={[styles.lengthContainer, styles.flexCol]}>
                     <ThemedView style={[styles.flexCol, { width: '100%' }]}>
                         <ThemedView style={[styles.flexRow, { justifyContent: 'space-between' }]} >
@@ -93,17 +95,24 @@ export function FocusCard({ focus, handleEditButton, handleViewButton }: { focus
                             <ThemedView style={[styles.iconBtnCircle, { padding: 8 }]}><Image source={happyIcon} style={styles.ButtonIcon} /> </ThemedView>
                             <ThemedText style={styles.lengthLabel}>Children</ThemedText>
                         </ThemedView>
-                        {
-                            focus?.focusmodes_kids?.length > 0 && focus.focusmodes_kids.map((target: any, index: number) => (
-                                <ThemedView key={index} style={[styles.flexRow, styles.progressBar]}>
-                                    <Image source={miaAvatar} style={styles.avatar}></Image>
-                                    <ThemedView style={styles.avatarOutline}>
-                                        <Image source={checkIcon} style={styles.checkAvatar}></Image>
+                        {focus?.focusmodes_kids?.length > 0 && (
+                            <FlatList
+                                data={focus.focusmodes_kids}
+                                horizontal
+                                keyExtractor={(_, index) => index.toString()}
+                                showsHorizontalScrollIndicator={false}
+                                renderItem={({ item }) => (
+                                    <ThemedView style={[styles.flexRow, styles.progressBar, { marginRight: 8 }]}>
+                                        <Image
+                                            style={styles.avatar}
+                                            source={item.children.avatar_url ? { uri: item.children.avatar_url } : require('@/assets/images/parent/avatar-parent-2.png')} ></Image>
+                                        <ThemedView style={styles.avatarOutline}>
+                                            <Image source={checkIcon} style={styles.checkAvatar}></Image>
+                                        </ThemedView>
                                     </ThemedView>
-                                </ThemedView>
-                            )
-                            )
-                        }
+                                )}
+                            />
+                        )}
 
                     </ThemedView>
                 </ThemedView>
@@ -196,17 +205,26 @@ export function FocusDetailedCard({ focus }: { focus: any }) {
                             <ThemedView style={[styles.iconBtnCircle, { padding: 8 }]}><Image source={happyIcon} style={styles.ButtonIcon} /> </ThemedView>
                             <ThemedText style={styles.lengthLabel}>Children</ThemedText>
                         </ThemedView>
-                        {
-                            focus?.focusmodes_kids?.length > 0 && focus.focusmodes_kids.map((target: any, index: number) => (
-                                <ThemedView key={index} style={[styles.flexRow, styles.progressBar]}>
-                                    <Image source={miaAvatar} style={styles.avatar}></Image>
-                                    <ThemedView style={styles.avatarOutline}>
-                                        <Image source={checkIcon} style={styles.checkAvatar}></Image>
+
+                        {focus?.focusmodes_kids?.length > 0 && (
+                            <FlatList
+                                data={focus.focusmodes_kids}
+                                horizontal
+                                keyExtractor={(_, index) => index.toString()}
+                                showsHorizontalScrollIndicator={false}
+                                renderItem={({ item }) => (
+                                    <ThemedView style={[styles.flexRow, styles.progressBar, { marginRight: 8 }]}>
+                                        <Image
+                                            style={styles.avatar}
+                                            source={item.children.avatar_url ? { uri: item.children.avatar_url } : require('@/assets/images/parent/avatar-parent-2.png')} ></Image>
+                                        <ThemedView style={styles.avatarOutline}>
+                                            <Image source={checkIcon} style={styles.checkAvatar}></Image>
+                                        </ThemedView>
                                     </ThemedView>
-                                </ThemedView>
-                            )
-                            )
-                        }
+                                )}
+                            />
+                        )}
+
                     </ThemedView>
                 </ThemedView>
             </ThemedView>
@@ -790,7 +808,8 @@ const styles = StyleSheet.create({
     },
     avatar: {
         width: 35,
-        height: 35
+        height: 35,
+        borderRadius: 50
     },
     checkAvatar: {
         width: 24,

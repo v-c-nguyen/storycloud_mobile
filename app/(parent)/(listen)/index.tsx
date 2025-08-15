@@ -1,9 +1,9 @@
 import { supabase } from '@/app/lib/supabase';
 import { useUser } from '@/app/lib/UserContext';
 import BottomNavBar from '@/components/BottomNavBar';
-import { StoryCard } from '@/components/Cards';
 import Header from '@/components/Header';
 import { ItemWithImage } from '@/components/ListItems';
+import WatchNext from '@/components/parent/dashboard/WatchNext';
 import SeriesCarousel from '@/components/SeriesCarosel';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -261,20 +261,10 @@ export default function ParentListen() {
                   ))}
               </ScrollView>
 
-              <SeriesCarousel mode={"parent"} />
+              <SeriesCarousel mode={"parent"} activeChild={activeChild}/>
 
               <ThemedText style={styles.subTitle} >Watch Next</ThemedText>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.cardScrollContainer}
-              >
-                {storiesData
-                  .filter((ele) => !ele.watched)
-                  .map((item, idx) => (
-                    <StoryCard key={idx} {...item} />
-                  ))}
-              </ScrollView>
+              <WatchNext activeChild={activeChild} />
 
             </ThemedView>
           </ScrollView>

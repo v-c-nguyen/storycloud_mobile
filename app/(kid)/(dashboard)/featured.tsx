@@ -1,5 +1,5 @@
 import BottomNavBar from "@/components/BottomNavBar";
-import { StoryCard } from "@/components/Cards";
+import { StoryCard2 } from "@/components/Cards";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Link, Stack } from "expo-router";
@@ -178,7 +178,7 @@ export default function FeaturedAdventuresScreen() {
             <ThemedView style={{ paddingLeft: 16 }}>
               {storiesData.length > 0 && storiesData.map((item, index) => (
                 <ThemedView key={index} style={styles.cardWrap}>
-                  <StoryCard {...item} />
+                  <StoryCard2 {...item} />
                 </ThemedView>
               ))}
             </ThemedView>

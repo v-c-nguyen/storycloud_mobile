@@ -5,6 +5,154 @@ import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 
 interface StoryProps {
+  storyId: string;
+  seriesCategory: string,
+  storyTitle: string,
+  image: string,
+  isFavourite: boolean,
+}
+
+interface CardStyle {
+  bgColor: string,
+  textColor: string,
+  subTextColor: string,
+  progressColor: string,
+  isBallonYellow: boolean,
+}
+
+interface ProgressProps {
+  duration?: number,
+  progress?: number,
+  watched?: boolean,
+}
+
+const cardStyles = [
+{
+  bgColor: "#053B4A",
+  textColor: "#FCFCFC",
+  subTextColor: "#F8ECAE",
+  progressColor: "#F8ECAE",
+  isBallonYellow: false,
+},
+{
+  bgColor: "#F4A672",
+  textColor: "#053B4A",
+  subTextColor: "#F8ECAE",
+  progressColor: "#ADD7DA",
+  isBallonYellow: true,
+},
+{
+  bgColor: "#F8ECAE",
+  textColor: "#053B4A",
+  subTextColor: "#048F99",
+  progressColor: "#ADD7DA",
+  isBallonYellow: false,
+}]
+
+
+
+export function StoryCard({ num, story, track, onPlay }: { num: number, story: StoryProps, track?: ProgressProps, onPlay?: (id: string) => void }) {
+  // Use a consistent style based on the story index
+  const styleIdx = num % cardStyles.length;
+  const style = cardStyles[styleIdx];
+
+  const imageGen = (img: string) => {
+    switch (img) {
+      case "1":
+        return require('@/assets/images/kid/story-back-1.png');
+      case "2":
+        return require('@/assets/images/kid/story-back-2.png');
+      case "3":
+        return require('@/assets/images/kid/story-back-3.png');
+      default:
+        return null;
+    }
+  };
+  return (
+    <ThemedView style={[styles.storyCard, { backgroundColor: style.bgColor }]}>
+      <ThemedView>
+        <ThemedView style={{height: 180}}>
+          <ThemedView style={styles.storyCardTopRow}>
+            <ThemedText style={[styles.storyNumber, { color: style.textColor }]}>#{num}</ThemedText>
+            <ThemedText style={[styles.storyLabel, { color: style.textColor }]}>Story</ThemedText>
+            {
+              <Image
+                source={story.isFavourite ?
+                  require('@/assets/images/kid/icon-heart.png')
+                  : require('@/assets/images/kid/icon-heart.png')
+                }
+                style={[styles.storyFavIcon, { tintColor: `${style.textColor}` }]}
+              />
+            }
+          </ThemedView>
+          <ThemedText style={[styles.storySeries, { color: style.subTextColor }]}>{story.seriesCategory}</ThemedText>
+          <ThemedText style={[styles.storyTitle, { color: style.textColor }]}>{story.storyTitle}</ThemedText>
+        </ThemedView>
+        <ThemedView style={styles.storyImageWrap}>
+          <Image source={story.image ? imageGen(story.image) : require('@/assets/images/kid/story-back-1.png')} style={styles.storyImage} />
+          <TouchableOpacity style={styles.storyPlayBtn} onPress={() => onPlay && onPlay(story.storyId)}>
+            <Image
+              source={require('@/assets/images/kid/play-btn.png')}
+              style={styles.storyPlayIcon}
+            />
+          </TouchableOpacity>
+          <ThemedView style={{
+            position: 'absolute',
+            width: 48,
+            height: 48,
+            backgroundColor: style.subTextColor,
+            top: -24,
+            left: '50%',
+            transform: 'translate(-24px, 0)',
+            borderRadius: 24
+          }}>
+            <Image
+              source={style.isBallonYellow ? require('@/assets/images/kid/yellow-ballon.png') : require('@/assets/images/kid/blue-ballon.png')}
+              style={{ width: 48, height: 48 }}
+              contentFit="cover"
+            />
+          </ThemedView>
+        </ThemedView>
+        {
+          track && <ThemedView>
+            {track.watched ? (
+              <ThemedView style={styles.progressRow}>
+                <Image
+                  source={require('@/assets/images/kid/icon-check.png')}
+                  contentFit="cover"
+                  style={[styles.checkIcon, { tintColor: `${style.textColor}` }]}
+                />
+                <ThemedText style={[styles.storyTime, { color: style.textColor }]}>Watched</ThemedText>
+
+                <ThemedView style={[
+                  styles.progressBarFilled,
+                  { borderColor: style.textColor, backgroundColor: style.progressColor, flex: 1 }
+                ]} />
+              </ThemedView>
+            ) : (
+              <ThemedView style={styles.progressRow}>
+                <ThemedText style={[styles.storyTime, { color: style.textColor }]}>{track?.progress} min</ThemedText>
+                <ThemedView style={styles.progressBarWrap}>
+                  <ThemedView style={[
+                    styles.progressBarFilled,
+                    { borderColor: style.textColor, backgroundColor: style.progressColor, width: `${(track.progress ?? 0) * 100 / (track.duration ?? 1)}%` }
+                  ]} />
+                  <ThemedView style={[
+                    styles.progressBarOutline,
+                    { borderColor: style.textColor, backgroundColor: style.bgColor, width: `${100 - (track.progress ?? 0) * 100 / (track.duration ?? 1)}%` }
+                  ]} />
+                </ThemedView>
+                <ThemedText style={[styles.storyTime, { color: style.textColor }]}>{(track.duration ?? 0) - (track.progress ?? 0)} min</ThemedText>
+              </ThemedView>
+            )}
+          </ThemedView>
+        }
+      </ThemedView>
+    </ThemedView>
+  );
+}
+
+interface StoryProps2 {
   bgColor: string,
   textColor: string,
   subTextColor: string,
@@ -21,7 +169,7 @@ interface StoryProps {
   watched: boolean,
 }
 
-export function StoryCard({
+export function StoryCard2({
   bgColor,
   textColor,
   subTextColor,
@@ -36,7 +184,7 @@ export function StoryCard({
   featured,
   isFavorite,
   watched,
-}: StoryProps) {
+}: StoryProps2) {
   const imageGen = (img: string) => {
     switch (img) {
       case "1":
@@ -172,6 +320,7 @@ const styles = StyleSheet.create({
   storyCard: {
     width: 290,
     borderRadius: 10,
+    height: '100%',
     padding: 0,
     marginRight: 20,
     shadowColor: "#000",
@@ -247,11 +396,12 @@ const styles = StyleSheet.create({
   },
   storyTitle: {
     fontSize: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
     fontStyle: 'italic',
     fontWeight: '700',
     textAlign: 'center',
     lineHeight: 24,
-    marginBottom: 36,
     flexGrow: 1
   },
   progressRow: {

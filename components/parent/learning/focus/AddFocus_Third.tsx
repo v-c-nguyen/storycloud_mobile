@@ -4,7 +4,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
 import StepIndicator_Focus from "./StepIndecator";
 
 const docIcon = require('@/assets/images/parent/custom_pathway.png')
@@ -18,7 +18,7 @@ interface Child {
     avatar_url: string
 }
 
-export default function AddFocus_Third({ mode, currentStep, onPress }: { mode: number, currentStep: number, onPress: (activeChildren: Child[]) => void }) {
+export default function AddFocus_Third({ mode, currentStep, onPress }: { mode: number, currentStep: number, onPress: (children: Child[]) => void }) {
     const router = useRouter();
     const [children, setChildren] = React.useState<Child[]>([]);
     const [number, setNumber] = React.useState(0);
@@ -40,6 +40,7 @@ export default function AddFocus_Third({ mode, currentStep, onPress }: { mode: n
                     console.error('Error fetching children:', error.message);
                 } else if (data && Array.isArray(data.data)) {
                     setChildren(data.data);
+                    console.log('Fetched children:', data.data);
                 }
             } catch (e) {
                 console.error('Error fetching children:', e);
@@ -51,14 +52,18 @@ export default function AddFocus_Third({ mode, currentStep, onPress }: { mode: n
     }, []);
 
     function handleChildSelected(child: Child) {
-        setActiveChildren(prev =>
-            prev.includes(child)
-                ? prev.filter(t => t !== child)
-                : [...prev, child]
-        );
+        console.log(child)
+        setActiveChildren(prev => {
+            const exists = prev.some(t => t.id === child.id);
+            if (exists) {
+                return prev.filter(t => t.id !== child.id);
+            } else {
+                return [...prev, child];
+            }
+        });
     }
 
-   
+
     return (
         <ThemedView style={styles.container}>
             {/* Step Indicators */}
@@ -66,34 +71,30 @@ export default function AddFocus_Third({ mode, currentStep, onPress }: { mode: n
 
             {/* Custom Pathway Card */}
             <ThemedView style={styles.card}>
-                <ThemedText style={[styles.subtitle]}>Assign Pathway</ThemedText>
+                <ThemedText style={[styles.subtitle]}>Assign Focus</ThemedText>
                 {/* Form */}
                 <ThemedView style={styles.label}>
                     <ThemedView style={styles.iconContainer}><Image source={docIcon} style={styles.labelIcon}></Image></ThemedView>
                     <ThemedText style={styles.labelText}>Children</ThemedText>
-                    <ThemedText style={styles.labelText}>| { activeChildren.length } Child</ThemedText>
+                    <ThemedText style={styles.labelText}>| {activeChildren.length} Child</ThemedText>
                 </ThemedView>
 
-                {loading ? (
-                    <ThemedText>Loading children...</ThemedText>
-                ) : (
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollConainer}
-                        scrollEventThrottle={16}
-                    >
-                        {/* Children Cards */}
-                        {children.length > 0 && children.map((child, index) => (
-                            <ChildrenCard
-                                key={child.id}
-                                child={child}
-                                isActive={activeChildren.includes(child)}
-                                onPress={() => handleChildSelected}
-                            />
-                        ))}
-                    </ScrollView>
-                )}
+                <FlatList
+                    horizontal
+                    data={children}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <ChildrenCard
+                            key={item.id}
+                            child={item}
+                            isActive={activeChildren.includes(item)}
+                            onPress={() => handleChildSelected(item)}
+                        />
+                    )}
+                    style={styles.scrollConainer}
+                    showsHorizontalScrollIndicator={false}
+                />
+
 
                 <TouchableOpacity
                     style={styles.button}
@@ -102,6 +103,7 @@ export default function AddFocus_Third({ mode, currentStep, onPress }: { mode: n
                     <ThemedText style={styles.buttonText}>Next</ThemedText>
                     <Image source={rightButton}></Image>
                 </TouchableOpacity>
+
             </ThemedView>
         </ThemedView>
     )
@@ -241,7 +243,6 @@ const styles = StyleSheet.create({
         width: '100%',
         gap: 10,
         padding: 5,
-        alignItems: 'center',
         marginTop: 20
     },
     childIcon: {

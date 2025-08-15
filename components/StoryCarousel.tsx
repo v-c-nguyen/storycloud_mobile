@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+import { supabase } from "@/app/lib/supabase";
+import React, { useEffect, useRef, useState } from "react";
 import { Dimensions, FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { StoryCard } from "./Cards";
 import { ThemedText } from "./ThemedText";
@@ -6,109 +7,14 @@ import { ThemedView } from "./ThemedView";
 
 const { width } = Dimensions.get("window");
 
-// Example data
-const stories = [
-    {
-        number: "1",
-        bgColor: "#F4A672",
-        textColor: "#053B4A",
-        subTextColor: "#F8ECAE",
-        progressColor: "#ADD7DA",
-        isBallonYellow: true,
-        storyTitle: "Petal Tales: The Search for Rainbow Flowers",
-        seriesTitle: "KAI’S LIVING ADVENTURE",
-        duration: 32,
-        progress: 20,
-        image: "1",
-        featured: false,
-        isFavorite: true,
-        watched: true,
-    },
-    {
-        number: "2",
-        bgColor: "#053B4A",
-        textColor: "#FCFCFC",
-        subTextColor: "#F8ECAE",
-        progressColor: "#F8ECAE",
-        isBallonYellow: false,
-        storyTitle: "Petal Tales: The Search for Rainbow Flowers",
-        seriesTitle: "Underwater Adventures",
-        duration: 32,
-        progress: 12,
-        image: "2",
-        featured: false,
-        isFavorite: true,
-        watched: false,
-    },
-    {
-        number: "3",
-        bgColor: "#F8ECAE",
-        textColor: "#053B4A",
-        subTextColor: "#048F99",
-        progressColor: "#ADD7DA",
-        isBallonYellow: false,
-        storyTitle: "Muddy Mystery at the Pond",
-        seriesTitle: "KAI’S LIVING ADVENTURE",
-        duration: 32,
-        progress: 20,
-        image: "3",
-        featured: true,
-        isFavorite: true,
-        watched: false,
-    },
-    {
-        number: "4",
-        bgColor: "#053B4A",
-        textColor: "#FCFCFC",
-        subTextColor: "#F8ECAE",
-        progressColor: "#F8ECAE",
-        isBallonYellow: true,
-        storyTitle: "Seeds of Surprise",
-        seriesTitle: "KAI’S LIVING ADVENTURE",
-        duration: 32,
-        progress: 12,
-        image: "2",
-        featured: true,
-        isFavorite: true,
-        watched: false,
-    },
-    {
-        number: "5",
-        bgColor: "#F8ECAE",
-        textColor: "#053B4A",
-        subTextColor: "#F8ECAE",
-        progressColor: "#F4A672",
-        isBallonYellow: true,
-        storyTitle: "The Great Garden Clean-Up",
-        seriesTitle: "KAI’S LIVING ADVENTURE",
-        duration: 32,
-        progress: 20,
-        image: "1",
-        featured: false,
-        isFavorite: true,
-        watched: false,
-    },
-    {
-        number: "6",
-        bgColor: "#053B4A",
-        textColor: "#FCFCFC",
-        subTextColor: "#F8ECAE",
-        progressColor: "#ADD7DA",
-        isBallonYellow: false,
-        storyTitle: "A Night with Nocturnal Neighbours",
-        seriesTitle: "KAI’S LIVING ADVENTURE",
-        duration: 32,
-        progress: 20,
-        image: "3",
-        featured: false,
-        isFavorite: false,
-        watched: false,
-    },
-];
-export default function AdventureStoryCarousel() {
-    const totalSteps = stories.length;
+
+export default function AdventureStoryCarousel({ storyId }: { storyId: string }) {
     const [activeIndex, setActiveIndex] = useState(1);
     const [selectedMin, setSelectedMin] = useState(8);
+    const [series, setSeries] = useState<any[]>([]);
+    const [stories, setStories] = useState<any[]>([])
+    const totalSteps = stories.length;
+
 
     const flatListRef = useRef<FlatList>(null);
 
@@ -124,6 +30,29 @@ export default function AdventureStoryCarousel() {
         // if (idx !== activeIndex) setActiveIndex(idx);
     };
 
+    useEffect(() => {
+        async function fetchSeries() {
+            if (!storyId) return;
+            console.log("Fetching series for storyId:", storyId);
+            const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+            const { data, error } = await supabase.functions.invoke(`series/story/${storyId}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: jwt ? `Bearer ${jwt}` : '',
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (error) {
+                console.error('Error fetching series:', error.message);
+                return;
+            }
+            if (data) {
+                console.log('Fetched series:', data);
+                setSeries(data);
+            }
+        }
+        fetchSeries();
+    }, [storyId]);
     return (
         <ThemedView style={styles.container}>
             {/* Progress bar */}

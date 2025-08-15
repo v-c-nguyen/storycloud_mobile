@@ -189,6 +189,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     checkMark: {
+        width: 34,
+        height: 34
     },
     cardTitle: {
         fontSize: 18,

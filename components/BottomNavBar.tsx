@@ -51,7 +51,7 @@ export default function BottomNavBar({
       {/* Cloud Effects */}
       {image &&
         <Image
-          source={require("@/assets/images/kid/cloud-group-bottom.png")}
+          source={require("@/assets/images/kid/cloud-group-bottom.svg")}
           style={[styles.cloudGroup, theme == 'darkImage' && { tintColor: 'rgba(5, 59, 74, 1)' }]}
         >
         </Image>

@@ -71,6 +71,7 @@ const styles = StyleSheet.create({
         transform: 'translate(-50%, -20%)'
     },
     itemContainer: {
-        position: 'relative'
+        position: 'relative',
+        marginRight: 8
     }
 })

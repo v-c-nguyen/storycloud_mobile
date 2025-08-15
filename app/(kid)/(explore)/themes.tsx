@@ -13,7 +13,8 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  View
 } from "react-native";
 
 
@@ -180,6 +181,24 @@ export default function Themes() {
     }
   };
 
+
+  function SectionHeader({ title, desc, link }: { title: string; desc: string, link: string }) {
+  return (
+    <ThemedView >
+      <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
+      <ThemedView style={styles.sectionHeader}>
+        <ThemedText style={styles.sectiondesc}>{desc}</ThemedText>
+        <TouchableOpacity onPress={() => {setSelectedTheme(title)}}>
+          <Image
+            source={require("@/assets/images/kid/arrow-right.png")}
+          />
+        </TouchableOpacity>
+      </ThemedView>
+    </ThemedView>
+  );
+}
+
+
   useEffect(() => {
     async function fetchThemes() {
       setLoading(true);
@@ -286,23 +305,17 @@ export default function Themes() {
               {
                 selectedTheme ?
                   <ThemedView style={{ paddingBottom: 80, alignItems: "center", paddingLeft: 20 }}>
-                    <Image
-                      source={require("@/assets/images/kid/icon-heart.png")}
-                      style={{ marginTop: 20 }}
-                    />
-                    <ThemedText style={[styles.sectionTitle, { marginTop: 10 , color : "#048F99"}]}>{"theme"}</ThemedText>
                     <ThemedText style={[styles.sectionTitle, { marginTop: 10 }]}>{selectedTheme}</ThemedText>
                     <ThemedText style={[styles.sectiondesc, { marginBottom: 5 , padding:20 , textAlign:"center"}]}>{" Discover amazing stories that teach important life lessons and values. Each theme brings unique adventures that inspire courage, kindness, and imagination in young minds."}</ThemedText>
-                    
-                    <TouchableOpacity 
-                      style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, marginBottom: 20 }}
-                      onPress={handleBackToExplore}
+                    <ThemedText style={[styles.sectionTitle, { marginTop: 10 , color : "#048F99"}]}>{"10 stories"}</ThemedText>
+                    <View style={{backgroundColor:"#d0d0d0ff", height:1 , width:200}}></View>
+                    <TouchableOpacity style={{ flex: 1, flexDirection: "row" , alignItems:"center", justifyContent:"center" , margin:20}}
+                    onPress={handleBackToExplore}
                     >
                       <Image
                         source={require("@/assets/images/kid/arrow-left.png")}
-                        style={{ width: 20, height: 20, marginRight: 8 }}
                       />
-                      <ThemedText style={[styles.sectionTitle, { marginTop: 0, fontSize: 18 }]}>{"Back to Explore"}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle , {marginTop:0 , marginBottom:0}]}>{"Back to Explore"}</ThemedText>
                     </TouchableOpacity>
 
                     <ScrollView
@@ -388,22 +401,6 @@ export default function Themes() {
   );
 }
 
-
-function SectionHeader({ title, desc, link }: { title: string; desc: string, link: string }) {
-  return (
-    <ThemedView >
-      <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
-      <ThemedView style={styles.sectionHeader}>
-        <ThemedText style={styles.sectiondesc}>{desc}</ThemedText>
-        <TouchableOpacity>
-          <Image
-            source={require("@/assets/images/kid/arrow-right.png")}
-          />
-        </TouchableOpacity>
-      </ThemedView>
-    </ThemedView>
-  );
-}
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,

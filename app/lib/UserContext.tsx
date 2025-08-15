@@ -39,13 +39,18 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const { data } = await supabase.auth.getSession();
             const sessionUser = data?.session?.user;
             if (sessionUser && mounted) {
-                // Optionally fetch user profile from your DB if needed
+                // Fetch user profile from Supabase 'users' table
+                const { data: profile, error } = await supabase
+                    .from('users')
+                    .select('name, avatar_url, phonenumber')
+                    .eq('id', sessionUser.id)
+                    .single();
                 setUser({
                     id: sessionUser.id,
                     email: sessionUser.email ?? '',
-                    name: sessionUser.user_metadata?.name ?? '',
-                    avatar_url: sessionUser.user_metadata?.avatar_url,
-                    phonenumber: sessionUser.user_metadata?.phonenumber,
+                    name: profile?.name ?? '',
+                    avatar_url: profile?.avatar_url,
+                    phonenumber: profile?.phonenumber,
                 });
             }
         }

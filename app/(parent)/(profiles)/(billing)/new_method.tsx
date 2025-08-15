@@ -74,9 +74,9 @@ export default function newMethod() {
                             <ThemedView style={styles.tabContent}>
                                 <ThemedView style={styles.container}>
 
-                                <ThemedView style={[styles.flexRow, { justifyContent: 'center', gap: 10, marginTop: 50 }]}>
-                                    <ThemedText style={styles.sectionTitle}>Add New Method</ThemedText>
-                                </ThemedView>
+                                    <ThemedView style={[styles.flexRow, { justifyContent: 'center', gap: 10, marginTop: 50 }]}>
+                                        <ThemedText style={styles.sectionTitle}>Add New Method</ThemedText>
+                                    </ThemedView>
 
                                     {/* Email Section */}
                                     <ThemedText style={styles.subLabel}>Email Address</ThemedText>
@@ -296,53 +296,53 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: 400
     },
-    
-  container: {
-    paddingHorizontal: 12,
-    backgroundColor: '#fff',
-    flex: 1,
-    justifyContent: 'center',
-  },
-  label: {
-    fontSize: 24,
-    fontWeight: 700,
-    color: 'rgba(5, 59, 74, 1)',
-  },
-  subLabel: {
-    fontSize: 16,
-    fontWeight: 700,
-    color: 'rgba(5, 59, 74, 1)',
-    marginBottom: 10,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: 'rgba(122, 193, 198, 0.5)',
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    fontWeight: 400,
-    color: 'rgba(5, 59, 74, 1)',
-    outlineWidth: 0
-  },
-  button: {
-    marginTop: 30,
-    backgroundColor: '#e6f1f6',
-    borderRadius: 50,
-    paddingVertical: 12,
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#b2cbd6',
-  },
-  buttonText: {
-    fontSize: 16,
-    color: 'rgba(5, 59, 74, 1)',
-    fontWeight: '400',
-  },
+
+    container: {
+        paddingHorizontal: 12,
+        backgroundColor: '#fff',
+        flex: 1,
+        justifyContent: 'center',
+    },
+    label: {
+        fontSize: 24,
+        fontWeight: 700,
+        color: 'rgba(5, 59, 74, 1)',
+    },
+    subLabel: {
+        fontSize: 16,
+        fontWeight: 700,
+        color: 'rgba(5, 59, 74, 1)',
+        marginBottom: 10,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: 'rgba(122, 193, 198, 0.5)',
+        borderRadius: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        fontSize: 16,
+        fontWeight: 400,
+        color: 'rgba(5, 59, 74, 1)',
+        outlineWidth: 0
+    },
+    button: {
+        marginTop: 30,
+        backgroundColor: '#e6f1f6',
+        borderRadius: 50,
+        paddingVertical: 12,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 10,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#b2cbd6',
+    },
+    buttonText: {
+        fontSize: 16,
+        color: 'rgba(5, 59, 74, 1)',
+        fontWeight: '400',
+    },
 
 });
 

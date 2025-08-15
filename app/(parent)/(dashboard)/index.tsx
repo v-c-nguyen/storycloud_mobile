@@ -1,15 +1,15 @@
 import { supabase } from '@/app/lib/supabase';
 import { useUser } from '@/app/lib/UserContext';
 import BottomNavBar from '@/components/BottomNavBar';
-import { SeriesCard, StoryCard } from '@/components/Cards';
 import Header from '@/components/Header';
 import { ItemWithImage } from '@/components/ListItems';
 import LearningModeScreen from '@/components/Modals/LearningModeScreen';
 import { ModeList } from '@/components/ModeList';
+import Recommend from '@/components/parent/dashboard/Recommend';
+import RecentLearning from '@/components/parent/dashboard/StoryCarousel';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { modesData } from '@/data/parent/dashboardData';
-import { stories } from '@/data/storyData';
 import { useChildrenStore } from '@/store/childrenStore';
 import { Image } from 'expo-image';
 import { Link, Stack } from 'expo-router';
@@ -85,7 +85,6 @@ const InsightItemsData: InsightItemProps[] = [
 ]
 
 export default function ParentDashboard() {
-  const storiesData = stories;
   const modes = modesData;
   const { user } = useUser();
   const children = useChildrenStore((state: any) => state.children);
@@ -94,11 +93,12 @@ export default function ParentDashboard() {
   const [activeChild, setActiveChild] = React.useState(children[0]);
   const [activeMode, setActiveMode] = React.useState(modes[0]);
   const [loading, setLoading] = React.useState(false);
-  const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
   const [currentRecommendCardIndex, setCurrentRecommendCardIndex] = React.useState(0);
+
 
   useEffect(() => {
     // Fetch children data from Supabase edge function and sync Zustand store
+    console.log("user: ", user);
     async function fetchChildren() {
       if (!user?.id) return;
       setLoading(true); // Start loading
@@ -120,11 +120,11 @@ export default function ParentDashboard() {
         setActiveChild(data.data[0]);
       }
     }
+
     fetchChildren();
-  }, [user]);
+  }, []);
 
-
-
+  
   const handleChildSelect = (child: any) => {
     setActiveChild(child);
   };
@@ -184,11 +184,11 @@ export default function ParentDashboard() {
             </ThemedView>
             {
               loading ? (
-                <ActivityIndicator color="#ffffff" />
+                <ActivityIndicator color="#ffffff"  style={{zIndex: 999}}/>
               ) :
                 children?.length > 0 ? (
                   <ThemedView style={{ marginTop: -120, marginBottom: 70, zIndex: 100 }}>
-                    {/* Continue Watching */}
+                    {/* Children Tab */}
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}
@@ -216,67 +216,13 @@ export default function ParentDashboard() {
                     </ThemedView>
 
                     <SectionHeader title="Recent Learning" avatar="learning" />
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      onScroll={event => {
-                        const x = event.nativeEvent.contentOffset.x;
-                        const cardWidth = 290 + 25; // card width + gap (adjust if needed)
-                        const index = Math.round(x / cardWidth);
-                        setCurrentCardIndex(index);
-                      }}
-                      contentContainerStyle={styles.cardScrollContainer}
-                    >
-                      {storiesData
-                        // .filter((ele) => !ele.watched)
-                        .map((item, idx) => (
-                          <StoryCard key={idx} {...item} />
-                        ))}
-                    </ScrollView>
+                    <RecentLearning activeChild={activeChild}/>
 
-                    {/* Pagination Dots */}
-                    <ThemedView style={styles.pagination}>
-                      {storiesData.map((_, idx) => (
-                        <ThemedView
-                          key={idx}
-                          style={[
-                            styles.dot,
-                            idx === currentCardIndex && styles.activeDot,
-                          ]}
-                        />
-                      ))}
-                    </ThemedView>
 
-                    {/* Watch Next */}
+                    {/* Recommended */}
                     <SectionHeader title="Recommended" avatar="heart" />
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      onScroll={event => {
-                        const x = event.nativeEvent.contentOffset.x;
-                        const cardWidth = 290 + 25; // card width + gap (adjust if needed)
-                        const index = Math.round(x / cardWidth);
-                        setCurrentRecommendCardIndex(index);
-                      }}
-                      contentContainerStyle={styles.cardScrollContainer}
-                    >
-                      {seriesData.map((item, idx) => (
-                        <SeriesCard key={idx} {...item} />
-                      ))}
-                    </ScrollView>
+                    <Recommend activeChild={activeChild}/>
 
-                    {/* Pagination Dots */}
-                    <ThemedView style={styles.pagination}>
-                      {seriesData.map((_, idx) => (
-                        <ThemedView
-                          key={idx}
-                          style={[
-                            styles.dot,
-                            idx === currentRecommendCardIndex && styles.activeDot,
-                          ]}
-                        />
-                      ))}
-                    </ThemedView>
                     {/* Featured Adventures */}
                     <SectionHeader title="Insights" avatar="star" />
 

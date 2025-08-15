@@ -1,19 +1,22 @@
+import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
-import { SeriesCard } from "@/components/Cards";
+import { SeriesCard, StoryCard2 } from "@/components/Cards";
 import Header from "@/components/Header";
+import { PatternBackground } from "@/components/PatternBackground";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { categoryData, storyOptionsData } from "@/data/libraryData";
+import { storyOptionsData } from "@/data/libraryData";
 import { Stack, router } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
-    FlatList,
-    Image,
-    Modal,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
+  FlatList,
+  Image,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const seriesData = [
@@ -49,6 +52,41 @@ const seriesData = [
   },
 ];
 
+const storiesData = [
+  {
+    bgColor: "#F4A672",
+    textColor: "#053B4A",
+    subTextColor: "#F8ECAE",
+    progressColor: "#ADD7DA",
+    isBallonYellow: true,
+    number: "#1",
+    storyTitle: "The Secret Garden",
+    seriesTitle: "Nature Explorers",
+    duration: 32,
+    progress: 20,
+    image: "1",
+    featured: false,
+    isFavorite: true,
+    watched: false,
+  },
+  {
+    bgColor: "#053B4A",
+    textColor: "#FCFCFC",
+    subTextColor: "#F8ECAE",
+    progressColor: "#F8ECAE",
+    isBallonYellow: false,
+    number: "#2",
+    storyTitle: "Underwater Friends",
+    seriesTitle: "Ocean Wonders",
+    duration: 32,
+    progress: 12,
+    image: "2",
+    featured: false,
+    isFavorite: true,
+    watched: false,
+  },
+];
+
 const learningIcon = require("@/assets/images/parent/learning.png")
 const searchIcon = require("@/assets/images/parent/icon-search.png")
 const listIcon = require("@/assets/images/parent/icon-list.png")
@@ -56,18 +94,49 @@ const swapIcon = require("@/assets/images/parent/icon-swap.png")
 const downIcon = require("@/assets/images/parent/down.png")
 
 export default function SeriesLibrary() {
-  const categories = categoryData;
+  const [categories, setCategories] = React.useState<any[]>([]);
+  const [seriesData, setSeriesData] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(false);
   const storyOptions = storyOptionsData;
   const [activeItem, setActiveItem] = React.useState('Series');
   const [dropdownVisible, setDropdownVisible] = React.useState(false);
+  const [selectedSeries, setSelectedSeries] = React.useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    async function fetchSeries() {
+      try {
+        const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+        const { data, error } = await supabase.functions.invoke('series-categories', {
+          method: 'GET',
+          headers: {
+            Authorization: jwt ? `Bearer ${jwt}` : '',
+          },
+        });
+        if (error) {
+          console.error('Error fetching series:', error.message);
+
+        } else if (data && Array.isArray(data.data)) {
+          console.log("Series::", data.data)
+          setCategories(data.data);
+          setSeriesData(data.data);
+        }
+      } catch (e) {
+        console.error('Error fetching series:', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSeries();
+  }, []);
 
   function handleItemSelection(item: string) {
     console.log("item selected::", item)
     setActiveItem(item)
     setDropdownVisible(false)
-    
+
     // Navigate to the appropriate screen based on selection
-    switch(item) {
+    switch (item) {
       case 'Stories':
         router.push('/(parent)/(learning)/(library)');
         break;
@@ -93,18 +162,18 @@ export default function SeriesLibrary() {
   }
 
   function handleStoryItem(item: string) {
-    console.log("storyOption clicked::", item)
+    selectedSeries === item ? setSelectedSeries(null) : setSelectedSeries(item);
   }
 
   return (
-    <>
+    <PatternBackground>
       <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={{ flex: 1, display: "flex", height: 500 }}>
-        <ThemedView style={{ flex: 1, display: "flex", position: "relative" }}>
+      <SafeAreaView style={styles.safeAreaContainer}>
+        <ThemedView style={styles.themedViewContainer}>
           <ScrollView
             style={styles.rootContainer}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 55 }}
+            contentContainerStyle={styles.scrollViewContent}
           >
             {/* Top background */}
             <Image
@@ -114,10 +183,10 @@ export default function SeriesLibrary() {
             />
 
             <Header icon={learningIcon} role="parent" title="Learning" theme="dark"></Header>
-            
+
             {/* Header */}
             <ThemedView style={styles.topRow}>
-              <TouchableOpacity style={styles.iconBtn}>
+              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('./(parent)/search-screen')}>
                 <Image source={searchIcon} tintColor={'white'} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>
@@ -140,16 +209,16 @@ export default function SeriesLibrary() {
             {/* Category pills */}
             <FlatList
               horizontal
-              data={categories}
+              data={categories.map((item) => item.name)}
               keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => handleStoryItem(item)}>
-                  <ThemedView style={styles.categoryPill}>
-                    <ThemedText style={styles.categoryText}>{item}</ThemedText>
+                  <ThemedView style={[styles.categoryPill, selectedSeries === item ? styles.categoryPillActive : styles.categoryPillInactive]}>
+                    <ThemedText style={[styles.categoryText, selectedSeries === item ? { color: 'rgba(5, 59, 74, 1)' } : null]}>{item}</ThemedText>
                   </ThemedView>
                 </TouchableOpacity>
               )}
-              style={{ paddingHorizontal: 16 }}
+              style={styles.categoryPillsContainer}
               showsHorizontalScrollIndicator={false}
             />
 
@@ -183,46 +252,117 @@ export default function SeriesLibrary() {
                 </ThemedView>
               </TouchableOpacity>
             </Modal>
+            {selectedSeries ? (
+              <ThemedView style={styles.selectionContainer}>
+                <View style={styles.detailsSection}>
+                  <View style={styles.selectionHeaderRow}>
+                    <View>
+                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLarge , {lineHeight: 40}]}>{selectedSeries}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmall]}>{"Brand new stories and fun"}</ThemedText>
+                    </View>
+                    <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedSeries(null)}>
+                      <Image
+                        source={require("@/assets/images/kid/arrow-down.png")}
+                        style={styles.closeArrow}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.statsContainer}>
+                    <ThemedText style={styles.statsText}>
+                      ALL
+                    </ThemedText>
+                    <View style={styles.divider} />
+                    <View style={styles.statsIconContainer}>
+                      <Image
+                        source={require("@/assets/images/kid/icon-check.png")}
+                        style={styles.statsIcon}
+                        resizeMode="contain"
+                      />
+                      <ThemedText style={styles.statsTextOrange}>
+                        10 SERIES
+                      </ThemedText>
+                    </View>
+                    <View style={styles.divider} />
+                    <ThemedText style={styles.statsText}>
+                      101 STORIES
+                    </ThemedText>
+                  </View>
+                </View>
+                <ScrollView
+                  horizontal={false}
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.cardScrollContent}
+                >
+                  {storiesData
+                    .filter((ele) => !ele.watched)
+                    .map((item, idx) => (
+                      <TouchableOpacity key={idx} activeOpacity={0.9} onPress={() => { router.push(`./details-screen?from=Series`) }}>
+                        <StoryCard2 {...item} />
+                      </TouchableOpacity>
+                    ))}
+                </ScrollView>
+              </ThemedView>
+            ) : (
+              <ThemedView style={styles.bottomPadding}>
+                {/* Featured Series */}
+                <View style={styles.headerTitleContainer}>
+                  <SectionHeader title="Featured Series" desc="Popular series loved by kids" link="continue" />
+                  <TouchableOpacity
+                    onPress={() => handleStoryItem("Featured Series")}
+                  >
+                    <Image
+                      source={require("@/assets/images/kid/arrow-right.png")}
+                      style={styles.arrowIcon}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.cardScrollContainer}
+                >
+                  {seriesData.map((item, idx) => (
+                    <SeriesCard key={idx} {...item} />
+                  ))}
+                </ScrollView>
 
-            <ThemedView style={{ paddingBottom: 80 }}>
-              {/* Featured Series */}
-              <SectionHeader title="Featured Series" desc="Popular series loved by kids" link="continue" />
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.cardScrollContainer}
-              >
-                {seriesData.map((item, idx) => (
-                  <SeriesCard key={idx} {...item} />
-                ))}
-              </ScrollView>
+                {/* New Series */}
+                <View style={styles.headerTitleContainer}>
+                  <SectionHeader title="New Series" desc="Fresh adventures to explore" link="continue" />
+                  <TouchableOpacity
+                    onPress={() => handleStoryItem("New Series")}
+                  >
+                    <Image
+                      source={require("@/assets/images/kid/arrow-right.png")}
+                      style={styles.arrowIcon}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.cardScrollContainer}
+                >
+                  {seriesData.slice(0, 3).map((item, idx) => (
+                    <SeriesCard key={idx} {...item} />
+                  ))}
+                </ScrollView>
 
-              {/* New Series */}
-              <SectionHeader title="New Series" desc="Fresh adventures to explore" link="continue" />
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.cardScrollContainer}
-              >
-                {seriesData.slice(0, 3).map((item, idx) => (
-                  <SeriesCard key={idx} {...item} />
-                ))}
-              </ScrollView>
-
-              {/* All Series */}
-              <SectionHeader title="All Series" desc="Complete collection of series" link="continue" />
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.cardScrollContainer}
-              >
-                {seriesData.map((item, idx) => (
-                  <SeriesCard key={idx} {...item} />
-                ))}
-              </ScrollView>
-            </ThemedView>
+                {/* All Series */}
+                <SectionHeader title="All Series" desc="Complete collection of series" link="continue" />
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.cardScrollContainer}
+                >
+                  {seriesData.map((item, idx) => (
+                    <SeriesCard key={idx} {...item} />
+                  ))}
+                </ScrollView>
+              </ThemedView>
+            )}
           </ScrollView>
-          
+
           {/* Sticky Bottom Navigation */}
           <ThemedView
             style={{
@@ -234,11 +374,11 @@ export default function SeriesLibrary() {
               zIndex: 1000,
             }}
           >
-            <BottomNavBar role="parent" active="Learning" subActive="Library"/>
+            <BottomNavBar role="parent" active="Learning" subActive="Library" />
           </ThemedView>
         </ThemedView>
       </SafeAreaView >
-    </>
+    </PatternBackground>
   );
 }
 
@@ -259,6 +399,16 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(5, 59, 74, 1)",
     position: "relative",
     paddingBottom: 60
+  },
+  selectionContainer: {
+    paddingBottom: 120,
+    alignItems: "center",
+    borderColor: "rgba(122, 193, 198, 0.5)",
+    borderWidth: 1,
+    backgroundColor: "rgba(5, 59, 74, 1)",
+    marginTop: 50,
+    borderRadius: 20,
+    marginHorizontal: 16,
   },
   topBackPattern: {
     width: "100%",
@@ -290,6 +440,10 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     fontStyle: 'italic',
     lineHeight: 24,
+  },
+  sectionArrow: {
+    width: 24,
+    height: 24,
   },
   cardScrollContainer: {
     gap: 20,
@@ -368,5 +522,108 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(244, 166, 114, 1)',
     borderRadius: '50%',
     padding: 3
+  },
+  detailsSection: {
+    marginBottom: 5,
+    width: "100%",
+    borderColor: "rgba(122, 193, 198, 0.5)",
+    borderBottomWidth: 1,
+    marginTop: 40,
+  },
+  headerTitleContainer: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between"
+  },
+  safeAreaContainer: {
+    flex: 1,
+    display: "flex",
+    height: 500
+  },
+  themedViewContainer: {
+    flex: 1,
+    display: "flex",
+    position: "relative"
+  },
+  scrollViewContent: {
+    paddingBottom: 55
+  },
+  categoryPillActive: {
+    backgroundColor: 'rgba(122, 193, 198, 1)'
+  },
+  categoryPillInactive: {
+    backgroundColor: 'rgba(122, 193, 198, 0.2)'
+  },
+  categoryPillsContainer: {
+    paddingHorizontal: 16
+  },
+  selectionHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20
+  },
+  selectionTitleLarge: {
+    marginTop: 0,
+    fontSize: 30
+  },
+  selectionTitleSmall: {
+    marginTop: 5,
+    fontSize: 20,
+    fontWeight: "100"
+  },
+  closeButton: {
+    position: "absolute",
+    right: 20,
+    top: 20
+  },
+  closeArrow: {
+    tintColor: "#F4A672"
+  },
+  statsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 20,
+    justifyContent: "center"
+  },
+  statsText: {
+    color: "#048F99",
+    fontWeight: "700",
+    fontSize: 20
+  },
+  divider: {
+    width: 1,
+    height: 14,
+    backgroundColor: "#ccc",
+    marginHorizontal: 8
+  },
+  statsIconContainer: {
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  statsIcon: {
+    width: 14,
+    height: 14,
+    marginRight: 4,
+    tintColor: "#F4A672"
+  },
+  statsTextOrange: {
+    color: "#F4A672",
+    fontWeight: "700",
+    fontSize: 20
+  },
+  cardScrollContent: {
+    gap: 20,
+    paddingHorizontal: 16,
+    paddingLeft: 30,
+    paddingTop: 30
+  },
+  bottomPadding: {
+    paddingBottom: 80
+  },
+  arrowIcon: {
+    tintColor: "#F4A672",
+    marginRight: 16,
+    marginBottom: 10
   }
 });
