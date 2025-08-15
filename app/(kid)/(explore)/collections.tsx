@@ -167,7 +167,7 @@ export default function Collections() {
 
               {/* Tab Bar */}
               <CardSeries data={cardsData} active="Collections" />
-              {/* Story List */}
+              {/
               <ItemSeries
                 ref={itemSeriesRef}
                 itemsData={filteredCollections}
@@ -175,6 +175,9 @@ export default function Collections() {
                   setSelectedCollection(item ? item.name : null);
                 }}
               />
+
+              <ItemSeries itemsData={collections} theme="light"/>
+
 
               {
                 selectedCollection ?
