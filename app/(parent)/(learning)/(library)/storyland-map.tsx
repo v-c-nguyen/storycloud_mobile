@@ -3,6 +3,7 @@ import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
 import { SeriesCard, StoryCard2 } from "@/components/Cards";
 import Header from "@/components/Header";
+import MapWrapper from "@/components/MapWrapper";
 import { PatternBackground } from "@/components/PatternBackground";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -19,6 +20,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const mapRegionsData = [
   {
@@ -173,223 +175,231 @@ export default function StorylandMapLibrary() {
   }
 
   return (
-    <PatternBackground>
-      <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={styles.safeAreaContainer}>
-        <ThemedView style={styles.themedViewContainer}>
-          <ScrollView
-            style={styles.rootContainer}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollViewContent}
-          >
-            {/* Top background */}
-            <Image
-              source={require("@/assets/images/kid/top-back-pattern.png")}
-              style={styles.topBackPattern}
-              resizeMode="cover"
-            />
-
-            <Header icon={learningIcon} role="parent" title="Learning" theme="dark"></Header>
-            
-            {/* Header */}
-            <ThemedView style={styles.topRow}>
-              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('./(parent)/search-screen')}>
-                <Image source={searchIcon} tintColor={'white'} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.iconBtn}>
-                <Image source={swapIcon} tintColor={'white'} />
-              </TouchableOpacity>
-
-              {/* Dropdown toggle */}
-              <TouchableOpacity
-                style={styles.dropdownToggle}
-                onPress={() => setDropdownVisible(!dropdownVisible)}
-              >
-                <ThemedView style={styles.ActiveItemStyle} >
-                  <Image source={listIcon} tintColor={'rgba(5, 59, 74, 1)'} />
-                </ThemedView>
-                <ThemedText style={styles.dropdownText}>{activeItem}</ThemedText>
-                <Image source={downIcon} tintColor={'rgba(122, 193, 198, 1)'} />
-              </TouchableOpacity>
-            </ThemedView>
-
-            {/* Category pills */}
-            <FlatList
-              horizontal
-              data={mapRegions}
-              keyExtractor={(item) => item}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => handleStoryItem(item)}>
-                  <ThemedView style={[styles.categoryPill, selectedSeries === item ? styles.categoryPillActive : styles.categoryPillInactive]}>
-                  <ThemedText style={[styles.categoryText, selectedSeries === item ? {color:'rgba(5, 59, 74, 1)' } : null]}>{item}</ThemedText>
-                  </ThemedView>
-                </TouchableOpacity>
-              )}
-              style={styles.categoryPillsContainer}
-              showsHorizontalScrollIndicator={false}
-            />
-
-            {/* Dropdown modal */}
-            <Modal
-              transparent
-              visible={dropdownVisible}
-              animationType="fade"
-              onRequestClose={() => setDropdownVisible(false)}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PatternBackground>
+        <Stack.Screen options={{ headerShown: false }} />
+        <SafeAreaView style={styles.safeAreaContainer}>
+          <ThemedView style={styles.themedViewContainer}>
+            <ScrollView
+              style={styles.rootContainer}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollViewContent}
             >
-              <TouchableOpacity
-                style={styles.modalOverlay}
-                onPress={() => setDropdownVisible(false)}
-                activeOpacity={1}
-              >
-                <ThemedView style={styles.dropdownMenu}>
-                  {storyOptions.map((option, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={styles.dropdownItem}
-                      onPress={() => handleItemSelection(option)} >
-                      <ThemedView style={[{ padding: 3 }, option === activeItem && styles.ActiveItemStyle]} >
-                        <Image
-                          source={listIcon}
-                          tintColor={option === activeItem ? 'rgba(5, 59, 74, 1)' : 'rgba(122, 193, 198, 1)'}
-                        />
-                      </ThemedView>
-                      <ThemedText style={styles.dropdownItemText}>{option}</ThemedText>
-                    </TouchableOpacity>
-                  ))}
-                </ThemedView>
-              </TouchableOpacity>
-            </Modal>
-            {selectedSeries ? (
-              <ThemedView style={styles.selectionContainer}>
-                <View style={styles.detailsSection}>
-                  <View style={styles.selectionHeaderRow}>
-                    <View>
-                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLarge , {lineHeight: 40}]}>{selectedSeries}</ThemedText>
-                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmall]}>{"Brand new stories and fun"}</ThemedText>
-                    </View>
-                    <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedSeries(null)}>
-                      <Image
-                        source={require("@/assets/images/kid/arrow-down.png")}
-                        style={styles.closeArrow}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.statsContainer}>
-                    <ThemedText style={styles.statsText}>ALL</ThemedText>
-                    <View style={styles.divider} />
-                    <View style={styles.statsIconContainer}>
-                      <Image
-                        source={require("@/assets/images/kid/check.png")}
-                        style={styles.statsIcon}
-                        resizeMode="contain"
-                      />
-                      <ThemedText style={styles.statsTextOrange}>10 SERIES</ThemedText>
-                    </View>
-                    <View style={styles.divider} />
-                    <ThemedText style={styles.statsText}>101 STORIES</ThemedText>
-                  </View>
-                </View>
-                <ScrollView
-                  horizontal={false}
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContent}
+              {/* Top background */}
+              <Image
+                source={require("@/assets/images/kid/top-back-pattern.png")}
+                style={styles.topBackPattern}
+                resizeMode="cover"
+              />
+
+              <Header icon={learningIcon} role="parent" title="Learning" theme="dark"></Header>
+
+              {/* Header */}
+              <ThemedView style={styles.topRow}>
+                <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('./(parent)/search-screen')}>
+                  <Image source={searchIcon} tintColor={'white'} />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.iconBtn}>
+                  <Image source={swapIcon} tintColor={'white'} />
+                </TouchableOpacity>
+
+                {/* Dropdown toggle */}
+                <TouchableOpacity
+                  style={styles.dropdownToggle}
+                  onPress={() => setDropdownVisible(!dropdownVisible)}
                 >
-                  {storiesData
-                    .filter((ele) => !ele.watched)
-                    .map((item, idx) => (
-                      <TouchableOpacity key={idx} activeOpacity={0.9} onPress={() => { router.push(`./details-screen?from=Storyland Map`) }}>
-                        <StoryCard2 {...item} />
+                  <ThemedView style={styles.ActiveItemStyle} >
+                    <Image source={listIcon} tintColor={'rgba(5, 59, 74, 1)'} />
+                  </ThemedView>
+                  <ThemedText style={styles.dropdownText}>{activeItem}</ThemedText>
+                  <Image source={downIcon} tintColor={'rgba(122, 193, 198, 1)'} />
+                </TouchableOpacity>
+              </ThemedView>
+
+              {/* Category pills */}
+              <FlatList
+                horizontal
+                data={mapRegions}
+                keyExtractor={(item) => item}
+                renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => handleStoryItem(item)}>
+                    <ThemedView style={[styles.categoryPill, selectedSeries === item ? styles.categoryPillActive : styles.categoryPillInactive]}>
+                      <ThemedText style={[styles.categoryText, selectedSeries === item ? { color: 'rgba(5, 59, 74, 1)' } : null]}>{item}</ThemedText>
+                    </ThemedView>
+                  </TouchableOpacity>
+                )}
+                style={styles.categoryPillsContainer}
+                showsHorizontalScrollIndicator={false}
+              />
+
+              {/* Dropdown modal */}
+              <Modal
+                transparent
+                visible={dropdownVisible}
+                animationType="fade"
+                onRequestClose={() => setDropdownVisible(false)}
+              >
+                <TouchableOpacity
+                  style={styles.modalOverlay}
+                  onPress={() => setDropdownVisible(false)}
+                  activeOpacity={1}
+                >
+                  <ThemedView style={styles.dropdownMenu}>
+                    {storyOptions.map((option, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={styles.dropdownItem}
+                        onPress={() => handleItemSelection(option)} >
+                        <ThemedView style={[{ padding: 3 }, option === activeItem && styles.ActiveItemStyle]} >
+                          <Image
+                            source={listIcon}
+                            tintColor={option === activeItem ? 'rgba(5, 59, 74, 1)' : 'rgba(122, 193, 198, 1)'}
+                          />
+                        </ThemedView>
+                        <ThemedText style={styles.dropdownItemText}>{option}</ThemedText>
                       </TouchableOpacity>
                     ))}
-                </ScrollView>
-              </ThemedView>
-            ) : (
-              <ThemedView style={styles.bottomPadding}>
-                {/* Map Regions */}
-                <View style={styles.headerTitleContainer}>
-                  <SectionHeader title="Storyland Regions" desc="Explore different story worlds" link="continue" />
-                  <TouchableOpacity
-                    onPress={() => handleStoryItem("Storyland Regions")}
+                  </ThemedView>
+                </TouchableOpacity>
+              </Modal>
+              {selectedSeries ? (
+                <ThemedView style={styles.selectionContainer}>
+                  <View style={styles.detailsSection}>
+                    <View style={styles.selectionHeaderRow}>
+                      <View>
+                        <ThemedText style={[styles.sectionTitle, styles.selectionTitleLarge, { lineHeight: 40 }]}>{selectedSeries}</ThemedText>
+                        <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmall]}>{"Brand new stories and fun"}</ThemedText>
+                      </View>
+                      <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedSeries(null)}>
+                        <Image
+                          source={require("@/assets/images/kid/arrow-down.png")}
+                          style={styles.closeArrow}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    <View style={styles.statsContainer}>
+                      <ThemedText style={styles.statsText}>ALL</ThemedText>
+                      <View style={styles.divider} />
+                      <View style={styles.statsIconContainer}>
+                        <Image
+                          source={require("@/assets/images/kid/check.png")}
+                          style={styles.statsIcon}
+                          resizeMode="contain"
+                        />
+                        <ThemedText style={styles.statsTextOrange}>10 SERIES</ThemedText>
+                      </View>
+                      <View style={styles.divider} />
+                      <ThemedText style={styles.statsText}>101 STORIES</ThemedText>
+                    </View>
+                  </View>
+                  <ScrollView
+                    horizontal={false}
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.cardScrollContent}
                   >
-                    <Image
-                      source={require("@/assets/images/kid/arrow-right.png")}
-                      style={styles.arrowIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                >
-                  {mapRegions.map((item, idx) => (
-                    <SeriesCard key={idx} {...item} />
-                  ))}
-                </ScrollView>
+                    {storiesData
+                      .filter((ele) => !ele.watched)
+                      .map((item, idx) => (
+                        <TouchableOpacity key={idx} activeOpacity={0.9} onPress={() => { router.push(`./details-screen?from=Storyland Map`) }}>
+                          <StoryCard2 {...item} />
+                        </TouchableOpacity>
+                      ))}
+                  </ScrollView>
+                </ThemedView>
+              ) : (
 
-                {/* Enchanted Forest Stories */}
-                <View style={styles.headerTitleContainer}>
-                  <SectionHeader title="Enchanted Forest" desc="Magical stories from the forest" link="continue" />
-                  <TouchableOpacity
-                    onPress={() => handleStoryItem("Enchanted Forest")}
-                  >
-                    <Image
-                      source={require("@/assets/images/kid/arrow-right.png")}
-                      style={styles.arrowIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                >
-                  {storiesData.map((item, idx) => (
-                    <StoryCard2 key={idx} {...item} />
-                  ))}
-                </ScrollView>
 
-                {/* All Regions */}
-                <View style={styles.headerTitleContainer}>
-                  <SectionHeader title="All Storyland Regions" desc="Complete map of story worlds" link="continue" />
-                  <TouchableOpacity
-                    onPress={() => handleStoryItem("All Storyland Regions")}
+                <ThemedView style={styles.bottomPadding}>
+                  <ThemedView style={{ height: 1000, width: "100%", marginBottom: 80 }}>
+                    <MapWrapper />
+                  </ThemedView>
+                  {/* Map Regions */}
+                  <View style={styles.headerTitleContainer}>
+                    <SectionHeader title="Storyland Regions" desc="Explore different story worlds" link="continue" />
+                    <TouchableOpacity
+                      onPress={() => handleStoryItem("Storyland Regions")}
+                    >
+                      <Image
+                        source={require("@/assets/images/kid/arrow-right.png")}
+                        style={styles.arrowIcon}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.cardScrollContainer}
                   >
-                    <Image
-                      source={require("@/assets/images/kid/arrow-right.png")}
-                      style={styles.arrowIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                >
-                  {mapRegions.map((item, idx) => (
-                    <SeriesCard key={idx} {...item} />
-                  ))}
-                </ScrollView>
-              </ThemedView>
-            )}
-          </ScrollView>
-          
-          {/* Sticky Bottom Navigation */}
-          <ThemedView
-            style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 178,
-              zIndex: 1000,
-            }}
-          >
-            <BottomNavBar role="parent" active="Learning" subActive="Library"/>
+                    {mapRegions.map((item, idx) => (
+                      <SeriesCard key={idx} {...item} />
+                    ))}
+                  </ScrollView>
+
+                  {/* Enchanted Forest Stories */}
+                  <View style={styles.headerTitleContainer}>
+                    <SectionHeader title="Enchanted Forest" desc="Magical stories from the forest" link="continue" />
+                    <TouchableOpacity
+                      onPress={() => handleStoryItem("Enchanted Forest")}
+                    >
+                      <Image
+                        source={require("@/assets/images/kid/arrow-right.png")}
+                        style={styles.arrowIcon}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.cardScrollContainer}
+                  >
+                    {storiesData.map((item, idx) => (
+                      <StoryCard2 key={idx} {...item} />
+                    ))}
+                  </ScrollView>
+
+                  {/* All Regions */}
+                  <View style={styles.headerTitleContainer}>
+                    <SectionHeader title="All Storyland Regions" desc="Complete map of story worlds" link="continue" />
+                    <TouchableOpacity
+                      onPress={() => handleStoryItem("All Storyland Regions")}
+                    >
+                      <Image
+                        source={require("@/assets/images/kid/arrow-right.png")}
+                        style={styles.arrowIcon}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.cardScrollContainer}
+                  >
+                    {mapRegions.map((item, idx) => (
+                      <SeriesCard key={idx} {...item} />
+                    ))}
+                  </ScrollView>
+                </ThemedView>
+              )}
+            </ScrollView>
+
+
+            {/* Sticky Bottom Navigation */}
+            <ThemedView
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 178,
+                zIndex: 1000,
+              }}
+            >
+              <BottomNavBar role="parent" active="Learning" subActive="Library" />
+            </ThemedView>
           </ThemedView>
-        </ThemedView>
-      </SafeAreaView >
-    </PatternBackground>
+        </SafeAreaView >
+      </PatternBackground>
+    </GestureHandlerRootView>
   );
 }
 
