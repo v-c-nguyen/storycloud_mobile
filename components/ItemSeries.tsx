@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import React, { useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
@@ -10,22 +10,38 @@ interface ItemProp {
     symbol?: string
 }
 
-export function ItemSeries({ itemsData, theme = "light" }: { itemsData: ItemProp[], theme: string }) {
-    const [selected, setSelected] = useState<string | null>(null);
+export function ItemSeries({ itemsData, theme = "light", selectedItem, onSelectItem }: { itemsData: ItemProp[], theme: string, selectedItem: string | null, onSelectItem: (item: string) => void }) {
+    const flatListRef = useRef<FlatList<ItemProp>>(null);
+
+    useEffect(() => {
+        if (selectedItem) {
+            const index = itemsData.findIndex(item => item.name === selectedItem);
+            if (index !== -1) {
+                flatListRef.current?.scrollToIndex({ index, animated: true });
+            }
+        }
+    }, [selectedItem, itemsData]);
 
     function handleStoryItem(item: string) {
-        setSelected(item);
+        onSelectItem(item);
         console.log("storyOption clicked::", item)
     }
     return (
         <ThemedView>
             {/* Category pills */}
             <FlatList
+                ref={flatListRef}
                 horizontal
                 data={itemsData}
                 keyExtractor={(item) => item.name}
+                onScrollToIndexFailed={info => {
+                    const wait = new Promise(resolve => setTimeout(resolve, 500));
+                    wait.then(() => {
+                      flatListRef.current?.scrollToIndex({ index: info.index, animated: true });
+                    });
+                  }}
                 renderItem={({ item }) => {
-                    const isSelected = selected === item.name;
+                    const isSelected = selectedItem === item.name;
                     return (
                         <TouchableOpacity onPress={() => handleStoryItem(item.name)}>
                             <ThemedView style={[styles.categoryPill, theme == "dark" && styles.activeCategoryPill, isSelected && styles.selectedPill]}>

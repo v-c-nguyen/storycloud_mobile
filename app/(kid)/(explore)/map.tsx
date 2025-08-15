@@ -40,6 +40,11 @@ export default function Map() {
     setSelectedCollection(collection);
   }
 
+  function handleSelectItem(itemName: string) {
+    const selected = collections.find(c => c.name === itemName);
+    setSelectedCollection(selected || null);
+  }
+
   useEffect(() => {
     if (selectedCollection) {
       setTimeout(() => {
@@ -148,7 +153,14 @@ export default function Map() {
           {selectedCollection ? (
             <ThemedView style={styles.mainContent}>
               <ThemedView style={styles.content}>
+                <ItemSeries 
+                  itemsData={collections} 
+                  theme="light" 
+                  selectedItem={selectedCollection ? selectedCollection.name : null}
+                  onSelectItem={handleSelectItem}
+                />
                 <ThemedView style={styles.collectionHeader}>
+                  
                    <Image source={require('@/assets/images/avatars/mia_120.png')} style={styles.avatar} />
                   <ThemedText style={styles.collectionTitle}>{selectedCollection.name}</ThemedText>
                   <ThemedText style={styles.collectionDescription}>{selectedCollection.description}</ThemedText>
@@ -183,18 +195,24 @@ export default function Map() {
             </ThemedView>
           ) : (
             <>
-              <ThemedView style={{ height:1200, width: "100%",  marginBottom: 80 }}>
+              <ThemedView style={{ height:1000, width: "100%",  marginBottom: 80 }}>
                 <MapWrapper/>
               </ThemedView>
-              <Image
+                 <Image
               source={require("@/assets/images/kid/cloud-group-near.png")}
               style={styles.imgCloudNear2}
               resizeMode="cover"
             />
               <ThemedView style={styles.mainContent}>
               <ThemedView style={styles.content}>
+             
                 {/* Story List */}
-                <ItemSeries itemsData={collections} theme="light" />
+                <ItemSeries 
+                  itemsData={collections} 
+                  theme="light" 
+                  selectedItem={selectedCollection ? selectedCollection.name : null}
+                  onSelectItem={handleSelectItem}
+                />
 
                 <ThemedView style={{ paddingBottom: 80, paddingTop: 40, gap: 20 }}>
                   {collections.map((collection, index) => (
@@ -375,9 +393,9 @@ const styles = StyleSheet.create({
   },
    imgCloudNear2: {
     width: "150%",
-    height: "5%",
+    height: "7%",
     position: "absolute",
-    top: "22.3%",
+    top: 10 * 120,
     left: 0,
     
   },
