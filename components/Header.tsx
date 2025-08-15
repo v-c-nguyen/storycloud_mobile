@@ -1,8 +1,9 @@
 import { supabase } from '@/app/lib/supabase';
 import { useUser } from '@/app/lib/UserContext';
+import Ionicons from '@expo/vector-icons/Feather';
 import { Image } from 'expo-image';
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { Alert, StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
@@ -20,6 +21,8 @@ export default function Header({ icon, role = "kid", title = "", theme = "light"
     const router = useRouter();
     const [showMenu, setShowMenu] = React.useState(false);
 
+
+    const [showSignOut, setShowSignOut] = useState(false);
     const { user, setUser } = useUser();
 
     React.useEffect(() => {
@@ -61,7 +64,7 @@ export default function Header({ icon, role = "kid", title = "", theme = "light"
     return (
         <ThemedView>
 
-            <ThemedView style={styles.headerContainer}>
+            <ThemedView style={[styles.headerContainer, showSignOut && { backgroundColor: '#fff' }]}>
                 <ThemedView style={[styles.headingWrap]}>
                     <Image
                         source={require("@/assets/images/kid/logo-ballon.png")}
@@ -84,11 +87,14 @@ export default function Header({ icon, role = "kid", title = "", theme = "light"
                     </ThemedView>
 
                     {role == "kid" &&
-                        <Image
-                            source={require("@/assets/images/kid/logo-baby.png")}
-                            style={[styles.logoBallon, theme == 'dark' && { tintColor: 'white' }]}
-                            contentFit="cover"
-                        />
+                        <TouchableOpacity onPress={() => setShowSignOut(!showSignOut)}>
+
+                            <Image
+                                source={require("@/assets/images/kid/logo-baby.png")}
+                                style={[styles.logoBallon, theme == 'dark' && { tintColor: 'white' }]}
+                                contentFit="cover"
+                            />
+                        </TouchableOpacity>
                     }
                     {role == "parent" &&
                         <ThemedView style={{ display: 'flex', flexDirection: 'row', alignItems: "center", }}>
@@ -129,6 +135,31 @@ export default function Header({ icon, role = "kid", title = "", theme = "light"
                         </ThemedView>
                     }
                 </ThemedView>
+
+                {
+                    showSignOut && <>
+                        <ThemedView style={[styles.headerWrap, { backgroundColor: "#fff"}]}>
+                            <TouchableOpacity
+                                style={[styles.signOutButton]}
+                                onPress={() => console.log("Sign Out")}
+                            >
+                                <Ionicons
+                                    name="log-out"
+                                    size={24}
+                                    color="#053B4A"
+                                />
+                                <ThemedText style={{ color: "#053B4A", fontSize: 18, marginLeft: 8 }}>
+                                    Sign Out
+                                </ThemedText>
+                            </TouchableOpacity>
+                            <Image
+                                source={require("@/assets/images/kid/cloud-group-bottom.png")}
+                                style={[styles.imgCloudFar, { transform: [{ rotate: '180deg' }], height: 200 }]}
+                                resizeMode="cover"
+                            />
+                        </ThemedView>
+                    </>
+                }
             </ThemedView>
         </ThemedView>
     );
@@ -226,5 +257,32 @@ const styles = StyleSheet.create({
         color: 'rgba(122, 193, 198, 1)',
         fontSize: 16,
         fontWeight: 400
-    }
+    },
+    headerWrap: {
+        paddingTop: 40,
+        paddingBottom: 16,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+    },
+    imgCloudFar: {
+        width: "110%",
+        height: 278,
+        position: "absolute",
+        top: 58,
+        left: 0,
+        zIndex: -100,
+    },
+    signOutButton: {
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        marginHorizontal: 16,
+        paddingVertical: 5,
+        borderRadius: 30,
+        borderWidth: 1,
+        borderColor: "#053B4A",
+    },
 });

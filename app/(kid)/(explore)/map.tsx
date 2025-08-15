@@ -1,6 +1,7 @@
 import BottomNavBar from "@/components/BottomNavBar";
 import CardSeries from "@/components/CardSeries";
 import { SeriesCard } from "@/components/Cards";
+import Header from "@/components/Header";
 import { ItemSeries, ItemSeriesRef } from "@/components/ItemSeries";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -81,18 +82,7 @@ export default function Map() {
             style={styles.topBackPattern}
             resizeMode="cover"
           />
-          <ThemedView style={styles.headingWrap}>
-            <Image
-              source={require("@/assets/images/kid/logo-ballon.png")}
-              style={styles.logoBallon}
-              resizeMode="cover"
-            />
-            <Image
-              source={require("@/assets/images/kid/logo-baby.png")}
-              style={styles.logoBallon}
-              resizeMode="cover"
-            />
-          </ThemedView>
+          <Header></Header>
 
           {/* Header */}
           <ThemedText style={styles.headerTitle}>StoryCloud Map</ThemedText>

@@ -2,6 +2,7 @@ import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
 import { SeriesCard } from "@/components/Cards";
 import CardSeries from "@/components/CardSeries";
+import Header from "@/components/Header";
 import { ItemSeries, ItemSeriesRef } from "@/components/ItemSeries";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -246,18 +247,8 @@ export default function Characters() {
             style={styles.topBackPattern}
             resizeMode="cover"
           />
-          <ThemedView style={styles.headingWrap}>
-            <Image
-              source={require("@/assets/images/kid/logo-ballon.png")}
-              style={styles.logoBallon}
-              resizeMode="cover"
-            />
-            <Image
-              source={require("@/assets/images/kid/logo-baby.png")}
-              style={styles.logoBallon}
-              resizeMode="cover"
-            />
-          </ThemedView>
+
+          <Header></Header>
 
           {/* Header */}
           <ThemedText style={styles.headerTitle}>StoryCloud Characters</ThemedText>
@@ -318,15 +309,15 @@ export default function Characters() {
                     </View>
                     <ThemedText style={[styles.sectionTitle, { marginTop: 10 }]}>{selectedCharacter}</ThemedText>
                     <ThemedText style={[styles.sectiondesc, { marginBottom: 5, padding: 20, textAlign: "center" }]}>{" Meet amazing characters who will take you on incredible adventures and teach you valuable lessons. Each character has their own unique personality and special stories to share."}</ThemedText>
-                    <View style={{backgroundColor:"#d0d0d0ff", height:1 , width:200}}></View>
-                    <TouchableOpacity style={{ flex: 1, flexDirection: "row" , alignItems:"center", justifyContent:"center" , margin:20}}
-                    onPress={handleBackToExplore}
+                    <View style={{ backgroundColor: "#d0d0d0ff", height: 1, width: 200 }}></View>
+                    <TouchableOpacity style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", margin: 20 }}
+                      onPress={handleBackToExplore}
                     >
                       <Image
                         source={require("@/assets/images/kid/arrow-left.png")}
                         style={{ width: 20, height: 20, marginRight: 8 }}
                       />
-                      <ThemedText style={[styles.sectionTitle , {marginTop:0 , marginBottom:0}]}>{"Back to Explore"}</ThemedText>
+                      <ThemedText style={[styles.sectionTitle, { marginTop: 0, marginBottom: 0 }]}>{"Back to Explore"}</ThemedText>
                     </TouchableOpacity>
 
                     <View style={{ flexDirection: "row", alignItems: "center", marginTop: 10, marginBottom: 20 }}>
@@ -374,7 +365,7 @@ export default function Characters() {
                   :
                   <ThemedView style={{ paddingBottom: 80 }}>
                     {/* Continue Watching */}
-                    <SectionHeader title="Brave Heroes" desc="Courageous characters and their adventures" photoLink={require("@/assets/images/avatars/lara_wombat.png")}/>
+                    <SectionHeader title="Brave Heroes" desc="Courageous characters and their adventures" photoLink={require("@/assets/images/avatars/lara_wombat.png")} />
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}
@@ -387,7 +378,7 @@ export default function Characters() {
                     </ScrollView>
 
                     {/* Watch Next */}
-                    <SectionHeader title="Friendly Companions" desc="Kind and helpful characters" photoLink={require("@/assets/images/avatars/lara_wombat.png")}/>
+                    <SectionHeader title="Friendly Companions" desc="Kind and helpful characters" photoLink={require("@/assets/images/avatars/lara_wombat.png")} />
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}
@@ -399,7 +390,7 @@ export default function Characters() {
                     </ScrollView>
 
                     {/* Featured Adventures */}
-                    <SectionHeader title="Magical Creatures" desc="Enchanting characters and their stories" photoLink={require("@/assets/images/avatars/lara_wombat.png")}/>
+                    <SectionHeader title="Magical Creatures" desc="Enchanting characters and their stories" photoLink={require("@/assets/images/avatars/lara_wombat.png")} />
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}
