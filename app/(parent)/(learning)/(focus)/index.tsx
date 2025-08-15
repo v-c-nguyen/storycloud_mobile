@@ -2,14 +2,14 @@ import { supabase } from '@/app/lib/supabase';
 import BottomNavBar from "@/components/BottomNavBar";
 import { FocusCard } from "@/components/FocusCard";
 import Header from "@/components/Header";
-import { ItemSeries } from '@/components/ItemSeries';
 import { CreatFocusModal } from "@/components/Modals";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { useLearningCategoryStore } from '@/store/learningCategoryStore';
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { useLearningCategoryStore } from '@/store/learningCategoryStore';
 import {
+    FlatList,
     Image,
     SafeAreaView,
     ScrollView,
@@ -37,6 +37,7 @@ export default function Index() {
     const [dropdownVisible, setDropdownVisible] = React.useState(false);
     const [focusModes, setFocusModes] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [selectedSeries, setSelectedSeries] = useState<any | null>(null);
 
     useEffect(() => {
         async function fetchFocusModes() {
@@ -96,7 +97,7 @@ export default function Index() {
     }
 
     function handleStoryItem(item: string) {
-        console.log("storyOption clicked::", item)
+        selectedSeries === item ? setSelectedSeries(null) : setSelectedSeries(item);
     }
 
     function CreateNewFocus() {
@@ -153,7 +154,21 @@ export default function Index() {
 
                         {/* Category pills */}
 
-                        <ItemSeries itemsData={categories} theme="dark"/>
+                        {/* Category pills */}
+                        <FlatList
+                            horizontal
+                            data={categories.map((ele) => ele.name)}
+                            keyExtractor={(item) => item}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity onPress={() => handleStoryItem(item)}>
+                                    <ThemedView style={[styles.categoryPill, selectedSeries === item ? styles.categoryPillActive : styles.categoryPillInactive]}>
+                                        <ThemedText style={[styles.categoryText, selectedSeries === item ? { color: 'rgba(5, 59, 74, 1)' } : null]}>{item}</ThemedText>
+                                    </ThemedView>
+                                </TouchableOpacity>
+                            )}
+                            style={styles.categoryPillsContainer}
+                            showsHorizontalScrollIndicator={false}
+                        />
 
                         <ThemedView style={{ marginBottom: 50 }}>
                             {loading ? (
@@ -327,5 +342,14 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(244, 166, 114, 1)',
         borderRadius: 100,
         padding: 3
-    }
+    },
+  categoryPillActive: {
+    backgroundColor: 'rgba(122, 193, 198, 1)'
+  },
+  categoryPillInactive: {
+    backgroundColor: 'rgba(122, 193, 198, 0.2)'
+  },
+  categoryPillsContainer: {
+    paddingHorizontal: 16
+  },
 });

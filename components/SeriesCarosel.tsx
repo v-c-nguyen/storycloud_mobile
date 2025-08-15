@@ -1,5 +1,7 @@
+import { Child } from '@/app/lib/UserContext';
+import { supabase } from '@/app/lib/supabase';
 import { useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
@@ -40,12 +42,67 @@ const CARDS = [
     },
 ];
 
-export default function SeriesCarousel({mode}:{mode: string}) {
+
+const cardStyles = [
+{
+  bgColor: "#053B4A",
+  textColor: "#FCFCFC",
+  subTextColor: "#F8ECAE",
+  progressColor: "#F8ECAE",
+  isBallonYellow: false,
+},
+{
+  bgColor: "#F4A672",
+  textColor: "#053B4A",
+  subTextColor: "#F8ECAE",
+  progressColor: "#ADD7DA",
+  isBallonYellow: true,
+},
+{
+  bgColor: "#F8ECAE",
+  textColor: "#053B4A",
+  subTextColor: "#048F99",
+  progressColor: "#ADD7DA",
+  isBallonYellow: false,
+}]
+
+
+
+export default function SeriesCarousel({ mode, activeChild }: { mode: string, activeChild: Child }) {
     const router = useRouter();
     const [activeIndex, setActiveIndex] = useState(0);
     const [selectedTime, setSelectedTime] = useState(2);
-
+    const [loading, setLoading] = React.useState(false);
+    const [storiesData, setStoriesData] = React.useState<any[]>([]);
     const flatListRef = useRef<FlatList>(null);
+
+
+    useEffect(() => {
+        // Function to fetch stories
+        async function fetchStories(childId: string) {
+            if (!childId) return;
+            setLoading(true);
+            const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+            const { data, error } = await supabase.functions.invoke(`stories/children/${childId}`, {
+                headers: {
+                    Authorization: jwt ? `Bearer ${jwt}` : '',
+                    'Content-Type': 'application/json',
+                },
+            });
+            setLoading(false);
+            if (error) {
+                alert(error)
+                console.error('Error fetching stories:', error.message);
+                return;
+            }
+            if (data && Array.isArray(data.stories)) {
+                console.log("stories Data::", data)
+                setStoriesData(data.stories.slice(0, 3));
+            }
+        }
+
+        fetchStories(activeChild?.id);
+    }, [activeChild])
 
     const handleScroll = (event: any) => {
         const newIndex = Math.round(event.nativeEvent.contentOffset.x / width);
@@ -57,17 +114,33 @@ export default function SeriesCarousel({mode}:{mode: string}) {
         setActiveIndex(index);
     };
 
-    const handlePlayButton = () => {
+    const handleLeftArrow = () => {
+        if (activeIndex > 0) {
+            const newIndex = activeIndex - 1;
+            flatListRef.current?.scrollToIndex({ index: newIndex, animated: true });
+            setActiveIndex(newIndex);
+        }
+    };
+
+    const handleRightArrow = () => {
+        if (activeIndex < storiesData.length - 1) {
+            const newIndex = activeIndex + 1;
+            flatListRef.current?.scrollToIndex({ index: newIndex, animated: true });
+            setActiveIndex(newIndex);
+        }
+    };
+
+    const handlePlayButton = (storyId: string) => {
         if (mode == "parent")
-            router.push("/(parent)/(listen)/listenStory")
-        else router.push("/(kid)/(listen)/listenStory")
+            router.push(`/(parent)/(listen)/listenStory?storyId=${storyId}`);
+        else router.push(`/(kid)/(listen)/listenStory?storyId=${storyId}`)
     }
 
     return (
         <ThemedView style={styles.container}>
             <FlatList
                 ref={flatListRef}
-                data={CARDS}
+                data={storiesData}
                 keyExtractor={(_, idx) => idx.toString()}
                 horizontal
                 pagingEnabled
@@ -79,47 +152,63 @@ export default function SeriesCarousel({mode}:{mode: string}) {
                         {/* Top number circle */}
                         <ThemedView style={{ paddingHorizontal: 16 }}>
                             <ThemedView style={styles.topCircle}>
-                                <ThemedText style={styles.topCircleText}>{item.number}</ThemedText>
+                                <ThemedText style={styles.topCircleText}>{index + 1}</ThemedText>
                             </ThemedView>
                             {/* Adventure Title */}
 
-                            <ThemedText style={styles.adventureHeader}>KAI’S LIVING ADVENTURE</ThemedText>
+                            <ThemedText style={styles.adventureHeader}>{item?.seriesCategory}</ThemedText>
                             {/* Main Title */}
-                            <ThemedText style={styles.mainTitle}>{item.title}</ThemedText>
+                            <ThemedText style={styles.mainTitle}>{item.storyTitle}</ThemedText>
                             {/* Subtitle */}
-                            <ThemedText style={styles.subtitle}>{item.subtitle}</ThemedText>
+                            <ThemedText style={styles.subtitle}>{item.descriptionParent}</ThemedText>
                         </ThemedView>
                         {/* Image with play button and balloon */}
                         <ThemedView style={{ width: '100%', height: 250 }}>
                             <ThemedView style={styles.imageWrap}>
-                                <Image source={item.image} style={styles.cardImage} resizeMode="cover" />
+                                <Image source={item.image ?? require('@/assets/images/parent/sample-card-image.png')} style={styles.cardImage} resizeMode="cover" />
                                 <ThemedView style={styles.overlayBalloon}>
                                     <Image source={require('@/assets/images/parent/balloon.png')} style={styles.balloonIcon} />
                                 </ThemedView>
-                                <TouchableOpacity style={styles.playButton} onPress={handlePlayButton}>
+                                <TouchableOpacity style={styles.playButton} onPress={() => handlePlayButton(item.storyId)}>
                                     <Image source={require('@/assets/images/parent/play.png')} style={styles.playIcon} />
                                 </TouchableOpacity>
                             </ThemedView>
                             {/* Time Selection */}
                             <ThemedView style={styles.timeBar}>
-                                <ThemedText
-                                    style={[
-                                        styles.timeButtonText,
-                                    ]}
-                                >
-                                    2 min
-                                </ThemedText>
-                                <ThemedView style={styles.timeBarWatched}>
-                                </ThemedView>
-                                <ThemedView style={styles.timeBarRemain}>
-                                </ThemedView>
-                                <ThemedText
-                                    style={[
-                                        styles.timeButtonText,
-                                    ]}
-                                >
-                                    4 min
-                                </ThemedText>
+                                {
+                                    item?.track && <ThemedView>
+                                        {item.track.watched ? (
+                                            <ThemedView style={styles.progressRow}>
+                                                <Image
+                                                    source={require('@/assets/images/kid/icon-check.png')}
+                                                    resizeMode="cover"
+                                                    style={[styles.checkIcon, { tintColor: `${cardStyles[1].textColor}` }]}
+                                                />
+                                                <ThemedText style={[styles.storyTime, { color: cardStyles[1].textColor }]}>Watched</ThemedText>
+
+                                                <ThemedView style={[
+                                                    styles.progressBarFilled,
+                                                    { borderColor: cardStyles[1].textColor, backgroundColor: cardStyles[1].progressColor, flex: 1 }
+                                                ]} />
+                                            </ThemedView>
+                                        ) : (
+                                            <ThemedView style={styles.progressRow}>
+                                                <ThemedText style={[styles.storyTime, { color: cardStyles[1].textColor }]}>{item.track?.progress} min</ThemedText>
+                                                <ThemedView style={styles.progressBarWrap}>
+                                                    <ThemedView style={[
+                                                        styles.progressBarFilled,
+                                                        { borderColor: cardStyles[1].textColor, backgroundColor: cardStyles[1].progressColor, width: `${(item.track.progress ?? 0) * 100 / (item.track.duration ?? 1)}%` }
+                                                    ]} />
+                                                    <ThemedView style={[
+                                                        styles.progressBarOutline,
+                                                        { borderColor: cardStyles[1].textColor, backgroundColor: cardStyles[1].bgColor, width: `${100 - (item.track.progress ?? 0) * 100 / (item.track.duration ?? 1)}%` }
+                                                    ]} />
+                                                </ThemedView>
+                                                <ThemedText style={[styles.storyTime, { color: cardStyles[1].textColor }]}>{(item.track.duration ?? 0) - (item.track.progress ?? 0)} min</ThemedText>
+                                            </ThemedView>
+                                        )}
+                                    </ThemedView>
+                                }
                             </ThemedView>
                         </ThemedView>
                     </ThemedView>
@@ -128,11 +217,11 @@ export default function SeriesCarousel({mode}:{mode: string}) {
 
             {/* Dots */}
             <ThemedView style={styles.cardFooter}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={handleLeftArrow}>
                     <Image source={require('@/assets/images/icons/arrow-left.png')} style={styles.leftBtn} />
                 </TouchableOpacity>
                 <ThemedView style={styles.dotsWrap}>
-                    {CARDS.map((_, idx) => (
+                    {storiesData.map((_, idx) => (
                         <TouchableOpacity key={idx} onPress={() => handleDotPress(idx)}>
                             <ThemedView
                                 style={[
@@ -143,7 +232,7 @@ export default function SeriesCarousel({mode}:{mode: string}) {
                         </TouchableOpacity>
                     ))}
                 </ThemedView>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={handleRightArrow}>
                     <Image source={require('@/assets/images/icons/arrow-right.png')} style={styles.rightBtn} />
                 </TouchableOpacity>
             </ThemedView>
@@ -214,6 +303,7 @@ const styles = StyleSheet.create({
         fontWeight: 400,
         lineHeight: 21.6,
         marginBottom: 50,
+        height: 300
     },
     imageWrap: {
         width: '100%',
@@ -315,6 +405,7 @@ const styles = StyleSheet.create({
     },
     cardFooter: {
         width: '80%',
+        marginTop: 20,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center'
@@ -328,5 +419,53 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
         tintColor: 'white',
-    }
+    },
+    storyTitle: {
+        fontSize: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontStyle: 'italic',
+        fontWeight: '700',
+        textAlign: 'center',
+        lineHeight: 24,
+        flexGrow: 1
+    },
+    progressRow: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        fontSize: 16,
+        padding: 10,
+        gap: 12
+    },
+    checkIcon: {
+        width: 20,
+        height: 20,
+    },
+    storyTime: {
+        fontSize: 16,
+        fontWeight: '400',
+        lineHeight: 20
+    },
+    progressBarWrap: {
+        width: 150,
+        flexDirection: 'row',
+        height: 15,
+        alignItems: 'center',
+        gap: 2,
+    },
+    progressBarFilled: {
+        height: 15,
+        borderRadius: 12,
+        borderWidth: 2,
+        backgroundColor: "#ADD7DA",
+        borderColor: "#053B4A",
+    },
+    progressBarOutline: {
+        height: 15,
+        borderRadius: 12,
+        borderWidth: 2,
+        backgroundColor: "transparent",
+        borderColor: "#053B4A",
+    },
 });

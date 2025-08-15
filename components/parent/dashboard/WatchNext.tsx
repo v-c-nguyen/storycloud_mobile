@@ -1,0 +1,58 @@
+import { supabase } from "@/app/lib/supabase";
+import { StoryCard } from "@/components/Cards";
+import React, { useEffect } from "react";
+import { ScrollView, StyleSheet } from "react-native";
+
+export default function WatchNext({ activeChild }: { activeChild: any }) {
+    const [storiesData, setStoriesData] = React.useState<any[]>([]);
+    const [loading, setLoading] = React.useState(false);
+
+    useEffect(() => {
+        // Function to fetch stories
+        console.log("recent learning::", activeChild)
+        async function fetchStories(childId: string) {
+            if (!childId) return;
+            setLoading(true);
+            const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+            const { data, error } = await supabase.functions.invoke(`stories/children/${childId}`, {
+                headers: {
+                    Authorization: jwt ? `Bearer ${jwt}` : '',
+                    'Content-Type': 'application/json',
+                },
+            });
+            setLoading(false);
+            if (error) {
+                alert(error)
+                console.error('Error fetching stories:', error.message);
+                return;
+            }
+            if (data && Array.isArray(data.stories)) {
+                console.log("stories Data3::", data)
+                setStoriesData(data.stories);
+            }
+        }
+
+        fetchStories(activeChild?.id);
+    }, [activeChild])
+
+    return (
+        <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.cardScrollContainer}
+        >
+            {storiesData
+                // .filter((ele) => !ele.watched)
+                .map((item, idx) => (
+                    <StoryCard key={idx} num={idx + 1} story={item} />
+                ))}
+        </ScrollView>
+    );
+}
+
+const styles = StyleSheet.create({
+    cardScrollContainer: {
+        gap: 10,
+        marginBottom: 100
+    },
+});

@@ -1,6 +1,6 @@
 import { useUser } from "@/app/lib/UserContext";
 import BottomNavBar from "@/components/BottomNavBar";
-import { SeriesCard, StoryCard } from "@/components/Cards";
+import { SeriesCard, StoryCard2 } from "@/components/Cards";
 import Header from "@/components/Header";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -233,7 +233,7 @@ export default function FocusModeHome() {
                 {storiesData
                   .filter((ele) => !ele.watched)
                   .map((item, idx) => (
-                    <StoryCard key={idx} {...item} />
+                    <StoryCard2 key={idx} {...item} />
                   ))}
               </ScrollView>
 
@@ -259,7 +259,7 @@ export default function FocusModeHome() {
                 {storiesData
                   .filter((ele) => ele.featured)
                   .map((item, idx) => (
-                    <StoryCard key={idx} {...item} />
+                    <StoryCard2 key={idx} {...item} />
                   ))}
               </ScrollView>
 

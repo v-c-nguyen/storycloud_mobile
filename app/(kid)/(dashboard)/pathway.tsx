@@ -1,6 +1,6 @@
 import { useUser } from "@/app/lib/UserContext";
 import BottomNavBar from "@/components/BottomNavBar";
-import { StoryCard } from "@/components/Cards";
+import { StoryCard2 } from "@/components/Cards";
 import PathwayProgressBar from "@/components/PathwayProgressBar";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -213,7 +213,7 @@ export default function PathwayModeHome() {
             <ThemedText style={styles.pathwayTitle}>
               Your
               <ThemedView style={{ height: 16 }} />
-              <ThemedText style={{ color: "#EC701D" }}>Adventure</ThemedText> Awaits!
+              <ThemedText  style={{ color: "#EC701D", fontSize: 30}}> Adventure</ThemedText> Awaits!
             </ThemedText>
             <ThemedText style={styles.pathwaySubTitle}>
               Story Pathway | {storiesData.length} Episodes
@@ -229,7 +229,7 @@ export default function PathwayModeHome() {
               contentContainerStyle={styles.cardScrollContainer}
             >
               {storiesData.map((item, idx) => (
-                <StoryCard key={idx} {...item} />
+                <StoryCard2 key={idx} {...item} />
               ))}
             </ScrollView>
           </ThemedView>
@@ -245,7 +245,7 @@ export default function PathwayModeHome() {
             zIndex: 1000,
           }}
         >
-          <BottomNavBar active="Explore" theme="light" image={true} flag={true} />
+          <BottomNavBar active="Dashboard" theme="light" image={true} flag={true} />
         </ThemedView>
       </ThemedView>
     </SafeAreaView>

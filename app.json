@@ -2,7 +2,7 @@
   "expo": {
     "name": "StoryCloud",
     "slug": "StoryCloud",
-    "owner": "fluxdev168",
+    "owner": "verilume113",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -42,6 +42,7 @@
     },
     "extra": {
       "eas": {
+        "projectId": "99d5f3ae-2902-4b64-999b-8261868a2517"
       },
       "router": {}
     }

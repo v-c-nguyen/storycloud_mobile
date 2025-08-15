@@ -48,7 +48,7 @@ export function ItemWithRightImage({ name, avatar }: { name: string, avatar: str
                 style={styles.itemActiveStyle}
             >
                 <Image
-                    source={require('@/assets/images/parent/avatar-parent-2.png')}
+                    source={avatar ? { uri: avatar } : require('@/assets/images/parent/avatar-parent-2.png')}
                     style={styles.avatar}
                     contentFit="cover"
                 />

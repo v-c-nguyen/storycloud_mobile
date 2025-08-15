@@ -51,7 +51,7 @@ export default function BottomNavBar({
       {/* Cloud Effects */}
       {image &&
         <Image
-          source={require("@/assets/images/kid/cloud-group-bottom.png")}
+          source={require("@/assets/images/kid/cloud-group-bottom.svg")}
           style={[styles.cloudGroup, theme == 'darkImage' && { tintColor: 'rgba(5, 59, 74, 1)' }]}
         >
         </Image>
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(122, 193, 198, 0.2)',
     paddingBottom: 16,
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 0,
     zIndex: 10,
   },
   navItem: {
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
   navItemActive: {
     borderWidth: 1,
-    borderColor: "rgba(122, 193, 198, 0.2)",
+    borderColor: "#7ac1c688",
   },
   subItemActive: {
     borderColor: "rgba(122, 193, 198, 0.2)",
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   },
   navLabel: {
     color: "rgba(122, 193, 198, 1)",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "400",
     lineHeight: 12,
     textAlign: "center",

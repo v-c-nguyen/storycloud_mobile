@@ -13,9 +13,9 @@ const checkIcon = require('@/assets/images/parent/dashboard/selected.png')
 const rightButton = require('@/assets/images/parent/icon-right.png')
 const informationIcon = require('@/assets/images/parent/information_circle.png')
 
-export default function AddFocus_Second({ currentStep, onPress }: { currentStep: number, onPress: (targets: {id: string, name: string}[]) => void }) {
-    const [learningTargets, setLearningTargets] = React.useState<{id: string, name: string}[]>([]);
-    const [selectedTargets, setSelectedTargets] = React.useState<{id: string, name: string}[]>([]);
+export default function AddFocus_Second({ currentStep, onPress }: { currentStep: number, onPress: (targets: { id: string, name: string }[]) => void }) {
+    const [learningTargets, setLearningTargets] = React.useState<{ id: string, name: string }[]>([]);
+    const [selectedTargets, setSelectedTargets] = React.useState<{ id: string, name: string }[]>([]);
     const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
     const [loading, setLoading] = React.useState(false);
 
@@ -44,7 +44,7 @@ export default function AddFocus_Second({ currentStep, onPress }: { currentStep:
         fetchLearningTargets();
     }, []);
 
-    function handleTargetSelected(target: {id: string, name: string}) {
+    function handleTargetSelected(target: { id: string, name: string }) {
         setSelectedTargets(prev => {
             const exists = prev.some(t => t.id === target.id);
             if (exists) {
@@ -66,7 +66,7 @@ export default function AddFocus_Second({ currentStep, onPress }: { currentStep:
                 <ThemedView style={styles.section}>
                     <ThemedView style={styles.labelContainer}>
                         <ThemedView style={styles.iconContainer}>
-                            <Image source={targetIcon}></Image>
+                            <Image source={targetIcon} style={{ width: 20, height: 20, tintColor: '#5CE1E6' }}></Image>
                         </ThemedView>
                         <ThemedText style={styles.learningHeader}>Learning Target</ThemedText>
                     </ThemedView>
@@ -87,19 +87,19 @@ export default function AddFocus_Second({ currentStep, onPress }: { currentStep:
                         scrollEventThrottle={16}
                     >
                         {/* Learning Target Card */}
-                                                {learningTargets.length > 0 && learningTargets.map((target, index) => {
-                                                    const isSelected = selectedTargets.some(t => t.id === target.id);
-                                                    return (
-                                                        <LearningTargetCard
-                                                            key={target.id}
-                                                            target={target}
-                                                            isSelected={isSelected}
-                                                            onPress={() => handleTargetSelected(target)}
-                                                            checkIcon={checkIcon}
-                                                            informationIcon={informationIcon}
-                                                        />
-                                                    );
-                                                })}
+                        {learningTargets.length > 0 && learningTargets.map((target, index) => {
+                            const isSelected = selectedTargets.some(t => t.id === target.id);
+                            return (
+                                <LearningTargetCard
+                                    key={target.id}
+                                    target={target}
+                                    isSelected={isSelected}
+                                    onPress={() => handleTargetSelected(target)}
+                                    checkIcon={checkIcon}
+                                    informationIcon={informationIcon}
+                                />
+                            );
+                        })}
                     </ScrollView>
                 )}
 

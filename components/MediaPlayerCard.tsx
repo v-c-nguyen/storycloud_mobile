@@ -8,10 +8,11 @@ import { ThemedView } from "./ThemedView";
 const { width } = Dimensions.get("window");
 
 type MediaPlayerCardProps = {
-    onAudioEnd?: () => void;
+    story: any;
+    onAudioEnd: () => void;
 };
 
-export default function MediaPlayerCard({ onAudioEnd }: MediaPlayerCardProps) {
+export default function MediaPlayerCard({ story, onAudioEnd }: MediaPlayerCardProps) {
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [isPlay, setIsPlay] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -20,7 +21,8 @@ export default function MediaPlayerCard({ onAudioEnd }: MediaPlayerCardProps) {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Replace with your audio file URL or local asset
-    const AUDIO_URL = "https://fzmutsehqndgqwprkxrm.supabase.co/storage/v1/object/sign/audio/PILOT_%20Kai's%20Polar%20Expedition%20-%202-5%20years.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9iNjNkYWNiNy1lYWJiLTQyOTQtOGY2My03YjVlYTk2Y2JiOWQiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJhdWRpby9QSUxPVF8gS2FpJ3MgUG9sYXIgRXhwZWRpdGlvbiAtIDItNSB5ZWFycy5tcDMiLCJpYXQiOjE3NTQ4NjI4MzUsImV4cCI6MTc1NTQ2NzYzNX0.Fa9oSDirS4S83XGwJEwyVEQEmImsrk0mrdwnhdF4iJY";
+    const AUDIO_URL = story ? story.audio_url : "https://fzmutsehqndgqwprkxrm.supabase.co/storage/v1/object/sign/audio/PILOT_%20Kai's%20Polar%20Expedition%20-%202-5%20years.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9iNjNkYWNiNy1lYWJiLTQyOTQtOGY2My03YjVlYTk2Y2JiOWQiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJhdWRpby9QSUxPVF8gS2FpJ3MgUG9sYXIgRXhwZWRpdGlvbiAtIDItNSB5ZWFycy5tcDMiLCJpYXQiOjE3NTQ4NjI4MzUsImV4cCI6MTc1NTQ2NzYzNX0.Fa9oSDirS4S83XGwJEwyVEQEmImsrk0mrdwnhdF4iJY";
+    // const AUDIO_URL = story ? story.audio_url: ''
 
     useEffect(() => {
         loadAudio();
@@ -106,10 +108,10 @@ export default function MediaPlayerCard({ onAudioEnd }: MediaPlayerCardProps) {
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.headerAdventure}>KAI’S LIVING ADVENTURE</Text>
+                <Text style={styles.headerAdventure}>{story?.seriesCategory }</Text>
                 <Text style={styles.headerTitle}>
                     <Text style={styles.headerNumber}>#2 </Text>
-                    <Text style={styles.headerTitleItalic}>Petal Tales: The Search for Rainbow Flowers</Text>
+                    <Text style={styles.headerTitleItalic}>{story?.storyTitle}</Text>
                 </Text>
             </View>
             {/* Image */}
@@ -200,6 +202,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     headerTitle: {
+        height: 40,
         color: "#fff",
         fontWeight: "bold",
         fontSize: 18,

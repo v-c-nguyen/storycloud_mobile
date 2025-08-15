@@ -8,11 +8,11 @@ import { TabBar } from '@/components/TabBar';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useChildrenStore } from '@/store/childrenStore';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import {
-    Image,
     ScrollView,
     StyleSheet,
     TextInput,
@@ -197,12 +197,12 @@ const AccountSettings = () => {
                         <Image
                             source={require("@/assets/images/kid/cloud-group-far.png")}
                             style={styles.imgCloudFar}
-                            resizeMode="cover"
+                            contentFit="fill"
                         />
                         <Image
                             source={require("@/assets/images/kid/cloud-group-near.png")}
                             style={styles.imgCloudNear}
-                            resizeMode="cover"
+                            contentFit="fill"
                         />
                     </ThemedView>
 
@@ -243,7 +243,7 @@ const AccountSettings = () => {
                                     </ThemedView>
 
                                     <TouchableOpacity style={styles.uploadButton} onPress={handleUploadAvatar} disabled={uploading}>
-                                        <Image source={downloadIcon} />
+                                        <Image source={downloadIcon} style={styles.icon_18}/>
                                         <ThemedText style={styles.uploadButtonText}>{uploading ? ' Uploading...' : ' Upload New Image'}</ThemedText>
                                     </TouchableOpacity>
 
@@ -301,7 +301,7 @@ const AccountSettings = () => {
                                                         <ThemedText style={styles.age}>{kid.age}</ThemedText>
                                                     </ThemedView>
                                                     <TouchableOpacity style={styles.iconButton} onPress={() => handleEditButton(kid)}>
-                                                        <Image source={editIcon} />
+                                                        <Image source={editIcon} style={styles.icon_18} />
                                                     </TouchableOpacity>
                                                     <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/(kid)/(dashboard)')}>
                                                         <ThemedText>View Profile</ThemedText>
@@ -322,7 +322,7 @@ const AccountSettings = () => {
                                             style={[styles.addButton, children.length >= 4 && { display: 'none' }]}
                                             onPress={handleAddButton}
                                         >
-                                            <Image source={plusIcon} />
+                                            <Image source={plusIcon} style={{width: 18, height: 18}}/>
                                             <ThemedText style={{ fontSize: 16, color: '#053B4A' }}>Add One More Kid</ThemedText>
                                         </TouchableOpacity>
                                     </ThemedView>
@@ -351,26 +351,33 @@ const styles = StyleSheet.create({
     },
     headerRocketWrap: {
         width: '100%',
-        height: 200,
+        height: 300,
         paddingLeft: 36,
         marginTop: -56,
         position: "relative",
     },
     imgCloudFar: {
-        width: 400,
-        height: 278,
+        width: '100%',
+        height: '100%',
         position: "absolute",
         top: 0,
         left: 0,
         zIndex: -100,
     },
     imgCloudNear: {
-        width: 400,
-        height: 279,
+        width: '100%',
+        height: '100%',
         position: "absolute",
         top: 42,
         left: 0,
         zIndex: -10
+    },
+    settingContentStyle: {
+        backgroundColor: '#fff',
+        paddingHorizontal: 3,
+        zIndex: 10,
+        paddingBottom: 100,
+        marginTop: -100
     },
     profileFrontBox: {
         position: "absolute",
@@ -381,12 +388,6 @@ const styles = StyleSheet.create({
     mainSettingStyle: {
         display: 'flex',
         flexDirection: 'column'
-    },
-    settingContentStyle: {
-        backgroundColor: '#fff',
-        paddingHorizontal: 3,
-        zIndex: 10,
-        paddingBottom: 100
     },
     tabContainer: {
         flexDirection: 'row',
@@ -436,6 +437,7 @@ const styles = StyleSheet.create({
         color: 'rgba(5, 59, 74, 1)',
         fontSize: 28,
         fontWeight: 700,
+        lineHeight: 36,
         textAlign: 'center'
     },
     container: {
@@ -495,6 +497,10 @@ const styles = StyleSheet.create({
     recommendationText: {
         color: 'rgba(5, 59, 74, 0.5)',
         marginBottom: 20,
+    },
+    icon_18: {
+        width: 18,
+        height: 18
     },
     inputWrapper: {
         marginBottom: 20,

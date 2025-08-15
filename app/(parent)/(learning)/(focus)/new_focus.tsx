@@ -16,7 +16,7 @@ const backIcon = require('@/assets/images/parent/icon-left.png')
 const information_circle = require("@/assets/images/parent/information_circle.png")
 
 interface Child {
-    id: number,
+    id: string,
     name: string,
     age: number,
     mode: string,
@@ -44,8 +44,10 @@ export default function AddFocus() {
     }
 
     function handleFourthNext(children: Child[]) {
-        setStep(4);
         setChildren(children);
+        console.log("children::", children);
+
+        setStep(4);
     }
 
     async function handleFinal() {
@@ -137,7 +139,7 @@ export default function AddFocus() {
                             <AddFocus_Third
                                 mode={mode}
                                 currentStep={3}
-                                onPress={() => handleFourthNext}
+                                onPress={handleFourthNext}
                             />
                         }
                         {step == 4 &&

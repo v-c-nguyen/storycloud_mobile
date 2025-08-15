@@ -1,17 +1,20 @@
 import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
+import { SeriesCard } from "@/components/Cards";
 import CardSeries from "@/components/CardSeries";
-import { ItemSeries } from "@/components/ItemSeries";
+import { ItemSeries, ItemSeriesRef } from "@/components/ItemSeries";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { Image } from "expo-image";
 import { Stack } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  TextInput
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 
@@ -23,13 +26,185 @@ const cardsData = [
   { color: '#053B4A', icon: require('@/assets/images/parent/characters.png'), text: 'Characters' },
 ];
 
-export default function Characters() {
 
+const seriesData = [
+  {
+    title: "BRAVE HEROES",
+    image: "1",
+    count: 8,
+    isFavorite: true,
+  },
+  {
+    title: "FRIENDLY COMPANIONS",
+    image: "2",
+    count: 8,
+    isFavorite: true,
+  },
+  {
+    title: "MAGICAL CREATURES",
+    image: "3",
+    count: 8,
+    isFavorite: true,
+  },
+  {
+    title: "WISE MENTORS",
+    image: "4",
+    count: 8,
+    isFavorite: true,
+  },
+  {
+    title: "PLAYFUL FRIENDS",
+    image: "5",
+    count: 8,
+    isFavorite: true,
+  },
+];
+
+
+const storiesData = [
+  {
+    bgColor: "#F4A672",
+    textColor: "#053B4A",
+    subTextColor: "#F8ECAE",
+    progressColor: "#ADD7DA",
+    isBallonYellow: true,
+    number: "#1",
+    storyTitle: "The Brave Knight's Quest",
+    seriesTitle: "BRAVE HEROES",
+    duration: 32,
+    progress: 20,
+    image: "1",
+    featured: false,
+    isFavorite: true,
+    watched: false,
+  },
+  {
+    bgColor: "#053B4A",
+    textColor: "#FCFCFC",
+    subTextColor: "#F8ECAE",
+    progressColor: "#F8ECAE",
+    isBallonYellow: false,
+    number: "#2",
+    storyTitle: "The Friendly Dragon",
+    seriesTitle: "FRIENDLY COMPANIONS",
+    duration: 32,
+    progress: 12,
+    image: "2",
+    featured: false,
+    isFavorite: true,
+    watched: false,
+  },
+  {
+    bgColor: "#F8ECAE",
+    textColor: "#053B4A",
+    subTextColor: "#048F99",
+    progressColor: "#ADD7DA",
+    isBallonYellow: false,
+    number: "#3",
+    storyTitle: "The Magical Unicorn",
+    seriesTitle: "MAGICAL CREATURES",
+    duration: 32,
+    progress: 20,
+    image: "3",
+    featured: true,
+    isFavorite: true,
+    watched: false,
+  },
+  {
+    bgColor: "#053B4A",
+    textColor: "#FCFCFC",
+    subTextColor: "#F8ECAE",
+    progressColor: "#F8ECAE",
+    isBallonYellow: true,
+    number: "#4",
+    storyTitle: "The Wise Owl's Lesson",
+    seriesTitle: "WISE MENTORS",
+    duration: 32,
+    progress: 12,
+    image: "2",
+    featured: true,
+    isFavorite: true,
+    watched: false,
+  },
+  {
+    bgColor: "#F8ECAE",
+    textColor: "#053B4A",
+    subTextColor: "#F8ECAE",
+    progressColor: "#F4A672",
+    isBallonYellow: true,
+    number: "#5",
+    storyTitle: "The Playful Puppy",
+    seriesTitle: "PLAYFUL FRIENDS",
+    duration: 32,
+    progress: 20,
+    image: "1",
+    featured: false,
+    isFavorite: true,
+    watched: true,
+  },
+  {
+    bgColor: "#053B4A",
+    textColor: "#FCFCFC",
+    subTextColor: "#F8ECAE",
+    progressColor: "#ADD7DA",
+    isBallonYellow: false,
+    number: "#7",
+    storyTitle: "The Curious Cat",
+    seriesTitle: "PLAYFUL FRIENDS",
+    duration: 32,
+    progress: 20,
+    image: "3",
+    featured: false,
+    isFavorite: false,
+    watched: true,
+  },
+];
+
+export default function Characters() {
   const [characters, setCharacters] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const itemSeriesRef = useRef<ItemSeriesRef>(null);
 
+  // Filter data based on search query
+  const filteredCharacters = characters.filter(item =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleBackToExplore = () => {
+    setSelectedCharacter(null);
+    setSearchQuery("");
+    // Reset ItemSeries selection
+    if (itemSeriesRef.current) {
+      itemSeriesRef.current.resetSelection();
+    }
+  };
+  function SectionHeader({ title, desc, photoLink }: { title: string; desc: string, photoLink: string }) {
+    return (
+      <ThemedView style={[styles.cardWrap, { marginTop: 20, alignItems: "flex-start" }]}>
+        <View style={styles.avatarContainer}>
+          <Image
+            source={photoLink}
+            style={styles.avatar}
+            contentFit="cover"
+          />
+        </View>
+        <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
+        <ThemedView style={styles.sectionHeader}>
+          <ThemedText style={[styles.sectiondesc, { flex: 1 }]}>{desc}</ThemedText>
+          <TouchableOpacity onPress={() => { setSelectedCharacter(title) }}>
+            <Image
+              source={require("@/assets/images/kid/arrow-right.png")}
+              style={styles.imgArrowLeft}
+            />
+          </TouchableOpacity>
+        </ThemedView>
+      </ThemedView>
+    );
+  }
   useEffect(() => {
-    async function fetchSeries() {
+    async function fetchCharacters() {
       setLoading(true);
       try {
         const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
@@ -40,20 +215,21 @@ export default function Characters() {
           },
         });
         if (error) {
-          console.error('Error fetching series:', error.message);
+          console.error('Error fetching characters:', error.message);
 
         } else if (data && Array.isArray(data.data)) {
           console.log("Characters::", data.data)
           setCharacters(data.data);
         }
       } catch (e) {
-        console.error('Error fetching focus modes:', e);
+        console.error('Error fetching characters:', e);
       } finally {
         setLoading(false);
       }
     }
-    fetchSeries();
+    fetchCharacters();
   }, []);
+
   return (
     <>
       <Stack.Screen options={{
@@ -109,19 +285,142 @@ export default function Characters() {
                   placeholder="Search for your next adventure..."
                   placeholderTextColor={'#D9D9D9'}
                   style={styles.searchText}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
                 />
                 <Image source={require('@/assets/images/parent/Microphone4.png')} style={styles.searchIcon}></Image>
               </ThemedView>
             </ThemedView>
           </ThemedView>
 
-
           <ThemedView style={styles.mainContent}>
             <ThemedView style={styles.content}>
               {/* Tab Bar */}
-              <CardSeries data={cardsData} active="Characters" />
+              <CardSeries data={cardsData} active={'Characters'} />
+
+              {/* Characters List */}
+              <ItemSeries
+                ref={itemSeriesRef}
+                itemsData={filteredCharacters}
+                onSelect={(item) => {
+                  setSelectedCharacter(item ? item.name : null);
+                }}
+              />
+              {
+                selectedCharacter ?
+                  <ThemedView style={{ paddingBottom: 80, alignItems: "center", paddingLeft: 20 }}>
+                    <View style={[styles.avatarContainer, { marginBottom: 20, padding: 15 }]}>
+                      <Image
+                        source={require("@/assets/images/avatars/lara_wombat.png")}
+                        style={styles.mainAvatar}
+                        contentFit="cover"
+                      />
+                    </View>
+                    <ThemedText style={[styles.sectionTitle, { marginTop: 10 }]}>{selectedCharacter}</ThemedText>
+                    <ThemedText style={[styles.sectiondesc, { marginBottom: 5, padding: 20, textAlign: "center" }]}>{" Meet amazing characters who will take you on incredible adventures and teach you valuable lessons. Each character has their own unique personality and special stories to share."}</ThemedText>
+                    <View style={{backgroundColor:"#d0d0d0ff", height:1 , width:200}}></View>
+                    <TouchableOpacity style={{ flex: 1, flexDirection: "row" , alignItems:"center", justifyContent:"center" , margin:20}}
+                    onPress={handleBackToExplore}
+                    >
+                      <Image
+                        source={require("@/assets/images/kid/arrow-left.png")}
+                        style={{ width: 20, height: 20, marginRight: 8 }}
+                      />
+                      <ThemedText style={[styles.sectionTitle , {marginTop:0 , marginBottom:0}]}>{"Back to Explore"}</ThemedText>
+                    </TouchableOpacity>
+
+                    <View style={{ flexDirection: "row", alignItems: "center", marginTop: 10, marginBottom: 20 }}>
+                      {/* ALL */}
+                      <ThemedText style={{ color: "#048F99", fontWeight: "700", fontSize: 14 }}>
+                        ALL
+                      </ThemedText>
+
+                      {/* Divider */}
+                      <View style={{ width: 1, height: 14, backgroundColor: "#ccc", marginHorizontal: 8 }} />
+
+                      {/* 10 SERIES */}
+                      <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Image
+                          source={require("@/assets/images/kid/check.png")}
+                          style={{ width: 14, height: 14, marginRight: 4 }}
+                          resizeMode="contain"
+                        />
+                        <ThemedText style={{ color: "#F4A672", fontWeight: "700", fontSize: 14 }}>
+                          10 SERIES
+                        </ThemedText>
+                      </View>
+
+                      {/* Divider */}
+                      <View style={{ width: 1, height: 14, backgroundColor: "#ccc", marginHorizontal: 8 }} />
+
+                      {/* 101 STORIES */}
+                      <ThemedText style={{ color: "#048F99", fontWeight: "700", fontSize: 14 }}>
+                        101 STORIES
+                      </ThemedText>
+                    </View>
+
+                    <ScrollView
+                      horizontal={false}
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {seriesData
+                        .map((item, idx) => (
+                          <SeriesCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
+                  </ThemedView>
+
+                  :
+                  <ThemedView style={{ paddingBottom: 80 }}>
+                    {/* Continue Watching */}
+                    <SectionHeader title="Brave Heroes" desc="Courageous characters and their adventures" photoLink={require("@/assets/images/avatars/lara_wombat.png")}/>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {seriesData
+                        .map((item, idx) => (
+                          <SeriesCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
+
+                    {/* Watch Next */}
+                    <SectionHeader title="Friendly Companions" desc="Kind and helpful characters" photoLink={require("@/assets/images/avatars/lara_wombat.png")}/>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {seriesData.map((item, idx) => (
+                        <SeriesCard key={idx} {...item} />
+                      ))}
+                    </ScrollView>
+
+                    {/* Featured Adventures */}
+                    <SectionHeader title="Magical Creatures" desc="Enchanting characters and their stories" photoLink={require("@/assets/images/avatars/lara_wombat.png")}/>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.cardScrollContainer}
+                    >
+                      {seriesData
+                        .map((item, idx) => (
+                          <SeriesCard key={idx} {...item} />
+                        ))}
+                    </ScrollView>
+
+                    {/* Just Watched */}
+                    {/* <SectionHeader title="Just Watched" link="watched" />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardScrollContainer}>
+              {storiesData.filter(ele => ele.watched).map((item, idx) => (
+                <StoryCard key={idx} {...item} />
+              ))}
+            </ScrollView> */}
+                  </ThemedView>
+              }
               {/* Story List */}
-              <ItemSeries itemsData={characters} />
             </ThemedView>
           </ThemedView>
         </ScrollView>
@@ -156,6 +455,30 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
   },
+  sectionHeader: {
+    marginTop: 0,
+    marginBottom: 8,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  sectionTitle: {
+    color: "#053B4A",
+    fontSize: 24,
+    marginTop: 10,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    fontWeight: "700",
+    lineHeight: 24,
+  },
+  sectiondesc: {
+    color: "#053B4A",
+    fontSize: 16,
+    fontWeight: "400",
+    fontStyle: 'italic',
+    lineHeight: 24,
+  },
   headingWrap: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -173,14 +496,6 @@ const styles = StyleSheet.create({
     marginTop: 67,
     marginBottom: 66,
   },
-  mainContent: {
-    height: '100%',
-    marginTop: 90,
-    backgroundColor: '#ffffff'
-  },
-  content: {
-    marginTop: -90
-  },
   backWrap: {
     marginLeft: "auto",
     marginRight: "auto",
@@ -191,9 +506,14 @@ const styles = StyleSheet.create({
     marginTop: 84,
     marginBottom: 58,
   },
+  cardScrollContainer: {
+    gap: 20,
+    paddingHorizontal: 16,
+  },
   imgArrowLeft: {
     width: 20,
     height: 20,
+    alignSelf: "flex-end",
   },
   backText: {
     color: "#F4A672",
@@ -207,6 +527,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: -90,
     position: "relative",
+  },
+  mainContent: {
+    height: '100%',
+    marginTop: 90,
+    backgroundColor: '#ffffff',
+  },
+  content: {
+    marginTop: -90
   },
   imgCloudFar: {
     width: "100%",
@@ -272,4 +600,23 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: 'center',
   },
+  avatar: {
+    width: 36,
+    height: 36,
+  },
+  avatarContainer: {
+    marginLeft: 16,
+    padding: 4,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#fff",
+    backgroundColor: "#F8ECAE",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 60,
+  },
+  mainAvatar: {
+    width: 80,
+    height: 80,
+  }
 });

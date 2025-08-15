@@ -1,3 +1,4 @@
+import { supabase } from '@/app/lib/supabase';
 import BottomNavBar from '@/components/BottomNavBar';
 import Header from '@/components/Header';
 import MediaPlayerCard from '@/components/MediaPlayerCard';
@@ -7,7 +8,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { childrenData } from '@/data/childrenData';
 import { modesData } from '@/data/parent/dashboardData';
 import { Image } from 'expo-image';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { Modal, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -31,11 +32,39 @@ const musicIcon = require('@/assets/images/parent/music.png')
 
 export default function ListenStory() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const storyId = typeof params.storyId === 'string' ? params.storyId : '';
+  const [story, setStory] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(false);
   const children = childrenData;
   const modes = modesData;
   const [modalVisible, setModalVisible] = React.useState(false);
   const [activeChild, setActiveChild] = React.useState(children[0]);
   const [activeMode, setActiveMode] = React.useState(modes[0]);
+
+  React.useEffect(() => {
+    async function fetchStory() {
+      if (!storyId) return;
+      setLoading(true);
+      const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+      const { data, error } = await supabase.functions.invoke(`stories/${storyId}`, {
+        headers: {
+          Authorization: jwt ? `Bearer ${jwt}` : '',
+          'Content-Type': 'application/json',
+        },
+      });
+      setLoading(false);
+      if (error) {
+        console.error('Error fetching story:', error.message);
+        return;
+      }
+      if (data) {
+        console.log('Fetched story:', data);
+        setStory(data);
+      }
+    }
+    fetchStory();
+  }, [storyId]);
 
 
   const handleChildSelect = (child: any) => {
@@ -68,7 +97,7 @@ export default function ListenStory() {
             />
 
             {/* Main Content */}
-            <Header role="parent" theme='dark'></Header>
+            <Header role="kid" theme='dark'></Header>
             {/* Header */}
 
 
@@ -83,10 +112,12 @@ export default function ListenStory() {
                 </TouchableOpacity>
               </ThemedView>
 
-              <MediaPlayerCard onAudioEnd={() => setModalVisible(true)} />
+              <MediaPlayerCard
+                onAudioEnd={() => setModalVisible(true)}
+                story={story}
+              />
 
-
-              <AdventureStoryCarousel />
+              <AdventureStoryCarousel storyId={storyId} />
 
             </ThemedView>
           </ScrollView>

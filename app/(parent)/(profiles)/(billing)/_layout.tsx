@@ -10,6 +10,8 @@ export default function AuthLayout() {
     <Stack
     >
       <Stack.Screen name="index"/>
+      <Stack.Screen name="PaymentMethod"/>
+      <Stack.Screen name="new_method"/>
     </Stack>
   );
 }
