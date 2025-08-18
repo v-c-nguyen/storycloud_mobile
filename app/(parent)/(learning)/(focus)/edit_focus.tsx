@@ -29,7 +29,6 @@ export default function EditFocus() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const focusId = params.id as string;
-    console.log(focusId)
     const [modalVisible, setModalVisible] = React.useState(params.showModal === 'true');
     const categories = categoryData;
     const storyOptions = storyOptionsData;

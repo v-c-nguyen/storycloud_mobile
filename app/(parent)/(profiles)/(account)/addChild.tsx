@@ -79,10 +79,8 @@ const AddChild = () => {
                 }
             });
             const data = await fetchResponse.json();
-            console.log(data);
             if (fetchResponse.ok && data) {
                 // Add to Zustand store
-                console.log(data.data)
                 addChildToStore(data.data);
                 // Redirect on success
                 router.push('../');

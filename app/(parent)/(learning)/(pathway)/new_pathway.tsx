@@ -42,7 +42,6 @@ export default function AddPathway() {
 
     function handleSecondNext(name: string, description: string) {
         setStep(3);
-        console.log("name, description", name, description);
         setName(name);
         setDescription(description);
     }
@@ -50,13 +49,11 @@ export default function AddPathway() {
         setStep(4);
         setLength(length);
         setTargets(targets);
-        console.log("length, targets", length, targets);
     }
 
     function handleFourthNext(children: Child[]) {
         if (mode == 0) {
             setStep(5);
-            console.log("children=====", children)
             setChildren(children)
         }
         else {
@@ -86,7 +83,6 @@ export default function AddPathway() {
                 body: JSON.stringify(focusData),
             });
             const result = await response.json();
-            console.log(result)
             if (!response.ok) {
                 alert(result?.error || 'Failed to save focus mode');
                 return;

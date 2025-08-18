@@ -5,8 +5,8 @@ import MediaPlayerCard from '@/components/MediaPlayerCard';
 import { Finished } from '@/components/Modals';
 import AdventureStoryCarousel from '@/components/StoryCarousel';
 import { ThemedView } from '@/components/ThemedView';
-import { childrenData } from '@/data/childrenData';
 import { modesData } from '@/data/parent/dashboardData';
+import { useChildrenStore } from '@/store/childrenStore';
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
@@ -36,11 +36,11 @@ export default function ListenStory() {
   const storyId = typeof params.storyId === 'string' ? params.storyId : '';
   const [story, setStory] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(false);
-  const children = childrenData;
   const modes = modesData;
   const [modalVisible, setModalVisible] = React.useState(false);
-  const [activeChild, setActiveChild] = React.useState(children[0]);
-  const [activeMode, setActiveMode] = React.useState(modes[0]);
+  const { activeChild, setActiveChild } = useChildrenStore();
+  const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
+  const [stories,  setStories] = React.useState<any>([]);
 
   React.useEffect(() => {
     async function fetchStory() {
@@ -59,7 +59,6 @@ export default function ListenStory() {
         return;
       }
       if (data) {
-        console.log('Fetched story:', data);
         setStory(data);
       }
     }
@@ -72,11 +71,41 @@ export default function ListenStory() {
   };
 
   const onNext = () => {
+    
     setModalVisible(false);
   }
-  
-  const onWatchAgain = () => {
+
+  const onWatchAgain = async () => {
     setModalVisible(false);
+    // Reset watched and played for the current story in backend
+    if (!storyId || !activeChild?.id) return;
+    try {
+      const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+      // Call backend to reset track info
+      const result = await fetch('https://fzmutsehqndgqwprkxrm.supabase.co/functions/v1/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: jwt ? `Bearer ${jwt}` : '',
+        },
+        body: JSON.stringify({
+          storyId,
+          childId: activeChild.id,
+          playedTime: 0,
+          totalTime: story?.duration ?? 1,
+          finished: false,
+        })
+      });
+
+      const data = result.json();
+      // Optionally reload the story or audio
+      // If you want to reload the audio, you may need to trigger a state update or reload MediaPlayerCard
+      // For example, you could setStory(null) and then refetch story
+      // setStory(null);
+      // fetchStory();
+    } catch (e) {
+      console.error('Failed to reset track for watch again', e);
+    }
   }
 
   return (
@@ -114,10 +143,14 @@ export default function ListenStory() {
 
               <MediaPlayerCard
                 onAudioEnd={() => setModalVisible(true)}
+                activeChild={activeChild}
                 story={story}
               />
 
-              <AdventureStoryCarousel storyId={storyId} />
+              <AdventureStoryCarousel 
+                storyId={storyId} 
+                activeChild={activeChild}
+              />
 
             </ThemedView>
           </ScrollView>
@@ -134,7 +167,7 @@ export default function ListenStory() {
           >
             <BottomNavBar role="parent" active="Listen" theme='light' image={true} />
           </ThemedView>
-          
+
           <Modal
             visible={modalVisible}
             transparent
@@ -142,7 +175,7 @@ export default function ListenStory() {
             onRequestClose={() => setModalVisible(false)}
           >
             <ThemedView style={styles.modalOverlay}>
-              <Finished onNext={onNext} onWatchAgain={onWatchAgain}/>
+              <Finished onNext={onNext} onWatchAgain={onWatchAgain} />
             </ThemedView>
           </Modal>
         </ThemedView>
@@ -351,12 +384,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 6
   },
-  
+
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
-},
+  },
 });
 

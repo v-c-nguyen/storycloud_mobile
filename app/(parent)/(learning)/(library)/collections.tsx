@@ -119,7 +119,6 @@ export default function CollectionsLibrary() {
           console.error('Error fetching characters:', error.message);
 
         } else if (data && Array.isArray(data.data)) {
-          console.log("Characters::", data.data)
           setCollections(data.data);
         }
       } catch (e) {
@@ -132,7 +131,6 @@ export default function CollectionsLibrary() {
   }, []);
 
   function handleItemSelection(item: string) {
-    console.log("item selected::", item)
     setActiveItem(item)
     setDropdownVisible(false)
 

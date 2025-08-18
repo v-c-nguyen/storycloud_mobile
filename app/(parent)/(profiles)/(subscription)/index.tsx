@@ -139,8 +139,6 @@ export default function SubscriptionPlansScreen() {
     };
 
     const handleItemProcess = (item: string) => {
-        console.log("item::", item)
-        console.log(`parent/profile/${item}`)
         switch (item) {
             case 'account':
                 router.navigate("/(parent)/(profiles)/(account)");

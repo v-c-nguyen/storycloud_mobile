@@ -3,10 +3,9 @@ import BottomNavBar from '@/components/BottomNavBar';
 import Header from '@/components/Header';
 import MediaPlayerCard from '@/components/MediaPlayerCard';
 import { Finished } from '@/components/Modals';
-import AdventureStoryCarousel from '@/components/StoryCarousel';
 import { ThemedView } from '@/components/ThemedView';
-import { childrenData } from '@/data/childrenData';
 import { modesData } from '@/data/parent/dashboardData';
+import { useChildrenStore } from '@/store/childrenStore';
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
@@ -36,10 +35,9 @@ export default function ListenStory() {
   const storyId = typeof params.storyId === 'string' ? params.storyId : '';
   const [story, setStory] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(false);
-  const children = childrenData;
   const modes = modesData;
   const [modalVisible, setModalVisible] = React.useState(false);
-  const [activeChild, setActiveChild] = React.useState(children[0]);
+  const { activeChild, setActiveChild } = useChildrenStore();
   const [activeMode, setActiveMode] = React.useState(modes[0]);
 
   React.useEffect(() => {
@@ -59,7 +57,6 @@ export default function ListenStory() {
         return;
       }
       if (data) {
-        console.log('Fetched story:', data);
         setStory(data);
       }
     }
@@ -74,7 +71,7 @@ export default function ListenStory() {
   const onNext = () => {
     setModalVisible(false);
   }
-  
+
   const onWatchAgain = () => {
     setModalVisible(false);
   }
@@ -113,11 +110,12 @@ export default function ListenStory() {
               </ThemedView>
 
               <MediaPlayerCard
+                activeChild={activeChild}
                 onAudioEnd={() => setModalVisible(true)}
                 story={story}
               />
 
-              <AdventureStoryCarousel storyId={storyId} />
+              {/* <AdventureStoryCarousel storyId={storyId} /> */}
 
             </ThemedView>
           </ScrollView>
@@ -134,7 +132,7 @@ export default function ListenStory() {
           >
             <BottomNavBar role="kid" active="Listen" theme='light' image={true} />
           </ThemedView>
-          
+
           <Modal
             visible={modalVisible}
             transparent
@@ -142,7 +140,7 @@ export default function ListenStory() {
             onRequestClose={() => setModalVisible(false)}
           >
             <ThemedView style={styles.modalOverlay}>
-              <Finished onNext={onNext} onWatchAgain={onWatchAgain}/>
+              <Finished onNext={onNext} onWatchAgain={onWatchAgain} />
             </ThemedView>
           </Modal>
         </ThemedView>
@@ -351,12 +349,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 6
   },
-  
+
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
-},
+  },
 });
 

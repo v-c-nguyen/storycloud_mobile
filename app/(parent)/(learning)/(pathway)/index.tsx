@@ -9,12 +9,12 @@ import { categoryData, storyOptionsData } from "@/data/libraryData";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  FlatList,
-  Image,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity
+    FlatList,
+    Image,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity
 } from "react-native";
 
 // Data arrays for each section
@@ -54,13 +54,11 @@ export default function Index() {
     }, []);
 
     function handleItemSelection(item: string) {
-        console.log("item selected::", item)
         setActiveItem(item)
         setDropdownVisible(false)
     }
 
     function handleStoryItem(item: string) {
-        console.log("storyOption clicked::", item)
     }
 
     function CreateNewPathway() {

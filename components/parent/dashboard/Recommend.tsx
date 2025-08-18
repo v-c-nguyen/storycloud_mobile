@@ -1,5 +1,5 @@
 import { supabase } from "@/app/lib/supabase";
-import { StoryCard } from "@/components/Cards";
+import { StoryCard1 } from "@/components/Cards";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
@@ -30,7 +30,6 @@ export default function Recommend({ activeChild }: { activeChild: any }) {
                 return;
             }
             if (data && Array.isArray(data.stories)) {
-                console.log("stories Data::", data)
                 setStoriesData(data.stories.slice(0, 3));
             }
         }
@@ -53,7 +52,7 @@ export default function Recommend({ activeChild }: { activeChild: any }) {
                         showsHorizontalScrollIndicator={false}
                         onScroll={event => {
                             const x = event.nativeEvent.contentOffset.x;
-                            const cardWidth = 290 + 25; // card width + gap (adjust if needed)
+                            const cardWidth = 290 + 10; // card width + gap (adjust if needed)
                             const index = Math.round(x / cardWidth);
                             setCurrentCardIndex(index);
                         }}
@@ -63,7 +62,7 @@ export default function Recommend({ activeChild }: { activeChild: any }) {
                         {storiesData
                             // .filter((ele) => !ele.watched)
                             .map((item, idx) => (
-                                <StoryCard
+                                <StoryCard1
                                     key={idx}
                                     num={idx + 1}
                                     story={item}

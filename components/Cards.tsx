@@ -1,15 +1,23 @@
 import { Image } from 'expo-image';
-import React from "react";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import React, { useRef } from "react";
+import { Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 
-interface StoryProps {
+
+const { width } = Dimensions.get('window');
+
+interface RecentProps {
   storyId: string;
-  seriesCategory: string,
-  storyTitle: string,
+  stories: {
+    seriesCategory: string,
+    storyTitle: string,
+  };
   image: string,
   isFavourite: boolean,
+  duration?: number,
+  played?: number,
+  watched?: boolean,
 }
 
 interface CardStyle {
@@ -20,41 +28,43 @@ interface CardStyle {
   isBallonYellow: boolean,
 }
 
-interface ProgressProps {
-  duration?: number,
-  progress?: number,
-  watched?: boolean,
-}
 
 const cardStyles = [
-{
-  bgColor: "#053B4A",
-  textColor: "#FCFCFC",
-  subTextColor: "#F8ECAE",
-  progressColor: "#F8ECAE",
-  isBallonYellow: false,
-},
-{
-  bgColor: "#F4A672",
-  textColor: "#053B4A",
-  subTextColor: "#F8ECAE",
-  progressColor: "#ADD7DA",
-  isBallonYellow: true,
-},
-{
-  bgColor: "#F8ECAE",
-  textColor: "#053B4A",
-  subTextColor: "#048F99",
-  progressColor: "#ADD7DA",
-  isBallonYellow: false,
-}]
+  {
+    bgColor: "#053B4A",
+    textColor: "#FCFCFC",
+    subTextColor: "#F8ECAE",
+    progressColor: "#F8ECAE",
+    isBallonYellow: false,
+  },
+  {
+    bgColor: "#F4A672",
+    textColor: "#053B4A",
+    subTextColor: "#F8ECAE",
+    progressColor: "#ADD7DA",
+    isBallonYellow: true,
+  },
+  {
+    bgColor: "#F8ECAE",
+    textColor: "#053B4A",
+    subTextColor: "#048F99",
+    progressColor: "#ADD7DA",
+    isBallonYellow: false,
+  }]
 
 
 
-export function StoryCard({ num, story, track, onPlay }: { num: number, story: StoryProps, track?: ProgressProps, onPlay?: (id: string) => void }) {
+export function StoryCard({ num, recent, onPlay }: { num: number, recent: RecentProps, onPlay?: (id: string) => void }) {
   // Use a consistent style based on the story index
   const styleIdx = num % cardStyles.length;
   const style = cardStyles[styleIdx];
+
+  function FromSec(seconds: number): string {
+
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec}`;
+  }
 
   const imageGen = (img: string) => {
     switch (img) {
@@ -71,7 +81,126 @@ export function StoryCard({ num, story, track, onPlay }: { num: number, story: S
   return (
     <ThemedView style={[styles.storyCard, { backgroundColor: style.bgColor }]}>
       <ThemedView>
-        <ThemedView style={{height: 180}}>
+        <ThemedView style={{ height: 180 }}>
+          <ThemedView style={styles.storyCardTopRow}>
+            <ThemedText style={[styles.storyNumber, { color: style.textColor }]}>#{num}</ThemedText>
+            <ThemedText style={[styles.storyLabel, { color: style.textColor }]}>Story</ThemedText>
+            {
+              <Image
+                source={recent.isFavourite ?
+                  require('@/assets/images/kid/icon-heart.png')
+                  : require('@/assets/images/kid/icon-heart.png')
+                }
+                style={[styles.storyFavIcon, { tintColor: `${style.textColor}` }]}
+              />
+            }
+          </ThemedView>
+          <ThemedText style={[styles.storySeries, { color: style.subTextColor }]}>{recent.stories.seriesCategory}</ThemedText>
+          <ThemedText style={[styles.storyTitle, { color: style.textColor }]}>{recent.stories.storyTitle}</ThemedText>
+        </ThemedView>
+        <ThemedView style={styles.storyImageWrap}>
+          <Image source={recent.image ? imageGen(recent.image) : require('@/assets/images/kid/story-back-1.png')} style={styles.storyImage} />
+          <TouchableOpacity style={styles.storyPlayBtn} onPress={() => onPlay && onPlay(recent.storyId)}>
+            <Image
+              source={require('@/assets/images/kid/play-btn.png')}
+              style={styles.storyPlayIcon}
+            />
+          </TouchableOpacity>
+          <ThemedView style={{
+            position: 'absolute',
+            width: 48,
+            height: 48,
+            backgroundColor: style.subTextColor,
+            top: -24,
+            left: '50%',
+            transform: 'translate(-24px, 0)',
+            borderRadius: 24
+          }}>
+            <Image
+              source={style.isBallonYellow ? require('@/assets/images/kid/yellow-ballon.png') : require('@/assets/images/kid/blue-ballon.png')}
+              style={{ width: 48, height: 48 }}
+              contentFit="cover"
+            />
+          </ThemedView>
+        </ThemedView>
+        <ThemedView>
+          {recent.watched ? (
+            <ThemedView style={styles.progressRow}>
+              <Image
+                source={require('@/assets/images/kid/icon-check.png')}
+                contentFit="cover"
+                style={[styles.checkIcon, { tintColor: `${style.textColor}` }]}
+              />
+              <ThemedText style={[styles.storyTime, { color: style.textColor }]}>Watched</ThemedText>
+
+              <ThemedView style={[
+                styles.progressBarFilled,
+                { borderColor: style.textColor, backgroundColor: style.progressColor, flex: 1 }
+              ]} />
+            </ThemedView>
+          ) : (
+            <ThemedView style={styles.progressRow}>
+              <ThemedText style={[styles.storyTime, { color: style.textColor }]}>{FromSec(recent.played ?? 0)}</ThemedText>
+              <ThemedView style={styles.progressBarWrap}>
+                <ThemedView style={[
+                  styles.progressBarFilled,
+                  { borderColor: style.textColor, backgroundColor: style.progressColor, width: `${(recent.played ?? 0) * 100 / (recent.duration ?? 1)}%` }
+                ]} />
+                <ThemedView style={[
+                  styles.progressBarOutline,
+                  { borderColor: style.textColor, backgroundColor: style.bgColor, width: `${100 - (recent.played ?? 0) * 100 / (recent.duration ?? 1)}%` }
+                ]} />
+              </ThemedView>
+              <ThemedText style={[styles.storyTime, { color: style.textColor }]}>{FromSec((recent.duration ?? 0) - (recent.played ?? 0))}</ThemedText>
+            </ThemedView>
+          )}
+        </ThemedView>
+      </ThemedView>
+    </ThemedView>
+  );
+}
+
+
+interface StoryCard3Props {
+  storyId: string;
+  seriesCategory: string,
+  storyTitle: string,
+  image: string,
+  isFavourite: boolean,
+  track: {
+    duration?: number,
+    played?: number,
+    watched?: boolean
+  }
+}
+export function StoryCard3({ num, story, onPlay }: { num: number, story: StoryCard3Props, onPlay?: (id: string) => void }) {
+  // Use a consistent style based on the story index
+  const styleIdx = num % cardStyles.length;
+  const style = cardStyles[styleIdx];
+
+  function FromSec(seconds: number): string {
+
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec}`;
+  }
+
+  const imageGen = (img: string) => {
+    switch (img) {
+      case "1":
+        return require('@/assets/images/kid/story-back-1.png');
+      case "2":
+        return require('@/assets/images/kid/story-back-2.png');
+      case "3":
+        return require('@/assets/images/kid/story-back-3.png');
+      default:
+        return null;
+    }
+  };
+  return (
+    <ThemedView style={[styles.storyCard, { backgroundColor: style.bgColor }]}>
+      <ThemedView>
+        <ThemedView style={{ height: 180 }}>
           <ThemedView style={styles.storyCardTopRow}>
             <ThemedText style={[styles.storyNumber, { color: style.textColor }]}>#{num}</ThemedText>
             <ThemedText style={[styles.storyLabel, { color: style.textColor }]}>Story</ThemedText>
@@ -114,8 +243,9 @@ export function StoryCard({ num, story, track, onPlay }: { num: number, story: S
           </ThemedView>
         </ThemedView>
         {
-          track && <ThemedView>
-            {track.watched ? (
+          story.track &&
+          <ThemedView>
+            {story.track.watched ? (
               <ThemedView style={styles.progressRow}>
                 <Image
                   source={require('@/assets/images/kid/icon-check.png')}
@@ -131,26 +261,170 @@ export function StoryCard({ num, story, track, onPlay }: { num: number, story: S
               </ThemedView>
             ) : (
               <ThemedView style={styles.progressRow}>
-                <ThemedText style={[styles.storyTime, { color: style.textColor }]}>{track?.progress} min</ThemedText>
+                <ThemedText style={[styles.storyTime, { color: style.textColor }]}>{FromSec(story.track.played ?? 0)}</ThemedText>
                 <ThemedView style={styles.progressBarWrap}>
                   <ThemedView style={[
                     styles.progressBarFilled,
-                    { borderColor: style.textColor, backgroundColor: style.progressColor, width: `${(track.progress ?? 0) * 100 / (track.duration ?? 1)}%` }
+                    { borderColor: style.textColor, backgroundColor: style.progressColor, width: `${(story.track.played ?? 0) * 100 / (story.track.duration ?? 1)}%` }
                   ]} />
                   <ThemedView style={[
                     styles.progressBarOutline,
-                    { borderColor: style.textColor, backgroundColor: style.bgColor, width: `${100 - (track.progress ?? 0) * 100 / (track.duration ?? 1)}%` }
+                    { borderColor: style.textColor, backgroundColor: style.bgColor, width: `${100 - (story.track.played ?? 0) * 100 / (story.track.duration ?? 1)}%` }
                   ]} />
                 </ThemedView>
-                <ThemedText style={[styles.storyTime, { color: style.textColor }]}>{(track.duration ?? 0) - (track.progress ?? 0)} min</ThemedText>
+                <ThemedText style={[styles.storyTime, { color: style.textColor }]}>{FromSec((story.track.duration ?? 0) - (story.track.played ?? 0))}</ThemedText>
               </ThemedView>
             )}
           </ThemedView>
         }
+
       </ThemedView>
     </ThemedView>
   );
 }
+interface StoryProps1 {
+  storyId: string,
+  storyTitle: string,
+  seriesCategory: string,
+  image?: string,
+  featured?: boolean,
+  isFavourite?: boolean,
+}
+
+const images = [
+  require('@/assets/images/kid/story-back-1.png'),
+  require('@/assets/images/kid/story-back-2.png'),
+  require('@/assets/images/kid/story-back-3.png')
+]
+export function StoryCard1({ num, story, onPlay }: { num: number, story: StoryProps1, onPlay?: (id: string) => void }) {
+  // Use a consistent style based on the story index
+  const [activeIndex, setActiveIndex] = React.useState(0);
+  const ViewRef = useRef<View>(null);
+  const styleIdx = num % cardStyles.length;
+  const style = cardStyles[styleIdx];
+
+  function FromSec(seconds: number): string {
+
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec}`;
+  }
+
+  const imageGen = (img: string) => {
+    switch (img) {
+      case "1":
+        return require('@/assets/images/kid/story-back-1.png');
+      case "2":
+        return require('@/assets/images/kid/story-back-2.png');
+      case "3":
+        return require('@/assets/images/kid/story-back-3.png');
+      default:
+        return null;
+    }
+  };
+  // In your handler:
+  const scrollToIndex = (idx: number) => {
+    setActiveIndex(idx);
+    if (ViewRef.current) {
+
+    }
+  };
+
+  const handleLeftArrow = () => {
+  };
+
+
+  const handleRightArrow = () => {
+  };
+
+  const handleDotPress = (idx: Number) => {
+
+  }
+
+  return (
+    <ThemedView style={[styles.storyCard, { backgroundColor: style.bgColor }]}>
+      <ThemedView>
+        <ThemedView style={{ height: 180 }}>
+          <ThemedView style={styles.storyCardTopRow}>
+            <ThemedText style={[styles.storyNumber, { color: style.textColor }]}>#{num}</ThemedText>
+            <ThemedText style={[styles.storyLabel, { color: style.textColor }]}>Story</ThemedText>
+            <TouchableOpacity>
+              <Image
+                source={require("@/assets/images/parent/icon-plus.png")}
+                style={[styles.storyFavIcon, { tintColor: `${style.textColor}` }]}
+              />
+            </TouchableOpacity>
+          </ThemedView>
+          <ThemedText style={[styles.storySeries, { color: style.subTextColor }]}>{story.seriesCategory}</ThemedText>
+          <ThemedText style={[styles.storyTitle, { color: style.textColor }]}>{story.storyTitle}</ThemedText>
+        </ThemedView>
+        <ThemedView style={styles.storyImageWrap}>
+          {/* Render a series of 3 background images */}
+          <View
+            ref={ViewRef}
+            style={{ width: '100%', height: 200, overflow: 'scroll' }}>
+            <ThemedView style={{ flexDirection: 'row' }}>
+              {
+                images.map((item, index) => (
+                  <Image key={index} source={item} style={styles.storyImage} />
+                ))
+              }
+            </ThemedView>
+          </View>
+          {/* <Image source={story.image ? imageGen(story.image) : imageGen("1")} style={[styles.storyImage, { position: 'relative', zIndex: 4 }]} /> */}
+          <TouchableOpacity style={styles.storyPlayBtn} onPress={() => onPlay && onPlay(story.storyId)}>
+            <Image
+              source={require('@/assets/images/kid/play-btn.png')}
+              style={styles.storyPlayIcon}
+            />
+          </TouchableOpacity>
+          <ThemedView style={{
+            position: 'absolute',
+            width: 48,
+            height: 48,
+            backgroundColor: style.subTextColor,
+            top: -24,
+            left: '50%',
+            transform: 'translate(-24px, 0)',
+            borderRadius: 24
+          }}>
+            <Image
+              source={style.isBallonYellow ? require('@/assets/images/kid/yellow-ballon.png') : require('@/assets/images/kid/blue-ballon.png')}
+              style={{ width: 48, height: 48 }}
+              contentFit="cover"
+            />
+          </ThemedView>
+        </ThemedView>
+        <ThemedView>
+          <ThemedView style={[styles.progressRow, { justifyContent: 'space-around', }]}>
+            {/* Dots */}
+            <TouchableOpacity onPress={handleLeftArrow}>
+              <Image source={require('@/assets/images/icons/arrow-left.png')} style={styles.leftBtn} />
+            </TouchableOpacity>
+            <ThemedView style={styles.dotsWrap}>
+              {images.map((_, idx) => (
+                <TouchableOpacity key={idx} onPress={() => handleDotPress(idx)}>
+                  <ThemedView
+                    style={[
+                      styles.dot,
+                      activeIndex === idx && styles.dotActive,
+                      style.bgColor == "#053B4A" && { borderColor: 'white' },
+                      style.bgColor == "#053B4A" && activeIndex === idx && { backgroundColor: 'white' }
+                    ]}
+                  />
+                </TouchableOpacity>
+              ))}
+            </ThemedView>
+            <TouchableOpacity onPress={handleRightArrow}>
+              <Image source={require('@/assets/images/icons/arrow-right.png')} style={styles.rightBtn} />
+            </TouchableOpacity>
+          </ThemedView>
+        </ThemedView>
+      </ThemedView>
+    </ThemedView >
+  );
+}
+
 
 interface StoryProps2 {
   bgColor: string,
@@ -204,11 +478,11 @@ export function StoryCard2({
         <ThemedText style={[styles.storyLabel, { color: textColor }]}>Story</ThemedText>
         {
           <Image
-            source={isFavorite ? 
-                      require('@/assets/images/kid/icon-heart.png')
-                    : require('@/assets/images/kid/icon-heart.png')
+            source={isFavorite ?
+              require('@/assets/images/kid/icon-heart.png')
+              : require('@/assets/images/kid/icon-heart.png')
             }
-            style={[styles.storyFavIcon, {tintColor: `${textColor}`}]}
+            style={[styles.storyFavIcon, { tintColor: `${textColor}` }]}
           />
         }
       </ThemedView>
@@ -244,7 +518,7 @@ export function StoryCard2({
           <Image
             source={require('@/assets/images/kid/icon-check.png')}
             contentFit="cover"
-            style={[styles.checkIcon, {tintColor: `${textColor}`}]}
+            style={[styles.checkIcon, { tintColor: `${textColor}` }]}
           />
           <ThemedText style={[styles.storyTime, { color: textColor }]}>Watched</ThemedText>
 
@@ -322,13 +596,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: '100%',
     padding: 0,
-    marginRight: 20,
+    marginHorizontal: 5,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 4,
     justifyContent: "flex-start",
     backgroundColor: "#fff",
+    borderColor: '#add7da38',
+    borderWidth: 1,
     marginBottom: 8,
     position: 'relative',
     display: 'flex'
@@ -394,6 +670,9 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
   },
+  categoryPillsContainer: {
+    paddingHorizontal: 16
+  },
   storyTitle: {
     fontSize: 20,
     alignItems: 'center',
@@ -408,6 +687,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     fontSize: 16,
     padding: 10,
     gap: 12
@@ -499,5 +779,33 @@ const styles = StyleSheet.create({
     right: 20,
     backgroundColor: "#F4A672",
     borderRadius: 17,
+  },
+  leftBtn: {
+    width: 20,
+    height: 20,
+    tintColor: '#053B4A',
+  },
+  rightBtn: {
+    width: 20,
+    height: 20,
+    marginBottom: 2,
+    tintColor: '#053B4A',
+  },
+  dotsWrap: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: '#053B4A',
+    marginHorizontal: 5,
+  },
+  dotActive: {
+    backgroundColor: '#053B4A',
   },
 });

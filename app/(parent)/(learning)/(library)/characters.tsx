@@ -115,7 +115,6 @@ export default function CharactersLibrary() {
           console.error('Error fetching series:', error.message);
 
         } else if (data && Array.isArray(data.data)) {
-          console.log("Series::", data.data)
           setCategory(data.data);
         }
       } catch (e) {
@@ -126,7 +125,6 @@ export default function CharactersLibrary() {
   }, []);
 
   function handleItemSelection(item: string) {
-    console.log("item selected::", item)
     setActiveItem(item)
     setDropdownVisible(false)
 

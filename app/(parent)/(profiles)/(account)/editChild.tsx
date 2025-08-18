@@ -84,7 +84,6 @@ const EditChild = () => {
             // Update Zustand store with new child data
             updateChildInStore(childIndex, result.data);
             // Optional: log response for debugging
-            console.log('Child updated successfully:', result);
             router.push('../');
         } catch (error) {
             alert('Error updating child: ' + error);

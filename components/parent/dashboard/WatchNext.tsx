@@ -1,5 +1,5 @@
 import { supabase } from "@/app/lib/supabase";
-import { StoryCard } from "@/components/Cards";
+import { StoryCard1 } from "@/components/Cards";
 import React, { useEffect } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 
@@ -9,7 +9,6 @@ export default function WatchNext({ activeChild }: { activeChild: any }) {
 
     useEffect(() => {
         // Function to fetch stories
-        console.log("recent learning::", activeChild)
         async function fetchStories(childId: string) {
             if (!childId) return;
             setLoading(true);
@@ -27,7 +26,6 @@ export default function WatchNext({ activeChild }: { activeChild: any }) {
                 return;
             }
             if (data && Array.isArray(data.stories)) {
-                console.log("stories Data3::", data)
                 setStoriesData(data.stories);
             }
         }
@@ -44,7 +42,7 @@ export default function WatchNext({ activeChild }: { activeChild: any }) {
             {storiesData
                 // .filter((ele) => !ele.watched)
                 .map((item, idx) => (
-                    <StoryCard key={idx} num={idx + 1} story={item} />
+                    <StoryCard1 key={idx} num={idx + 1} story={item} />
                 ))}
         </ScrollView>
     );

@@ -214,7 +214,6 @@ export default function Themes() {
           console.error('Error fetching themes:', error.message);
 
         } else if (data && Array.isArray(data.data)) {
-          console.log("Themes::", data.data)
           setThemes(data.data);
         }
       } catch (e) {

@@ -39,7 +39,6 @@ export function FocusCard({ focus, handleEditButton, handleViewButton }: { focus
         ? new Date(focus.created_at).toLocaleDateString()
         : '';
     useEffect(() => {
-        console.log(focus)
     }, [])
     return (
         <ThemedView style={styles.container}>

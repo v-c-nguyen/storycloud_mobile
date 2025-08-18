@@ -23,7 +23,6 @@ export default function ParentAuthSignIn() {
       const expiresAt = session?.expires_at; // Unix timestamp (seconds)
       const now = Math.floor(Date.now() / 1000);
 
-      console.log("expiresAt:", expiresAt, "now:", now);
 
       if (
         user &&

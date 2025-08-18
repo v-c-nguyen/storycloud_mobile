@@ -125,7 +125,6 @@ export default function StorylandMapLibrary() {
           console.error('Error fetching map regions:', error.message);
 
         } else if (data && Array.isArray(data.data)) {
-          console.log("Map Regions::", data.data)
           setMapRegions(data.data);
         }
       } catch (e) {
@@ -138,7 +137,6 @@ export default function StorylandMapLibrary() {
   }, []);
 
   function handleItemSelection(item: string) {
-    console.log("item selected::", item)
     setActiveItem(item)
     setDropdownVisible(false)
     

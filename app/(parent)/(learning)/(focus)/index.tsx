@@ -91,7 +91,6 @@ export default function Index() {
     }, [setCategories]);
 
     function handleItemSelection(item: string) {
-        console.log("item selected::", item)
         setActiveItem(item)
         setDropdownVisible(false)
     }

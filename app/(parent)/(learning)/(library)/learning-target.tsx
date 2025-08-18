@@ -122,7 +122,6 @@ export default function LearningTargetLibrary() {
           console.error('Error fetching series:', error.message);
 
         } else if (data && Array.isArray(data.data)) {
-          console.log("LearningCategories::", data.data)
           setCategories(data.data);
         }
       } catch (e) {
@@ -135,7 +134,6 @@ export default function LearningTargetLibrary() {
   }, []);
 
   function handleItemSelection(item: string) {
-    console.log("item selected::", item)
     setActiveItem(item)
     setDropdownVisible(false)
     

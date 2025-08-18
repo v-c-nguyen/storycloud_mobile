@@ -52,13 +52,11 @@ export default function AddPathway_Fourth({ mode, currentStep, onPress }: { mode
     }, []);
 
     function handleChildSelected(child: Child) {
-        console.log("ASdfwerewrewr", child)
         setActiveChildren(prev =>
             prev.includes(child)
                 ? prev.filter(t => t !== child)
                 : [...prev, child]
         );
-        console.log("activeChild", activeChildren)
     }
     return (
         <ThemedView style={styles.container}>

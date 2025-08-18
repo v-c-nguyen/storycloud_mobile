@@ -67,7 +67,6 @@ export default function WhoAreYouScreen() {
           console.error('Error fetching children:', error.message);
         } else if (data && Array.isArray(data.data)) {
           Alert.alert('Children fetched successfully', `Found ${data.data.length} children.`);
-          console.log(data.data)
           setChildren(data.data);
         }
       } catch (e) {

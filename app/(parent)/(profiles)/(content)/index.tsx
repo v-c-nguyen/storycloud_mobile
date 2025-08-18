@@ -76,7 +76,6 @@ export default function Content() {
         if (label === 'Update Subscription') {
             setModalVisible(true);
         } else {
-            console.log('Cancel action or other logic');
         }
     };
 
@@ -85,8 +84,6 @@ export default function Content() {
     };
 
     const handleItemProcess = (item: string) => {
-        console.log("item::", item)
-        console.log(`parent/profile/${item}`)
         switch (item) {
             case 'account':
                 router.navigate("/(parent)/(profiles)/(account)");
