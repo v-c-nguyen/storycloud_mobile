@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -103,7 +104,7 @@ const MapWrapper = () => {
           </TouchableOpacity>
         </ThemedView>
                <Image
-          source={require('@/assets/images/parent/frontbox.png')}
+          source={require('@/assets/images/kid/map-background.png')}
           // style={styles.mapImage}
         />
        
@@ -234,5 +235,6 @@ const styles = StyleSheet.create({
     marginBottom: 90,
   },
 });
+
 
 export default MapWrapper;

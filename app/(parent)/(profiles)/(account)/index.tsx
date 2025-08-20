@@ -302,6 +302,9 @@ const AccountSettings = () => {
                                                     <TouchableOpacity style={styles.iconButton} onPress={() => handleEditButton(kid)}>
                                                         <Image source={editIcon} style={styles.icon_18} />
                                                     </TouchableOpacity>
+                                                    <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/(kid)/(dashboard)')}>
+                                                        <ThemedText>View Profile</ThemedText>
+                                                    </TouchableOpacity>
                                                 </ThemedView>
 
                                                 <ThemedView style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>

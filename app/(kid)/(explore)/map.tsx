@@ -2,6 +2,9 @@ import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
 import { StoryCard2 } from "@/components/Cards";
 import CardSeries from "@/components/CardSeries";
+
+import { ItemSeries } from "@/components/ItemSeries";
+
 import MapWrapper from "@/components/MapWrapper";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -9,12 +12,14 @@ import { stories } from "@/data/storyData";
 import { Stack } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
+
     Image,
     SafeAreaView,
     ScrollView,
     StyleSheet,
     TextInput,
     TouchableOpacity
+
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
@@ -28,6 +33,9 @@ const cardsData = [
 ];
 
 export default function Map() {
+  
+ 
+
 
     const [collections, setCollections] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -472,4 +480,5 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#38A3A5',
     },
+
 });

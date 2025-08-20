@@ -14,6 +14,7 @@ export const stories = [
       featured: false,
       isFavorite: true,
       watched: false,
+      collection: "The High Seas & Polar Realms",
     },
     {
       bgColor: "#053B4A",
@@ -30,6 +31,7 @@ export const stories = [
       featured: false,
       isFavorite: true,
       watched: false,
+      collection: "The High Seas & Polar Realms",
     },
     {
       bgColor: "#F8ECAE",
@@ -46,6 +48,7 @@ export const stories = [
       featured: true,
       isFavorite: true,
       watched: false,
+      collection: "Wonders of the Wild World",
     },
     {
       bgColor: "#053B4A",
@@ -62,6 +65,7 @@ export const stories = [
       featured: true,
       isFavorite: true,
       watched: false,
+      collection: "Wonders of the Wild World",
     },
     {
       bgColor: "#F8ECAE",
@@ -78,6 +82,7 @@ export const stories = [
       featured: false,
       isFavorite: true,
       watched: true,
+      collection: "Journeys Across Lands and Cultures",
     },
     {
       bgColor: "#053B4A",
@@ -94,6 +99,7 @@ export const stories = [
       featured: false,
       isFavorite: false,
       watched: true,
+      collection: "Journeys Across Lands and Cultures",
     },
   ];
   
