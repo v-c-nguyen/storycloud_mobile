@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -234,5 +235,6 @@ const styles = StyleSheet.create({
     marginBottom: 90,
   },
 });
+
 
 export default MapWrapper;

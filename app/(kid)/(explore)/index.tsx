@@ -178,7 +178,6 @@ export default function KidExplorer() {
           console.error('Error fetching series:', error.message);
 
         } else if (data && Array.isArray(data.data)) {
-          console.log("Series::", data.data)
           setSeries(data.data);
         }
       } catch (e) {

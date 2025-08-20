@@ -148,7 +148,6 @@ export default function FocusModeHome() {
 
   const router = useRouter();
   const {child} = useUser();
-  console.log("==================", child)
   const [mode, setMode] = React.useState(child?.mode);
 
   useEffect(() => {

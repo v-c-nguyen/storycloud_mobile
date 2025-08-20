@@ -14,10 +14,13 @@ interface ChildrenState {
   updateChild: (index: number, child: Partial<Child>) => void;
   addChild: (child: Child) => void;
   removeChild: (index: number) => void;
+  activeChild: Child | null;
+  setActiveChild: (child: Child | null) => void;
 }
 
 export const useChildrenStore = create<ChildrenState>((set) => ({
   children: [],
+  activeChild: null,
   setChildren: (children) => set({ children }),
   updateChild: (index, child) => set((state) => {
     const updated = [...state.children];
@@ -30,4 +33,5 @@ export const useChildrenStore = create<ChildrenState>((set) => ({
     updated.splice(index, 1);
     return { children: updated };
   }),
+  setActiveChild: (child) => set({ activeChild: child }),
 }));

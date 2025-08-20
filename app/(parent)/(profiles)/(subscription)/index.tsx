@@ -2,6 +2,7 @@ import { supabase } from '@/app/lib/supabase';
 import BottomNavBar from '@/components/BottomNavBar';
 import DropDownMenu from '@/components/DropDownMenu';
 import Header from '@/components/Header';
+import MyModal from '@/components/Modals/PlanUpdatedModal';
 import { TabBar } from '@/components/TabBar';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -12,7 +13,7 @@ import {
     Dimensions,
     Image,
     Linking,
-    Modal, Platform, ScrollView,
+    Platform, ScrollView,
     StyleSheet,
     Switch,
     TouchableOpacity
@@ -135,12 +136,11 @@ export default function SubscriptionPlansScreen() {
     };
 
     const handleTabPress = (tabId: string) => {
-        setActiveTab(tabId);
+        if (tabId === 'account') handleItemProcess('subscription');
+        else if (tabId === 'content') router.navigate("/(parent)/(profiles)/(content)");
     };
 
     const handleItemProcess = (item: string) => {
-        console.log("item::", item)
-        console.log(`parent/profile/${item}`)
         switch (item) {
             case 'account':
                 router.navigate("/(parent)/(profiles)/(account)");
@@ -290,28 +290,15 @@ export default function SubscriptionPlansScreen() {
 
 
                                 {/* Modal */}
-                                <Modal
+                                {/* Plan Updated Modal */}
+                                <MyModal
                                     visible={modalVisible}
-                                    transparent
-                                    animationType="fade"
-                                    onRequestClose={() => setModalVisible(false)}
-                                >
-                                    <ThemedView style={styles.modalOverlay}>
-                                        <ThemedView style={styles.modalContent}>
-                                            <ThemedView style={styles.modalIconContainer}>
-                                                <Image source={starIcon}></Image>
-                                            </ThemedView>
-                                            <ThemedText style={styles.modalTitle}>Your Plan has been Updated</ThemedText>
-                                            <ThemedText style={styles.modalBody}>Updates will be reflected in your next billing cycle</ThemedText>
-
-                                            <ThemedView style={styles.modalButtons}>
-                                                <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButton}>
-                                                    <ThemedText style={styles.modalButtonText}>Back to Profile</ThemedText>
-                                                </TouchableOpacity>
-                                            </ThemedView>
-                                        </ThemedView>
-                                    </ThemedView>
-                                </Modal>
+                                    title="Your Plan has been Updated"
+                                    content='Updates will be reflected in your next billing cycle'
+                                    buttonText='Back to Profile'
+                                    onClose={() => setModalVisible(false)}
+                                    starIcon={starIcon}
+                                />
                             </ThemedView>
 
                         </ThemedView>
@@ -342,7 +329,7 @@ const styles = StyleSheet.create({
         position: "relative",
     },
     imgCloudFar: {
-        width: '100%',
+        width: '110%',
         height: '100%',
         position: "absolute",
         top: 0,
@@ -350,7 +337,7 @@ const styles = StyleSheet.create({
         zIndex: -100,
     },
     imgCloudNear: {
-        width: '100%',
+        width: '110%',
         height: '100%',
         position: "absolute",
         top: 42,
@@ -550,59 +537,5 @@ const styles = StyleSheet.create({
         borderRadius: 6,
     },
 
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.4)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalContent: {
-        width: '96%',
-        backgroundColor: 'rgba(252, 252, 252, 0.95)',
-        borderRadius: 30,
-        borderWidth: 2,
-        borderColor: 'rgba(122, 193, 198, 0.2)',
-        elevation: 10,
-    },
-    modalIconContainer: {
-        padding: 60,
-        alignItems: 'center',
-        borderBottomWidth: 2,
-        borderColor: 'rgba(122, 193, 198, 0.2)',
-        marginBottom: 36
-    },
-    modalTitle: {
-        fontSize: 24,
-        fontWeight: 700,
-        color: 'rgba(5, 59, 74, 1)',
-        marginBottom: 10,
-        textAlign: 'center'
-    },
-    modalBody: {
-        fontSize: 18,
-        color: 'rgba(5, 59, 74, 1)',
-        fontWeight: 400,
-        textAlign: 'center',
-        marginBottom: 20,
-    },
-    modalButtons: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        gap: 10,
-        marginBottom: 36
-    },
-    modalButton: {
-        width: 200,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 30,
-        backgroundColor: 'rgba(244, 166, 114, 1)',
-    },
-    modalButtonText: {
-        textAlign: 'center',
-        fontSize: 14,
-        color: 'rgba(5, 59, 74, 1)',
-        fontWeight: 400,
-    },
 
 });

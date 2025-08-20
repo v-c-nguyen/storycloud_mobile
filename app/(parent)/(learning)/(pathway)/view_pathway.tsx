@@ -34,13 +34,11 @@ export default function EditPathway() {
     const [dropdownVisible, setDropdownVisible] = React.useState(false);
 
     function handleItemSelection(item: string) {
-        console.log("item selected::", item)
         setActiveItem(item)
         setDropdownVisible(false)
     }
 
     function handleStoryItem(item: string) {
-        console.log("storyOption clicked::", item)
     }
 
     function CreateNewPathway() {

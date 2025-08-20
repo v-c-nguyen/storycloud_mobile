@@ -1,11 +1,11 @@
 import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
-import { SeriesCard, StoryCard2 } from "@/components/Cards";
 import Header from "@/components/Header";
+import ItemListWidthBadge from "@/components/parent/learning/library/ItemListWithBadge";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { storyOptionsData } from "@/data/libraryData";
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
@@ -14,8 +14,7 @@ import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
-  View,
+  TouchableOpacity
 } from "react-native";
 
 
@@ -162,45 +161,43 @@ const HIGHLIGHT_INDEX = 0;
 export default function LearningLibrary() {
 
   const [categories, setCategory] = useState<any[]>([]);
-  const [loading , setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const storyOptions = storyOptionsData;
   const [activeItem, setActiveItem] = useState('Stories');
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
+  const [selectedSeries, setSelectedSeries] = useState<any | null>(null);
   const router = useRouter();
 
 
-    useEffect(() => {
-      setLoading(true)
-      async function fetchSeries() {
-        try {
-          const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
-          const { data, error } = await supabase.functions.invoke('series-categories', {
-            method: 'GET',
-            headers: {
-              Authorization: jwt ? `Bearer ${jwt}` : '',
-            },
-          });
-          if (error) {
-            console.error('Error fetching series:', error.message);
-  
-          } else if (data && Array.isArray(data.data)) {
-            console.log("Series::", data.data)
-            setCategory(data.data);
-          }
-        } catch (e) {
-          console.error('Error fetching focus modes:', e);
-        }finally {
-          setLoading(false);
+  useEffect(() => {
+    setLoading(true)
+    async function fetchSeries() {
+      try {
+        const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+        const { data, error } = await supabase.functions.invoke('series-categories', {
+          method: 'GET',
+          headers: {
+            Authorization: jwt ? `Bearer ${jwt}` : '',
+          },
+        });
+        if (error) {
+          console.error('Error fetching series:', error.message);
+
+        } else if (data && Array.isArray(data.data)) {
+          setCategory(data.data);
         }
+      } catch (e) {
+        console.error('Error fetching focus modes:', e);
+      } finally {
+        setLoading(false);
       }
-      fetchSeries();
-    }, []);
+    }
+    fetchSeries();
+  }, []);
 
 
   function handleItemSelection(item: string) {
-    console.log("item selected::", item)
     setActiveItem(item)
     setDropdownVisible(false)
 
@@ -228,17 +225,17 @@ export default function LearningLibrary() {
     }
   }
 
-  function handleStoryItem(item: string) {
-    selectedSeries === item ? setSelectedSeries(null) : setSelectedSeries(item);
+  function handleStoryItem(item: any) {
+    if (selectedSeries && selectedSeries.name == item.name)
+      setSelectedSeries(null)
+    else {
+      setSelectedSeries(item);
+    }
   }
-
-
-
-
-
-
-
+  
   return (
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.safeAreaContainer}>
         <ThemedView style={styles.themedViewContainer}>
           <ScrollView
@@ -255,7 +252,7 @@ export default function LearningLibrary() {
             <Header icon={learningIcon} role="parent" title="Learning" theme="dark"></Header>
             {/* Header */}
             <ThemedView style={styles.topRow}>
-              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('./(parent)/search-screen')}>
+              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/(parent)/search-screen')}>
                 <Image source={searchIcon} tintColor={'white'} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>
@@ -278,12 +275,12 @@ export default function LearningLibrary() {
             {/* Category pills */}
             <FlatList
               horizontal
-              data={categories.map((ele) => ele.name)}
-              keyExtractor={(item) => item}
+              data={categories.map((ele) => ele)}
+              keyExtractor={(item) => item.name}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => handleStoryItem(item)}>
-                  <ThemedView style={[styles.categoryPill, selectedSeries === item ? styles.categoryPillActive : styles.categoryPillInactive]}>
-                    <ThemedText style={[styles.categoryText, selectedSeries === item ? {color:'rgba(5, 59, 74, 1)' } : null]}>{item}</ThemedText>
+                  <ThemedView style={[styles.categoryPill, selectedSeries?.name === item.name ? styles.categoryPillActive : styles.categoryPillInactive]}>
+                    <ThemedText style={[styles.categoryText, selectedSeries?.name === item.name ? { color: 'rgba(5, 59, 74, 1)' } : null]}>{item.name}</ThemedText>
                   </ThemedView>
                 </TouchableOpacity>
               )}
@@ -322,148 +319,18 @@ export default function LearningLibrary() {
               </TouchableOpacity>
             </Modal>
 
+            <ThemedView style={styles.bottomPadding}>
+              {/* Continue Watching */}
+              <ItemListWidthBadge selectedSeries={selectedSeries} setSelectedSeries={setSelectedSeries} seriesCategories={categories} />
 
-            {selectedSeries ?
-              <ThemedView style={styles.selectionContainer}>
-                <View style={styles.detailsSection}>
-                  <View style={styles.selectionHeaderRow}>
-                    <View>
-                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLarge , {lineHeight: 40}]}>{selectedSeries}</ThemedText>
-                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmall]}>{"Brand new stories and fun"}</ThemedText>
-                    </View>
-                    <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedSeries(null)}>
-                      <Image
-                        source={require("@/assets/images/kid/arrow-down.png")}
-                        style={styles.closeArrow}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.statsContainer}>
-                    {/* ALL */}
-                    <ThemedText style={styles.statsText}>
-                      ALL
-                    </ThemedText>
-
-                    {/* Divider */}
-                    <View style={styles.divider} />
-
-                    {/* 10 SERIES */}
-                    <View style={styles.statsIconContainer}>
-                      <Image
-                        source={require("@/assets/images/kid/check.png")}
-                        style={styles.statsIcon}
-                        resizeMode="contain"
-                      />
-                      <ThemedText style={styles.statsTextOrange}>
-                        10 SERIES
-                      </ThemedText>
-                    </View>
-
-                    {/* Divider */}
-                    <View style={styles.divider} />
-
-                    {/* 101 STORIES */}
-                    <ThemedText style={styles.statsText}>
-                      101 STORIES
-                    </ThemedText>
-                  </View>
-                </View>
-                <ScrollView
-                  horizontal={false}
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContent}
-                >
-                  {storiesData
-                    .filter((ele) => !ele.watched)
-                    .map((item, idx) => (
-                      <TouchableOpacity key={idx}
-                        activeOpacity={0.9}
-                        onPress={() => { router.push(`./details-screen?from=Stories`) }}>
-                        <StoryCard2 {...item} />
-                      </TouchableOpacity>
-                    ))}
-                </ScrollView>
-              </ThemedView> :
-              <ThemedView style={styles.bottomPadding}>
-                {/* Continue Watching */}
-                <View style={styles.headerTitleContainer}>  
-                  <SectionHeader title="New Adventures" desc="Brand new stories and fun" link="continue" />
-                  <TouchableOpacity
-                    onPress={() => handleStoryItem("New Adventures")}
-                  >
-                    <Image
-                      source={require("@/assets/images/kid/arrow-right.png")}
-                      style={styles.arrowIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.horizontalScrollContent}
-                >
-                  {storiesData
-                    .filter((ele) => !ele.watched)
-                    .map((item, idx) => (
-                      <StoryCard2 key={idx} {...item} />
-                    ))}
-                </ScrollView>
-
-                {/* Watch Next */}
-                <View style={styles.headerTitleContainer}>
-                  <SectionHeader title="Best Buddies & Big Feelings" desc="Friendship, kindness, and emotions" link="continue" />
-                  <TouchableOpacity
-                    onPress={() => handleStoryItem("Best Buddies & Big Feelings")}
-                  >
-                    <Image
-                      source={require("@/assets/images/kid/arrow-right.png")}
-                      style={styles.arrowIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.horizontalScrollContainer}
-                >
-                  {seriesData.map((item, idx) => (
-                    <SeriesCard key={idx} {...item} />
-                  ))}
-                </ScrollView>
-
-                {/* Featured Adventures */}
-                <View style={styles.headerTitleContainer}>
-                  <SectionHeader title="Giggles & Goofballs" desc="Silly, funny, and lough-out-loud stories" link="continue" />
-                  <TouchableOpacity
-                    onPress={() => handleStoryItem("Giggles & Goofballs")}
-                  >
-                    <Image
-                      source={require("@/assets/images/kid/arrow-right.png")}
-                      style={styles.arrowIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.horizontalScrollContainer}
-                >
-                  {storiesData
-                    .filter((ele) => !ele.watched)
-                    .map((item, idx) => (
-                      <StoryCard2 key={idx} {...item} />
-                    ))}
-                </ScrollView>
-
-                {/* Just Watched */}
-                {/* <SectionHeader title="Just Watched" link="watched" />
+              {/* Just Watched */}
+              {/* <SectionHeader title="Just Watched" link="watched" />
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardScrollContainer}>
               {storiesData.filter(ele => ele.watched).map((item, idx) => (
                 <StoryCard key={idx} {...item} />
               ))}
               </ScrollView> */}
-              </ThemedView>
-            }
+            </ThemedView>
           </ScrollView>
           {/* Sticky Bottom Navigation */}
           <ThemedView
@@ -480,6 +347,7 @@ export default function LearningLibrary() {
           </ThemedView>
         </ThemedView>
       </SafeAreaView >
+    </>
   );
 }
 

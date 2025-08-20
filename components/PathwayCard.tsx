@@ -38,12 +38,12 @@ export function PathwayCard({ pathway, handleViewButton }: { pathway: any, handl
                         <ThemedText style={styles.lengthText}>45 min</ThemedText>
                     </ThemedView>
                     <ThemedView style={styles.flexRow}>
-                        <TouchableOpacity
+                        {/* <TouchableOpacity
                             style={styles.iconBtn}
                             onPress={handleViewButton}
                         >
                             <Image source={editIcon} tintColor={'rgba(122, 193, 198, 1)'}></Image>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                         <ThemedText style={{ color: 'rgba(122, 193, 198, 0.5)' }}> | </ThemedText>
                         <TouchableOpacity
                             style={[styles.iconBtn, styles.iconBtnCircle]}
@@ -132,9 +132,9 @@ export function PathwayDetailedCard() {
                                 <ThemedText style={styles.lengthText}>45 min</ThemedText>
                             </ThemedView>
                             <ThemedView style={styles.flexRow}>
-                                <TouchableOpacity style={styles.iconBtn}>
+                                {/* <TouchableOpacity style={styles.iconBtn}>
                                     <Image source={editIcon} tintColor={'rgba(122, 193, 198, 1)'}></Image>
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                                 <ThemedText style={{ color: 'rgba(122, 193, 198, 0.5)' }}> | </ThemedText>
                                 <TouchableOpacity
                                     onPress={handleBack}

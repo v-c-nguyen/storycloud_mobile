@@ -79,12 +79,59 @@ export default function newMethod() {
                                     </ThemedView>
 
                                     {/* Email Section */}
-                                    <ThemedText style={styles.subLabel}>Email Address</ThemedText>
-                                    <TextInput
-                                        value={cardNumber}
-                                        editable={false}
-                                        style={styles.input}
-                                    />
+                                    <ThemedView style={{ flexDirection: 'column', gap: 15 }}>
+                                        <ThemedView>
+                                            <ThemedText style={styles.subLabel}>Card Number</ThemedText>
+                                            <ThemedView style={[styles.flexRow, {gap: 5}, styles.inputContainer]}>
+                                                <TextInput
+                                                    value={cardNumber}
+                                                    placeholder="2345 2345 2345 2345"
+                                                    style={[styles.input2, {flex: 1}]}
+                                                />
+
+                                                <Image
+                                                    source={require('@/assets/images/parent/icon-paymentCard.png')}
+                                                    style={styles.cardIcon}
+                                                />
+                                            </ThemedView>
+                                        </ThemedView>
+
+                                        <ThemedView style={styles.flexRow}>
+                                            <ThemedView>
+                                                <ThemedText style={styles.subLabel}>Expiry Date</ThemedText>
+                                                <ThemedView style={[styles.flexRow, { gap: 10 }]}>
+                                                    <TextInput
+                                                        value={cardNumber}
+                                                        placeholder="12"
+                                                        style={[styles.input, { width: 60 }]}
+                                                    />
+                                                    <TextInput
+                                                        value={cardNumber}
+                                                        placeholder="12"
+                                                        style={[styles.input, { width: 60 }]}
+                                                    />
+                                                </ThemedView>
+                                            </ThemedView>
+
+                                            <ThemedView>
+                                                <ThemedText style={styles.subLabel}>CVV</ThemedText>
+                                                <TextInput
+                                                    value={cardNumber}
+                                                    placeholder="..."
+                                                    style={[styles.input, { width: 60 }]}
+                                                />
+                                            </ThemedView>
+
+                                        </ThemedView>
+                                        <ThemedView>
+                                            <ThemedText style={styles.subLabel}>Name</ThemedText>
+                                            <TextInput
+                                                value={cardNumber}
+                                                placeholder="Van Cong Nguyen"
+                                                style={styles.input}
+                                            />
+                                        </ThemedView>
+                                    </ThemedView>
 
 
                                     {/* Save Button */}
@@ -144,7 +191,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         paddingHorizontal: 3,
         zIndex: 10,
-        paddingBottom: 100,
+        paddingBottom: 150,
         marginTop: -100
     },
     profileFrontBox: {
@@ -174,7 +221,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
     },
-    cardIcon: { width: 52, height: 52, resizeMode: 'contain', borderBottomWidth: 1, borderColor: 'rgba(173, 215, 218, 1)' },
+    cardIcon: { width: 30, height: 30, resizeMode: 'contain' },
     cardText: { fontSize: 16, fontWeight: '400', color: 'rgba(5, 59, 74, 1)', flex: 1, marginLeft: 10 },
     changeButton: {
         display: 'flex',
@@ -325,9 +372,23 @@ const styles = StyleSheet.create({
         color: 'rgba(5, 59, 74, 1)',
         outlineWidth: 0
     },
+    input2: {
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        fontSize: 16,
+        fontWeight: 400,
+        color: 'rgba(5, 59, 74, 1)',
+        outlineWidth: 0
+    },
+    inputContainer: {
+        borderWidth: 1,
+        borderColor: 'rgba(122, 193, 198, 0.5)',
+        borderRadius: 10,
+        paddingRight: 10
+    },
     button: {
         marginTop: 30,
-        backgroundColor: '#e6f1f6',
+        backgroundColor: '#F4A672',
         borderRadius: 50,
         paddingVertical: 12,
         display: 'flex',

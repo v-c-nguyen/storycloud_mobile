@@ -30,7 +30,6 @@ export default function ViewFocus() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const focusId = params.id as string;
-    console.log(focusId)
     const [modalVisible, setModalVisible] = React.useState(params.showModal === 'true');
     const categories = categoryData;
     const storyOptions = storyOptionsData;
@@ -66,13 +65,11 @@ export default function ViewFocus() {
     }, []);
 
     function handleItemSelection(item: string) {
-        console.log("item selected::", item)
         setActiveItem(item)
         setDropdownVisible(false)
     }
 
     function handleStoryItem(item: string) {
-        console.log("storyOption clicked::", item)
     }
 
     function CreateNewPathway() {

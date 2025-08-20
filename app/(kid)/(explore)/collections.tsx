@@ -68,7 +68,6 @@ export default function Map() {
           console.error('Error fetching series:', error.message);
 
         } else if (data && Array.isArray(data.data)) {
-          console.log("Collections::", data.data)
           setCollections(data.data);
         }
       } catch (e) {

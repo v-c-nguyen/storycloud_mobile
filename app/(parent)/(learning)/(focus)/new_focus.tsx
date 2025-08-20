@@ -35,17 +35,14 @@ export default function AddFocus() {
 
     function handleSecondNext(name: string, description: string) {
         setStep(2);
-        console.log('Name:', name, 'Description:', description);
     }
     function handleThirdNext(targets: any) {
         setTargets(targets);
-        console.log("targets::", targets);
         setStep(3);
     }
 
     function handleFourthNext(children: Child[]) {
         setChildren(children);
-        console.log("children::", children);
 
         setStep(4);
     }
@@ -72,7 +69,6 @@ export default function AddFocus() {
                 body: JSON.stringify(focusData),
             });
             const result = await response.json();
-            console.log(result)
             if (!response.ok) {
                 alert(result?.error || 'Failed to save focus mode');
                 return;

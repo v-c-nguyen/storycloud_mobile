@@ -61,7 +61,7 @@ const EditChild = () => {
         const updatedChild = {
             ...kid,
             name: firstName + (kid.name?.split(' ')[1] ? ' ' + kid.name.split(' ')[1] : ''),
-            avatar_url: kid.avatar_url || 'Mia.svg',
+            avatar_url: kid.avatar_url || '',
             age: Number(age),
             mode: kid.mode,
         };
@@ -84,7 +84,6 @@ const EditChild = () => {
             // Update Zustand store with new child data
             updateChildInStore(childIndex, result.data);
             // Optional: log response for debugging
-            console.log('Child updated successfully:', result);
             router.push('../');
         } catch (error) {
             alert('Error updating child: ' + error);

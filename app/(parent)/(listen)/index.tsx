@@ -188,8 +188,8 @@ export default function ParentListen() {
   const modes = modesData;
   const { user } = useUser();
   const [loading, setLoading] = React.useState(false);
-  const [activeChild, setActiveChild] = React.useState(children[0]);
-  const [activeMode, setActiveMode] = React.useState(modes[0]);
+  const { activeChild, setActiveChild } = useChildrenStore();
+  const [activeStoryId, setActiveStoryId] = React.useState('');
 
 
   useEffect(() => {
@@ -252,16 +252,18 @@ export default function ParentListen() {
               >
                 {children
                   .map((item: any, idx: any) => (
-                  <ItemWithImage
-                    key={idx}
-                    name={item.name}
-                    avatar={item.avatar_url}
-                    active={activeChild.name == item.name}
-                    onPress={() => handleChildSelect(item)} />
+                    <ItemWithImage
+                      key={idx}
+                      name={item.name}
+                      avatar={item.avatar_url}
+                      active={activeChild?.name == item.name}
+                      onPress={() => handleChildSelect(item)} />
                   ))}
               </ScrollView>
 
-              <SeriesCarousel mode={"parent"} activeChild={activeChild}/>
+              {activeChild && (
+                <SeriesCarousel mode={"parent"} activeChild={activeChild} setActiveStoryId={setActiveStoryId}/>
+              )}
 
               <ThemedText style={styles.subTitle} >Watch Next</ThemedText>
               <WatchNext activeChild={activeChild} />

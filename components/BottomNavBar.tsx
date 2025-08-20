@@ -31,7 +31,9 @@ export default function BottomNavBar({
           return `${rolePrefix}/(profiles)/(account)`;
       }
     } else {
+      console.log(item.name)
       switch (item.name) {
+        
         case "Dashboard":
           return `${rolePrefix}/(dashboard)`;
         case "Explore":
@@ -51,7 +53,7 @@ export default function BottomNavBar({
       {/* Cloud Effects */}
       {image &&
         <Image
-          source={require("@/assets/images/kid/cloud-group-bottom.svg")}
+          source={require("@/assets/images/kid/cloud-group-bottom.png")}
           style={[styles.cloudGroup, theme == 'darkImage' && { tintColor: 'rgba(5, 59, 74, 1)' }]}
         >
         </Image>
@@ -230,7 +232,7 @@ const styles = StyleSheet.create({
   cloudGroup: {
     position: "absolute",
     width: "100%",
-    height: 243,
+    height: 250,
     left: 0,
     top: -64,
     zIndex: 10

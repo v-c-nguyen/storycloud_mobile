@@ -1,5 +1,6 @@
 import { supabase } from "@/app/lib/supabase";
-import { StoryCard } from "@/components/Cards";
+import { StoryCard1 } from "@/components/Cards";
+import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
@@ -30,7 +31,6 @@ export default function Recommend({ activeChild }: { activeChild: any }) {
                 return;
             }
             if (data && Array.isArray(data.stories)) {
-                console.log("stories Data::", data)
                 setStoriesData(data.stories.slice(0, 3));
             }
         }
@@ -47,44 +47,49 @@ export default function Recommend({ activeChild }: { activeChild: any }) {
                         marginBottom: 50,
                     }} />
                 ) :
-                <ThemedView>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        onScroll={event => {
-                            const x = event.nativeEvent.contentOffset.x;
-                            const cardWidth = 290 + 25; // card width + gap (adjust if needed)
-                            const index = Math.round(x / cardWidth);
-                            setCurrentCardIndex(index);
-                        }}
-                        scrollEventThrottle={16}
-                        contentContainerStyle={styles.cardScrollContainer}
-                    >
-                        {storiesData
-                            // .filter((ele) => !ele.watched)
-                            .map((item, idx) => (
-                                <StoryCard
-                                    key={idx}
-                                    num={idx + 1}
-                                    story={item}
-                                    onPlay={(storyId: string) => router.push({ pathname: '/(parent)/(listen)/listenStory', params: { storyId } })}
-                                />
-                            ))}
-                    </ScrollView>
+                    storiesData.length > 0 ?
+                        <ThemedView>
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                onScroll={event => {
+                                    const x = event.nativeEvent.contentOffset.x;
+                                    const cardWidth = 290 + 10; // card width + gap (adjust if needed)
+                                    const index = Math.round(x / cardWidth);
+                                    setCurrentCardIndex(index);
+                                }}
+                                scrollEventThrottle={16}
+                                contentContainerStyle={styles.cardScrollContainer}
+                            >
+                                {storiesData
+                                    // .filter((ele) => !ele.watched)
+                                    .map((item, idx) => (
+                                        <StoryCard1
+                                            key={idx}
+                                            num={idx + 1}
+                                            story={item}
+                                            onPlay={(storyId: string) => router.push({ pathname: '/(parent)/(listen)/listenStory', params: { storyId } })}
+                                        />
+                                    ))}
+                            </ScrollView>
 
-                    {/* Pagination Dots */}
-                    <ThemedView style={styles.pagination}>
-                        {storiesData.map((_, idx) => (
-                            <ThemedView
-                                key={idx}
-                                style={[
-                                    styles.dot,
-                                    idx === currentCardIndex && styles.activeDot,
-                                ]}
-                            />
-                        ))}
-                    </ThemedView>
-                </ThemedView>
+                            {/* Pagination Dots */}
+                            <ThemedView style={styles.pagination}>
+                                {storiesData.map((_, idx) => (
+                                    <ThemedView
+                                        key={idx}
+                                        style={[
+                                            styles.dot,
+                                            idx === currentCardIndex && styles.activeDot,
+                                        ]}
+                                    />
+                                ))}
+                            </ThemedView>
+                        </ThemedView>
+                        :
+                        <ThemedView style={{ flexDirection: 'row', width: '100%', marginVertical: 20, justifyContent: 'center' }}>
+                            <ThemedText style={{ color: '#ffffff7a' }}> no recommended data </ThemedText>
+                        </ThemedView>
             }
         </ThemedView>
     )

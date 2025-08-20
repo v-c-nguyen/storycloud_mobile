@@ -119,7 +119,6 @@ export default function CollectionsLibrary() {
           console.error('Error fetching characters:', error.message);
 
         } else if (data && Array.isArray(data.data)) {
-          console.log("Characters::", data.data)
           setCollections(data.data);
         }
       } catch (e) {
@@ -132,7 +131,6 @@ export default function CollectionsLibrary() {
   }, []);
 
   function handleItemSelection(item: string) {
-    console.log("item selected::", item)
     setActiveItem(item)
     setDropdownVisible(false)
 
@@ -187,7 +185,7 @@ export default function CollectionsLibrary() {
 
             {/* Header */}
             <ThemedView style={styles.topRow}>
-              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('./(parent)/search-screen')}>
+              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/(parent)/search-screen')}>
                 <Image source={searchIcon} tintColor={'white'} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>

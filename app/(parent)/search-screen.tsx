@@ -1,8 +1,8 @@
-import { StoryCard } from "@/components/Cards";
+import { StoryCard2 } from "@/components/Cards";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
     FlatList,
@@ -104,25 +104,27 @@ export default function SearchScreen() {
     };
 
     return (
-        <ThemedView style={styles.container}>
+        <>
+            <Stack.Screen options={{ headerShown: false }} />
+            <ThemedView style={styles.container}>
 
-            {/* Header */}
-            <View style={styles.header}>
-                <ThemedText style={styles.headerText}>
-                    {searchText.trim().length === 0
-                        ? "Search"
-                        : `${results.length} Result${results.length !== 1 ? "s" : ""}`}
-                </ThemedText>
-                <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
-                    <Text style={styles.closeIcon}>✕</Text>
-                </TouchableOpacity>
-            </View>
+                {/* Header */}
+                <View style={styles.header}>
+                    <ThemedText style={styles.headerText}>
+                        {searchText.trim().length === 0
+                            ? "Search"
+                            : `${results.length} Result${results.length !== 1 ? "s" : ""}`}
+                    </ThemedText>
+                    <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
+                        <Text style={styles.closeIcon}>✕</Text>
+                    </TouchableOpacity>
+                </View>
 
 
 
 
-            {/* Search results */}
-            {results.length > 0 ? (
+                {/* Search results */}
+                {results.length > 0 ? (
                     <View style={styles.content}>
                         <View style={styles.headerTitleContainer}>
                             <View>
@@ -151,60 +153,61 @@ export default function SearchScreen() {
                             contentContainerStyle={styles.listContent}
                             renderItem={({ item }) => (
                                 <View style={styles.searchCardWrapper}>
-                                    <StoryCard {...item} />
+                                    <StoryCard2 {...item} />
                                 </View>
                             )}
                         />
 
 
-                </View>
-
-            ) : (
-                searchText.trim().length > 0 && (
-                    <View style={styles.noResults}>
-                        <ThemedText>No results found</ThemedText>
                     </View>
-                )
-            )}
 
-            {/* Search bar */}
-            <View
-                style={[
-                    styles.searchBarContainer,
-                    { bottom: keyboardHeight > 0 ? keyboardHeight : 0 },
-                    searchText.trim().length > 0 && styles.searchBarTopBorder
-                ]}
-            >
+                ) : (
+                    searchText.trim().length > 0 && (
+                        <View style={styles.noResults}>
+                            <ThemedText>No results found</ThemedText>
+                        </View>
+                    )
+                )}
+
+                {/* Search bar */}
                 <View
                     style={[
-                        styles.searchWrapper,
-                        searchText.trim().length > 0 && styles.activeSearchWrapper,
+                        styles.searchBarContainer,
+                        { bottom: keyboardHeight > 0 ? keyboardHeight : 0 },
+                        searchText.trim().length > 0 && styles.searchBarTopBorder
                     ]}
                 >
-                    <Ionicons
-                        name="search"
-                        size={18}
-                        color={searchText.trim().length > 0 ? "#E8A44D" : "rgba(122, 193, 198, 1)"}
-                        style={{ marginHorizontal: 8 }}
-                    />
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Type to Search"
-                        placeholderTextColor="rgba(122, 193, 198, 1)"
-                        value={searchText}
-                        onChangeText={handleSearchChange}
-                        onSubmitEditing={handleSubmit}
-                        returnKeyType="search"
-                    />
-                    {searchText.trim().length > 0 && (
-                        <TouchableOpacity onPress={handleClear}>
-                            <Text style={styles.clearIcon}>✕</Text>
-                        </TouchableOpacity>
-                    )}
+                    <View
+                        style={[
+                            styles.searchWrapper,
+                            searchText.trim().length > 0 && styles.activeSearchWrapper,
+                        ]}
+                    >
+                        <Ionicons
+                            name="search"
+                            size={18}
+                            color={searchText.trim().length > 0 ? "#E8A44D" : "rgba(122, 193, 198, 1)"}
+                            style={{ marginHorizontal: 8 }}
+                        />
+                        <TextInput
+                            style={styles.searchInput}
+                            placeholder="Type to Search"
+                            placeholderTextColor="rgba(122, 193, 198, 1)"
+                            value={searchText}
+                            onChangeText={handleSearchChange}
+                            onSubmitEditing={handleSubmit}
+                            returnKeyType="search"
+                        />
+                        {searchText.trim().length > 0 && (
+                            <TouchableOpacity onPress={handleClear}>
+                                <Text style={styles.clearIcon}>✕</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 </View>
-            </View>
 
-        </ThemedView>
+            </ThemedView>
+        </>
     );
 }
 

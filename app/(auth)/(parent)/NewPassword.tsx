@@ -37,7 +37,6 @@ export default function NewPassword() {
       return;
     }
     const firstLogin = userData?.first_login
-    console.log(firstLogin)
     if (firstLogin) {
       router.replace('./notice')
     } else {

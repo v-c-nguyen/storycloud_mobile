@@ -40,7 +40,6 @@ export default function AddFocus_Third({ mode, currentStep, onPress }: { mode: n
                     console.error('Error fetching children:', error.message);
                 } else if (data && Array.isArray(data.data)) {
                     setChildren(data.data);
-                    console.log('Fetched children:', data.data);
                 }
             } catch (e) {
                 console.error('Error fetching children:', e);
@@ -52,7 +51,6 @@ export default function AddFocus_Third({ mode, currentStep, onPress }: { mode: n
     }, []);
 
     function handleChildSelected(child: Child) {
-        console.log(child)
         setActiveChildren(prev => {
             const exists = prev.some(t => t.id === child.id);
             if (exists) {

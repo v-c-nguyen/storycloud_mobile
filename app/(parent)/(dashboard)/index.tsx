@@ -32,40 +32,6 @@ const insightIcons = {
   finished: require("@/assets/images/parent/finished.png"),
 };
 
-
-const seriesData = [
-  {
-    title: "KAI’S LIVING ADVENTURE",
-    image: "1",
-    count: 8,
-    isFavorite: true,
-  },
-  {
-    title: "KAI’S CLIMATE QUEST",
-    image: "2",
-    count: 8,
-    isFavorite: true,
-  },
-  {
-    title: "KAI’S INVESTIGATION STATION",
-    image: "3",
-    count: 8,
-    isFavorite: true,
-  },
-  {
-    title: "KAI’S BIG ADVENTURES",
-    image: "4",
-    count: 8,
-    isFavorite: true,
-  },
-  {
-    title: "KAI’S NEIGHBORHOOD ADVENTURES",
-    image: "5",
-    count: 8,
-    isFavorite: true,
-  },
-];
-
 const InsightItemsData: InsightItemProps[] = [
   {
     value: 48,
@@ -90,7 +56,8 @@ export default function ParentDashboard() {
   const children = useChildrenStore((state: any) => state.children);
   const setChildren = useChildrenStore((state: any) => state.setChildren);
   const [modalVisible, setModalVisible] = React.useState(false);
-  const [activeChild, setActiveChild] = React.useState(children[0]);
+  const activeChild = useChildrenStore((state: any) => state.activeChild);
+  const setActiveChild = useChildrenStore((state: any) => state.setActiveChild);
   const [activeMode, setActiveMode] = React.useState(modes[0]);
   const [loading, setLoading] = React.useState(false);
   const [currentRecommendCardIndex, setCurrentRecommendCardIndex] = React.useState(0);
@@ -98,7 +65,6 @@ export default function ParentDashboard() {
 
   useEffect(() => {
     // Fetch children data from Supabase edge function and sync Zustand store
-    console.log("user: ", user);
     async function fetchChildren() {
       if (!user?.id) return;
       setLoading(true); // Start loading

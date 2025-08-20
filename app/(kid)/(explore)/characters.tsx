@@ -218,7 +218,6 @@ export default function Characters() {
           console.error('Error fetching characters:', error.message);
 
         } else if (data && Array.isArray(data.data)) {
-          console.log("Characters::", data.data)
           setCharacters(data.data);
         }
       } catch (e) {

@@ -1,27 +1,26 @@
-import { supabase } from "@/app/lib/supabase";
-import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { StoryCard } from "./Cards";
+import { useSeriesStore } from "@/store/seriesStore";
+import { useStoryStore } from "@/store/storyStore";
+import React, { useEffect, useRef } from "react";
+import { Dimensions, Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { StoryCard3 } from "./Cards";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 
 const { width } = Dimensions.get("window");
 
 
-export default function AdventureStoryCarousel({ storyId }: { storyId: string }) {
-    const [activeIndex, setActiveIndex] = useState(1);
-    const [selectedMin, setSelectedMin] = useState(8);
-    const [series, setSeries] = useState<any[]>([]);
-    const [stories, setStories] = useState<any[]>([])
+export default function AdventureStoryCarousel({ storyId, activeChild }: { storyId: string, activeChild: any }) {
+    const series = useSeriesStore((state) => state.series);
+    const stories = useStoryStore((state) => state.stories)
+    const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
     const totalSteps = stories.length;
 
-
-    const flatListRef = useRef<FlatList>(null);
+    const flatListRef = useRef<ScrollView>(null);
 
     // Scroll to card by step
     const scrollToStep = (index: number) => {
-        flatListRef.current?.scrollToIndex({ index, animated: true });
-        setActiveIndex(index);
+        flatListRef.current?.scrollTo({ x: index * (290 + 25), animated: true });
+        setCurrentCardIndex(index);
     };
 
     // Handle drag/swipe
@@ -31,82 +30,88 @@ export default function AdventureStoryCarousel({ storyId }: { storyId: string })
     };
 
     useEffect(() => {
-        async function fetchSeries() {
-            if (!storyId) return;
-            console.log("Fetching series for storyId:", storyId);
-            const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
-            const { data, error } = await supabase.functions.invoke(`series/story/${storyId}`, {
-                method: 'GET',
-                headers: {
-                    Authorization: jwt ? `Bearer ${jwt}` : '',
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (error) {
-                console.error('Error fetching series:', error.message);
-                return;
-            }
-            if (data) {
-                console.log('Fetched series:', data);
-                setSeries(data);
-            }
-        }
-        fetchSeries();
+        console.log(series)
+        const index = stories.findIndex((story: any) => story.storyId === storyId);
+        setCurrentCardIndex(index)
+        scrollToStep(index);
     }, [storyId]);
-    return (
-        <ThemedView style={styles.container}>
-            {/* Progress bar */}
-            <ThemedView style={styles.progressBar}>
-                <ThemedText style={styles.adventureHeader}>KAI’S LIVING ADVENTURE</ThemedText>
+return (
+
+    <ThemedView style={styles.container}>
+        {/* Progress bar */}
+        <ThemedView style={styles.progressBar}>
+
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+            >
                 <ThemedView style={styles.stepsRow}>
-                    {stories.map((story, idx) => {
-                        const isCompleted = story.watched;
-                        const isActive = idx === activeIndex;
+                    {stories.map((story: any, idx: any) => {
+                        const isCompleted = story.track?.watched;
+                        const isActive = idx === currentCardIndex;
                         return (
-                            <TouchableOpacity key={idx} style={styles.stepWrap} onPress={() => scrollToStep(idx)}>
-                                <ThemedView style={[(isCompleted || isActive) && styles.highlightedBorder]}>
-                                    <ThemedView style={[
-                                        isCompleted
-                                            ? styles.stepCircleCompleted
-                                            : isActive
-                                                ? styles.stepCircleActive
-                                                : styles.stepCircle
-                                    ]}>
-                                        {isCompleted ? (
-                                            <Image source={require("@/assets/images/icons/check.png")} style={styles.checkIcon} />
-                                        ) : (
-                                            <ThemedText style={isActive ? styles.stepNumberActive : styles.stepNumber}>{idx + 1}</ThemedText>
-                                        )}
+                            <ThemedView key={idx} style={{ flexDirection: 'row', alignItems: 'center', position: 'relative' }}>
+                                <TouchableOpacity style={styles.stepWrap} onPress={() => scrollToStep(idx)}>
+                                    <ThemedView style={[(isCompleted || isActive) && styles.highlightedBorder]}>
+                                        <ThemedView style={[
+                                            isCompleted
+                                                ? styles.stepCircleCompleted
+                                                : isActive
+                                                    ? styles.stepCircleActive
+                                                    : styles.stepCircle
+                                        ]}>
+                                            {isCompleted ? (
+                                                <Image source={require("@/assets/images/icons/check.png")} style={styles.checkIcon} />
+                                            ) : (
+                                                <ThemedText style={isActive ? styles.stepNumberActive : styles.stepNumber}>{idx + 1}</ThemedText>
+                                            )}
+                                        </ThemedView>
                                     </ThemedView>
-                                </ThemedView>
-                                <ThemedText style={styles.stepLabel}>{idx + 1}</ThemedText>
-                            </TouchableOpacity>
+                                </TouchableOpacity>
+                                {idx < stories.length - 1 && (
+                                    <ThemedView style={[styles.line, isCompleted && styles.completeLine, isActive && styles.activeLine]} />
+                                )}
+                            </ThemedView>
                         );
                     })}
                 </ThemedView>
-            </ThemedView>
+            </ScrollView>
 
-            {/* Story Carousel */}
-            <FlatList
-                ref={flatListRef}
-                data={stories}
-                keyExtractor={(_, idx) => idx.toString()}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                onScroll={onScroll}
-                scrollEventThrottle={16}
-                renderItem={({ item, index }) => (
-                    <StoryCard key={index} {...item} />
-                )}
-            />
         </ThemedView>
-    );
+
+        {/* Story Carousel */}
+        <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            ref={flatListRef}
+            onScroll={event => {
+                const x = event.nativeEvent.contentOffset.x;
+                const cardWidth = 290 + 20; // card width + gap (adjust if needed)
+                const index = Math.round(x / cardWidth);
+                setCurrentCardIndex(index);
+            }}
+            scrollEventThrottle={16}
+            contentContainerStyle={styles.cardScrollContainer}
+        >
+            {
+                stories.length > 0 && stories.map((item: any, index: any) => (
+                    <StoryCard3 key={index} num={index + 1} story={item} />
+                ))
+            }
+        </ScrollView>
+
+    </ThemedView>
+)
 }
 
 const CARD_WIDTH = width * 0.85;
 
 const styles = StyleSheet.create({
+    cardScrollContainer: {
+        gap: 20,
+        paddingHorizontal: 16,
+        paddingBottom: 10,
+    },
     container: {
         width: "100%",
         alignItems: "center",
@@ -132,8 +137,8 @@ const styles = StyleSheet.create({
     stepsRow: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center",
         gap: 18,
+        justifyContent: "center",
         marginBottom: 6,
     },
     stepWrap: {
@@ -334,4 +339,26 @@ const styles = StyleSheet.create({
         backgroundColor: "#AD D7DA",
         borderRadius: 6,
     },
+    line: {
+        height: 8,
+        width: 24,
+        position: "absolute",
+        left: 24,
+        backgroundColor: '#fcfcfc3b',
+        marginHorizontal: 4,
+    },
+    completeLine: {
+        height: 8,
+        width: 34,
+        left: 30,
+        backgroundColor: '#F4A672',
+        marginHorizontal: 4,
+    },
+    activeLine: {
+        height: 8,
+        width: 28,
+        left: 30,
+        backgroundColor: '#fcfcfc3b',
+        marginHorizontal: 4,
+    }
 });

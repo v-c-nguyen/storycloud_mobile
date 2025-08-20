@@ -122,9 +122,9 @@ const styles = StyleSheet.create({
   },
   illustrationWrap: {
     width: "100%",
-    height: 367,
     position: "relative",
     display: "flex",
+    height: '100%',
     justifyContent: "center",
   },
   illustration: {

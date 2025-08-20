@@ -1,6 +1,7 @@
 import BottomNavBar from '@/components/BottomNavBar';
-import DropDownMenu from '@/components/DropDownMenu';
 import Header from '@/components/Header';
+import MyModal from '@/components/Modals/PlanUpdatedModal';
+import ContentPreferences from '@/components/parent/content';
 import { TabBar } from '@/components/TabBar';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -9,11 +10,8 @@ import React, { useState } from 'react';
 import {
     Dimensions,
     Image,
-    Modal,
     ScrollView,
-    StyleSheet,
-    Switch,
-    TouchableOpacity
+    StyleSheet
 } from 'react-native';
 
 const checkIcon = require('@/assets/images/parent/icon-checkmark.png')
@@ -59,6 +57,10 @@ const plans = [
     },
 ];
 
+const ModalTitle = "Story Style"
+const ModalContent = "Story style settings allows for you to adjust the pace and energy level of our stories. This setting is also available for your kid/s in the listen/watch player view." +
+    "\n\nPLAY TIME, just like it sounds, is for when your kid is needing an immersive and engaging story experience. STORY TIME, is the opposite, it is for unwinding, relaxing and bed time vibes"
+
 export default function Content() {
     const router = useRouter();
     const [isMonthly, setIsMonthly] = useState(true);
@@ -76,17 +78,17 @@ export default function Content() {
         if (label === 'Update Subscription') {
             setModalVisible(true);
         } else {
-            console.log('Cancel action or other logic');
         }
     };
 
     const handleTabPress = (tabId: string) => {
+        console.log("tabID::", tabId);
+        if (tabId === 'content') router.navigate("/(parent)/(profiles)/(content)")
+        if (tabId === 'account') router.navigate("/(parent)/(profiles)/(account)")
         setActiveTab(tabId);
     };
 
     const handleItemProcess = (item: string) => {
-        console.log("item::", item)
-        console.log(`parent/profile/${item}`)
         switch (item) {
             case 'account':
                 router.navigate("/(parent)/(profiles)/(account)");
@@ -117,6 +119,14 @@ export default function Content() {
             <Stack.Screen options={{ headerShown: false }} />
 
             <ThemedView style={{ flex: 1, backgroundColor: 'rgba(5, 59, 74, 1)' }}>
+                <MyModal
+                    visible={modalVisible}
+                    title={ModalTitle}
+                    content={ModalContent}
+                    buttonText='Back to Profile'
+                    onClose={() => setModalVisible(false)}
+                    starIcon={starIcon}
+                />
                 <ScrollView
                     style={styles.rootContainer}
                     showsVerticalScrollIndicator={false}
@@ -151,115 +161,14 @@ export default function Content() {
                         {/* Tab Navigation */}
                         <TabBar
                             tabs={tabs}
-                            activeTab={'account'}
+                            activeTab={'content'}
                             onTabPress={handleTabPress}
                         />
 
-                        <DropDownMenu activeItem={activeTab} onSelect={(item) => handleItemProcess(item)} />
-                        <ThemedView style={styles.tabContent} >
+                        <ThemedView style={[styles.tabContent, { marginTop: 20 }]} >
 
                             {/* Main Content */}
-
-                            <ThemedView style={styles.container}>
-                                {/* Header */}
-                                <ThemedText style={styles.title}>Your Subscription Plan</ThemedText>
-                                <ThemedText style={styles.subtitle}>Edit or upgrade your plan from here</ThemedText>
-
-                                {/* Toggle */}
-                                <ThemedView style={styles.toggleRow}>
-                                    <ThemedText style={[styles.toggleLabel, isMonthly && styles.activeLabel]}>Monthly</ThemedText>
-                                    <Switch
-                                        value={!isMonthly}
-                                        onValueChange={() => setIsMonthly(prev => !prev)}
-                                        trackColor={{ false: '#ccc', true: '#56cfe1' }}
-                                        thumbColor="#fff"
-                                    />
-                                    <ThemedText style={[styles.toggleLabel, !isMonthly && styles.activeLabel]}>Annual</ThemedText>
-                                </ThemedView>
-
-                                {/* Horizontal ScrollView */}
-                                <ScrollView
-                                    horizontal
-                                    pagingEnabled
-                                    showsHorizontalScrollIndicator={false}
-                                    onScroll={handleScroll}
-                                    scrollEventThrottle={16}
-                                    style={{ position: 'relative', flex: 1 }}
-                                >
-                                    {plans.map((plan, index) => (
-                                        <ThemedView key={index} style={styles.card}>
-                                            <ThemedText style={styles.planTitle}>
-                                                <ThemedText style={styles.storyCloud}>StoryCloud</ThemedText> | Explorer
-                                            </ThemedText>
-                                            <ThemedText style={styles.planName}>{plan.name}</ThemedText>
-                                            <ThemedText style={styles.planPrice}>
-                                                ${isMonthly ? plan.priceMonthly : plan.priceAnnual}
-                                            </ThemedText>
-                                            <ThemedText style={styles.planSeats}>{plan.seats} Seat{plan.seats > 1 ? 's' : ''}</ThemedText>
-
-                                            {/* Features */}
-                                            <ThemedView style={{ marginTop: 20 }}>
-                                                {plan.features.map((feature, idx) => (
-                                                    <ThemedView key={idx} style={styles.featureRow}>
-                                                        <Image source={checkIcon} style={{ tintColor: 'rgba(5, 59, 74, 1)' }}></Image>
-                                                        <ThemedText style={styles.featureCustomText}>{feature}</ThemedText>
-                                                    </ThemedView>
-                                                ))}
-                                            </ThemedView>
-
-                                            {/* Button */}
-                                            <TouchableOpacity
-                                                style={styles.planButton}
-                                                onPress={() => handleButtonClick(plan.buttonLabel)}
-                                            >
-                                                {
-                                                    plan.buttonLabel == "Cancel Subscription" &&
-                                                    <Image source={cancelIcon} />
-                                                }
-                                                <ThemedText style={styles.buttonCustomText}>{plan.buttonLabel}</ThemedText>
-                                            </TouchableOpacity>
-                                        </ThemedView>
-                                    ))}
-                                </ScrollView>
-                                <ThemedView style={styles.dotsContainer}>
-                                    {plans.map((_, idx) => (
-                                        <ThemedView
-                                            key={idx}
-                                            style={[
-                                                styles.dot,
-                                                currentIndex === idx && styles.activeDot
-                                            ]}
-                                        />
-                                    ))}
-                                </ThemedView>
-
-
-
-                                {/* Modal */}
-                                <Modal
-                                    visible={modalVisible}
-                                    transparent
-                                    animationType="fade"
-                                    onRequestClose={() => setModalVisible(false)}
-                                >
-                                    <ThemedView style={styles.modalOverlay}>
-                                        <ThemedView style={styles.modalContent}>
-                                            <ThemedView style={styles.modalIconContainer}>
-                                                <Image source={starIcon}></Image>
-                                            </ThemedView>
-                                            <ThemedText style={styles.modalTitle}>Your Plan has been Updated</ThemedText>
-                                            <ThemedText style={styles.modalBody}>Updates will be reflected in your next billing cycle</ThemedText>
-
-                                            <ThemedView style={styles.modalButtons}>
-                                                <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButton}>
-                                                    <ThemedText style={styles.modalButtonText}>Back to Profile</ThemedText>
-                                                </TouchableOpacity>
-                                            </ThemedView>
-                                        </ThemedView>
-                                    </ThemedView>
-                                </Modal>
-                            </ThemedView>
-
+                            <ContentPreferences setModalVisible={setModalVisible} />
                         </ThemedView>
 
                     </ThemedView>
@@ -269,6 +178,7 @@ export default function Content() {
                     image={true}
                     theme="darkImage"
                     active="Profile" />
+
             </ThemedView>
 
         </>
@@ -288,7 +198,7 @@ const styles = StyleSheet.create({
         position: "relative",
     },
     imgCloudFar: {
-        width: '100%',
+        width: '110%',
         height: '100%',
         position: "absolute",
         top: 0,
@@ -296,7 +206,7 @@ const styles = StyleSheet.create({
         zIndex: -100,
     },
     imgCloudNear: {
-        width: '100%',
+        width: '110%',
         height: '100%',
         position: "absolute",
         top: 42,
@@ -307,6 +217,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         paddingHorizontal: 3,
         zIndex: 10,
+        lineHeight: 32,
         paddingBottom: 100,
         marginTop: -100
     },

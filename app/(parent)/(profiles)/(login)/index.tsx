@@ -34,7 +34,6 @@ export default function LoginCredential() {
   const [activeItem, setActiveItem] = React.useState('account');
 
   const handleTabPress = (tabId: string) => {
-    console.log("tabId:", tabId)
     setActiveItem(tabId);
     if (tabId === 'account') handleItemProcess('login');
     else if (tabId === 'content') router.navigate("/(parent)/(profiles)/(content)");
@@ -61,8 +60,6 @@ export default function LoginCredential() {
   };
 
   const handleItemProcess = (item: string) => {
-    console.log("item::", item)
-    console.log(`parent/profile/${item}`)
     switch (item) {
       case 'account':
         router.navigate("/(parent)/(profiles)/(account)");
@@ -210,7 +207,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   imgCloudFar: {
-    width: '100%',
+    width: '110%',
     height: '100%',
     position: "absolute",
     top: 0,
@@ -218,7 +215,7 @@ const styles = StyleSheet.create({
     zIndex: -100,
   },
   imgCloudNear: {
-    width: '100%',
+    width: '110%',
     height: '100%',
     position: "absolute",
     top: 42,

@@ -1,51 +1,169 @@
+import { supabase } from '@/app/lib/supabase';
+import { useStoryStore } from '@/store/storyStore';
+import { useTrackStore } from '@/store/trackStore';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 
 const { width } = Dimensions.get("window");
 
 type MediaPlayerCardProps = {
-    story: any;
+    activeChild: any;
     onAudioEnd: () => void;
 };
 
-export default function MediaPlayerCard({ story, onAudioEnd }: MediaPlayerCardProps) {
+export default function MediaPlayerCard({activeChild, onAudioEnd }: MediaPlayerCardProps) {
+    // Flag to ignore first playback status update after seek
+    const firstStatusUpdate = useRef(true);
+    // Track state
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [isPlay, setIsPlay] = useState(false);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [duration, setDuration] = useState(1);
     const [volume, setVolume] = useState(1);
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-    // Replace with your audio file URL or local asset
-    const AUDIO_URL = story ? story.audio_url : "https://fzmutsehqndgqwprkxrm.supabase.co/storage/v1/object/sign/audio/PILOT_%20Kai's%20Polar%20Expedition%20-%202-5%20years.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9iNjNkYWNiNy1lYWJiLTQyOTQtOGY2My03YjVlYTk2Y2JiOWQiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJhdWRpby9QSUxPVF8gS2FpJ3MgUG9sYXIgRXhwZWRpdGlvbiAtIDItNSB5ZWFycy5tcDMiLCJpYXQiOjE3NTQ4NjI4MzUsImV4cCI6MTc1NTQ2NzYzNX0.Fa9oSDirS4S83XGwJEwyVEQEmImsrk0mrdwnhdF4iJY";
-    // const AUDIO_URL = story ? story.audio_url: ''
+    const track = useTrackStore(state => state.activeTrack);
+    const setActiveTrack = useTrackStore(state => state.setActiveTrack)
+    const setPlayed = useTrackStore(state => state.setPlayed)
+    const setDuration = useTrackStore(state => state.setDuration)
+    const setWatched = useTrackStore(state => state.setWatched)
+    const story = useStoryStore((state) => state.listeningStory)
+    // Fullscreen state
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
 
     useEffect(() => {
-        loadAudio();
-        return () => {
-            if (sound) {
-                sound.unloadAsync();
-            }
-            if (intervalRef.current) clearInterval(intervalRef.current);
+        const handleOrientation = () => {
+            const { width, height } = Dimensions.get('window');
+            setOrientation(width > height ? 'landscape' : 'portrait');
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const subscription = Dimensions.addEventListener('change', handleOrientation);
+        handleOrientation();
+        return () => {
+            subscription?.remove();
+        };
     }, []);
 
+    // Remove unused audioUrl state
+
+    // Fetch track info and set playback state
+    useEffect(() => {
+        async function fetchTrack() {
+            if (!story?.storyId || !activeChild?.id) return;
+            try {
+                const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+                const response = await fetch('https://fzmutsehqndgqwprkxrm.supabase.co/functions/v1/track/getOne', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: jwt ? `Bearer ${jwt}` : '',
+                    },
+                    body: JSON.stringify({ storyId: story.storyId, childId: activeChild.id })
+                });
+                const result = await response.json();
+                let trackData;
+                if (response.ok && result.data) {
+                    trackData = {
+                        storyId: story.storyId,
+                        childId: activeChild.id,
+                        played: result.data.played,
+                        duration: result.data.duration,
+                        watched: !!result.data.watched,
+                        audioUrl: story.audio_s_2_5
+                    };
+                } else {
+                    trackData = {
+                        storyId: story.storyId,
+                        childId: activeChild.id,
+                        played: 0,
+                        duration: 1,
+                        watched: false,
+                        audioUrl: story.audio_s_2_5
+                    };
+                }
+                setActiveTrack(trackData);
+                console.log(trackData, trackData.audioUrl)
+                await loadAudio(trackData.audioUrl ?? '', trackData.played || 0);
+            } catch (e) {
+                // On error, still load audio with defaults
+                console.error('Failed to fetch track info', e);
+                const fallbackTrack = {
+                    storyId: story?.storyId || '',
+                    childId: activeChild?.id || '',
+                    played: 0,
+                    duration: 1,
+                    watched: false,
+                    audioUrl: story ? story.audio_s_2_5 : ''
+                };
+                setActiveTrack(fallbackTrack);
+                await loadAudio(fallbackTrack.audioUrl ?? '', 0);
+            }
+        }
+        fetchTrack();
+
+    }, [story?.storyId, activeChild?.id]);
+
+    // Remove duplicate audio loading effect
     // Keep volume slider in sync with actual sound volume
     useEffect(() => {
         if (sound) {
             sound.setVolumeAsync(volume);
         }
     }, [volume, sound]);
+    // Helper: Save play progress to DB
+    async function savePlayProgressToDB({ playedTime, totalTime, finished }: { playedTime: number, totalTime: number, finished?: boolean }) {
 
-    async function loadAudio() {
+        if (!story?.storyId) return;
+        console.log("savePlayProgressToDB function called")
+
+        try {
+            console.log("activeChild:", activeChild)
+            const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+
+            // Save play progress to track table
+            const fetchResponse = await fetch('https://fzmutsehqndgqwprkxrm.supabase.co/functions/v1/track', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: jwt ? `Bearer ${jwt}` : '',
+                },
+                body: JSON.stringify({
+                    storyId: story.storyId,
+                    childId: activeChild.id,
+                    playedTime,
+                    totalTime,
+                    finished: !!finished,
+                })
+            });
+            const data = await fetchResponse.json();
+            console.log(data);
+            if (fetchResponse.ok && data) {
+                // Add to Zustand store
+                console.log(data.data)
+                // Redirect on success
+            } else {
+                alert(data?.error || 'Failed to save track');
+            }
+            // If finished, set watched=true in DB
+            if (finished) {
+                await fetch('https://fzmutsehqndgqwprkxrm.supabase.co/functions/v1/track' + story.storyId, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: jwt ? `Bearer ${jwt}` : '',
+                    },
+                    body: JSON.stringify({ watched: true })
+                });
+            }
+        } catch (e) {
+            console.error('Failed to save play progress', e);
+        }
+    }
+
+    async function loadAudio(url: string, played: number = 0) {
         try {
             const { sound: playbackObject, status } = await Audio.Sound.createAsync(
-                { uri: AUDIO_URL },
+                { uri: url },
                 { shouldPlay: false },
                 onPlaybackStatusUpdate
             );
@@ -53,6 +171,12 @@ export default function MediaPlayerCard({ story, onAudioEnd }: MediaPlayerCardPr
             if (status.isLoaded) {
                 setDuration(status.durationMillis ? status.durationMillis / 1000 : 1);
                 if (typeof status.volume === 'number') setVolume(status.volume);
+                // Seek to played position if available
+                if (played > 0) {
+                    await playbackObject.setPositionAsync(played * 1000);
+                    setPlayed(played);
+                    firstStatusUpdate.current = true; // Reset flag for next load
+                }
             }
         } catch (e) {
             console.error('Failed to load audio', e);
@@ -61,13 +185,17 @@ export default function MediaPlayerCard({ story, onAudioEnd }: MediaPlayerCardPr
 
     function onPlaybackStatusUpdate(status: any) {
         if (status.isLoaded) {
-            setCurrentTime(status.positionMillis / 1000);
+            // Ignore the first status update after seek
+            setPlayed(status.positionMillis / 1000);
             setDuration(status.durationMillis ? status.durationMillis / 1000 : 1);
             setIsPlay(status.isPlaying);
+            // Track progress when paused
+            if (!status.isPlaying && !status.didJustFinish && status.positionMillis > 0) {
+                savePlayProgressToDB({ playedTime: status.positionMillis / 1000, totalTime: status.durationMillis ? status.durationMillis / 1000 : 1 });
+            }
             // Detect when audio finishes
             if (status.didJustFinish && !status.isPlaying) {
-                    console.log("finished")
-
+                savePlayProgressToDB({ playedTime: status.durationMillis ? status.durationMillis / 1000 : 1, totalTime: status.durationMillis ? status.durationMillis / 1000 : 1, finished: true });
                 if (onAudioEnd) {
                     onAudioEnd();
                 }
@@ -86,11 +214,12 @@ export default function MediaPlayerCard({ story, onAudioEnd }: MediaPlayerCardPr
 
     const handleSeek = async (seconds: number) => {
         if (!sound) return;
-        let newTime = currentTime + seconds;
+        let newTime = (track?.played ?? 0) + seconds;
         if (newTime < 0) newTime = 0;
-        if (newTime > duration) newTime = duration;
+        if (newTime > (track?.duration ?? 0)) newTime = (track?.duration ?? 0);
         await sound.setPositionAsync(newTime * 1000);
     };
+
 
     // Volume control
     const handleVolumeChange = (value: number) => {
@@ -105,78 +234,151 @@ export default function MediaPlayerCard({ story, onAudioEnd }: MediaPlayerCardPr
     };
 
     return (
-        <View style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.headerAdventure}>{story?.seriesCategory }</Text>
-                <Text style={styles.headerTitle}>
-                    <Text style={styles.headerNumber}>#2 </Text>
-                    <Text style={styles.headerTitleItalic}>{story?.storyTitle}</Text>
-                </Text>
-            </View>
-            {/* Image */}
-            <Image
-                source={require("@/assets/images/parent/sample-card-image.png")} // Replace with your image
-                style={styles.cardImage}
-                resizeMode="cover"
-            />
-            <ThemedView style={[styles.pauseStyle, isPlay && { display: 'none' }]}>
-                <TouchableOpacity style={styles.continueBtn} onPress={handlePlayPause}>
-                    <Image source={require('@/assets/images/icons/icon-play.png')} />
-                    <ThemedText style={styles.btnText} >Continue</ThemedText>
-                </TouchableOpacity>
-            </ThemedView>
-
-            {/* Player Bar */}
-            <View style={styles.playerBar}>
-
-                <View style={styles.playerSubBar}>
-                    <Slider
-                        style={styles.slider}
-                        minimumValue={0}
-                        maximumValue={duration}
-                        value={currentTime}
-                        minimumTrackTintColor="#F4A672"
-                        maximumTrackTintColor="#07324A"
-                        thumbTintColor="#F4A672"
-                        onSlidingComplete={async (value) => {
-                            if (sound) await sound.setPositionAsync(value * 1000);
-                        }}
+        <>
+            {/* Fullscreen Modal for landscape */}
+            <Modal visible={isFullscreen && orientation === 'landscape'} animationType="fade" transparent={true}>
+                <View style={{ flex: 1, backgroundColor: 'black', justifyContent: 'center', alignItems: 'center' }}>
+                    {/* Overlay player UI matching attached design */}
+                    <Image
+                        source={require("@/assets/images/parent/sample-card-image.png")}
+                        style={{ position: 'absolute', width: '100%', height: '100%', resizeMode: 'cover', opacity: 0.7 }}
                     />
-                    <Text style={styles.timeText}>{formatTime(currentTime)} / {formatTime(duration)}</Text>
-                    <View style={styles.volumeBarContainer}>
-                        <Image source={require("@/assets/images/icons/volume.png")} style={styles.volumeIcon} />
+                    <View style={{ position: 'absolute', top: 40, left: 0, right: 0, alignItems: 'center' }}>
+                        <Text style={{ color: '#FFE7A0', fontWeight: 'bold', fontSize: 18 }}>KAI'S LIVING ADVENTURE</Text>
+                        <Text style={{ color: 'white', fontSize: 16, marginTop: 4 }}>
+                            #2 Petal Tales: The Search for Rainbow Flowers
+                        </Text>
+                    </View>
+                    {/* Controls row */}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 120 }}>
+                        <TouchableOpacity style={{ marginHorizontal: 20 }}>
+                            <Image source={require('@/assets/images/icons/rewind.png')} style={{ width: 60, height: 60 }} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ marginHorizontal: 20 }}>
+                            <Image source={require('@/assets/images/icons/pause.png')} style={{ width: 60, height: 60 }} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ marginHorizontal: 20 }}>
+                            <Image source={require('@/assets/images/icons/forward.png')} style={{ width: 60, height: 60 }} />
+                        </TouchableOpacity>
+                    </View>
+                    {/* Bottom bar */}
+                    <View style={{ position: 'absolute', bottom: 30, left: 20, right: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        {/* Slider */}
                         <Slider
-                            style={styles.volumeSlider}
+                            style={{ flex: 1, marginRight: 10 }}
                             minimumValue={0}
-                            maximumValue={1}
-                            value={volume}
+                            maximumValue={(track?.duration ?? 0)}
+                            value={(track?.played ?? 0)}
                             minimumTrackTintColor="#F4A672"
                             maximumTrackTintColor="#07324A"
                             thumbTintColor="#F4A672"
-                            onValueChange={handleVolumeChange}
+                            onSlidingComplete={async (value) => {
+                                if (sound) await sound.setPositionAsync(value * 1000);
+                            }}
                         />
+                        <Text style={{ color: '#FFE7A0', fontSize: 16, marginLeft: 10 }}>{formatTime((track?.played ?? 0))} / {formatTime((track?.duration ?? 0))}</Text>
+                        <TouchableOpacity style={{ marginLeft: 10 }}>
+                            <Image source={require("@/assets/images/icons/volume.png")} style={{ width: 28, height: 28, tintColor: "#FFE7A0" }} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ marginLeft: 10 }}>
+                            <Image source={require("@/assets/images/icons/expand.png")} style={{ width: 26, height: 26, tintColor: "#FFE7A0" }} />
+                        </TouchableOpacity>
                     </View>
-                    <TouchableOpacity>
-                        <Image source={require("@/assets/images/icons/expand.png")} style={styles.expandIcon} />
+                </View>
+            </Modal>
+            {/* Fullscreen Modal */}
+            <Modal visible={isFullscreen && isPlay} animationType="fade" transparent={true}>
+                <View style={{ flex: 1, backgroundColor: 'black', justifyContent: 'center', alignItems: 'center' }}>
+                    <TouchableOpacity
+                        style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}
+                        activeOpacity={0.8}
+                        onPress={async () => {
+                            if (sound && isPlay) {
+                                await sound.pauseAsync();
+                                setIsPlay(false);
+                            }
+                        }}
+                    >
+                        <Image
+                            source={require("@/assets/images/parent/sample-card-image.png")}
+                            style={{ width: '100%', aspectRatio: 16 / 9, resizeMode: 'stretch', borderColor: 'rgba(250, 248, 248, 0.2)' }}
+                        />
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+            <View style={styles.container}>
+                {/* Header */}
+                <View style={styles.header}>
+                    <Text style={styles.headerAdventure}>{story?.seriesCategory}</Text>
+                    <Text style={styles.headerTitle}>
+                        <Text style={styles.headerNumber}>#2 </Text>
+                        <Text style={styles.headerTitleItalic}>{story?.storyTitle}</Text>
+                    </Text>
+                </View>
+                {/* Image */}
+                <Image
+                    source={require("@/assets/images/parent/sample-card-image.png")} // Replace with your image
+                    style={[styles.cardImage, isFullscreen && { width: '100%', borderRadius: 0, borderWidth: 0 }]}
+                    resizeMode="cover"
+                />
+                <ThemedView style={[styles.pauseStyle, (isPlay || isFullscreen) && { display: 'none' }]}>
+                    <TouchableOpacity style={styles.continueBtn} onPress={handlePlayPause}>
+                        <Image source={require('@/assets/images/icons/icon-play.png')} />
+                        <ThemedText style={styles.btnText} >Continue</ThemedText>
+                    </TouchableOpacity>
+                </ThemedView>
+
+                {/* Player Bar */}
+                <View style={styles.playerBar}>
+
+                    <View style={styles.playerSubBar}>
+                        <Slider
+                            style={styles.slider}
+                            minimumValue={0}
+                            maximumValue={(track?.duration ?? 0)}
+                            value={(track?.played ?? 0)}
+                            minimumTrackTintColor="#F4A672"
+                            maximumTrackTintColor="#07324A"
+                            thumbTintColor="#F4A672"
+                            onSlidingComplete={async (value) => {
+                                if (sound) await sound.setPositionAsync(value * 1000);
+                            }}
+                        />
+                        <Text style={styles.timeText}>{formatTime((track?.played ?? 0))} / {formatTime((track?.duration ?? 0))}</Text>
+                        <View style={styles.volumeBarContainer}>
+                            <Image source={require("@/assets/images/icons/volume.png")} style={styles.volumeIcon} />
+                            <Slider
+                                style={styles.volumeSlider}
+                                minimumValue={0}
+                                maximumValue={1}
+                                value={volume}
+                                minimumTrackTintColor="#F4A672"
+                                maximumTrackTintColor="#07324A"
+                                thumbTintColor="#F4A672"
+                                onValueChange={handleVolumeChange}
+                            />
+                        </View>
+                        <TouchableOpacity onPress={() => setIsFullscreen(!isFullscreen)}>
+                            <Image source={isFullscreen ? require("@/assets/images/icons/shrink.png") : require("@/assets/images/icons/expand.png")} style={styles.expandIcon} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                {/* Controls */}
+                <View style={[styles.controlsRow, isFullscreen && styles.controlsRow_FS]}>
+                    <TouchableOpacity style={styles.sideButton} onPress={() => handleSeek(-10)}>
+                        <Image source={require("@/assets/images/icons/rewind.png")} style={styles.sideIcon} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.playButton} onPress={handlePlayPause}>
+                        <Image
+                            source={isPlay ? require("@/assets/images/icons/pause.png") : require("@/assets/images/icons/play.png")} style={styles.playIcon} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.sideButton} onPress={() => handleSeek(10)}>
+                        <Image source={require("@/assets/images/icons/forward.png")} style={styles.sideIcon} />
                     </TouchableOpacity>
                 </View>
             </View>
-
-            {/* Controls */}
-            <View style={styles.controlsRow}>
-                <TouchableOpacity style={styles.sideButton} onPress={() => handleSeek(-10)}>
-                    <Image source={require("@/assets/images/icons/rewind.png")} style={styles.sideIcon} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.playButton} onPress={handlePlayPause}>
-                    <Image
-                        source={isPlay ? require("@/assets/images/icons/pause.png") : require("@/assets/images/icons/play.png")} style={styles.playIcon} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.sideButton} onPress={() => handleSeek(10)}>
-                    <Image source={require("@/assets/images/icons/forward.png")} style={styles.sideIcon} />
-                </TouchableOpacity>
-            </View>
-        </View>
+        </>
     );
 }
 
@@ -238,6 +440,15 @@ const styles = StyleSheet.create({
         gap: 25,
         marginBottom: 12,
         marginTop: 6,
+    },
+    controlsRow_FS: {
+        width: '100%',
+        height: 200,
+        position: 'absolute',
+        backgroundColor: 'rgba(rgba(5, 59, 74, 0.5))',
+        top: '0%',
+        left: '0%',
+        transform: 'translate(0, 100px)',
     },
     pauseStyle: {
         width: '100%',
@@ -320,12 +531,12 @@ const styles = StyleSheet.create({
         width: 28,
         height: 28,
         tintColor: "#FFE7A0",
-        marginRight: 4,
+        marginRight: 0,
     },
     volumeBarContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        width: 100,
+        width: 110,
         marginHorizontal: 8,
     },
     volumeSlider: {

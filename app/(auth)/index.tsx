@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   illustrationWrap: {
     width: "100%",
-    height: 367,
+    flex: 1,
     position: "relative",
     display: "flex",
     justifyContent: "center",

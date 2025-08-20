@@ -1,5 +1,6 @@
-import { supabase } from "@/app/lib/supabase";
+import { getAllTracksByChildId } from "@/api/track";
 import { StoryCard } from "@/components/Cards";
+import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import React, { useEffect } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet } from "react-native";
@@ -9,35 +10,25 @@ export default function RecentLearning({ activeChild }: {
 }) {
     const [loading, setLoading] = React.useState(false);
     const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
-    const [storiesData, setStoriesData] = React.useState<any[]>([]);
+    const [recents, setRecents] = React.useState<any[]>([]);
 
     useEffect(() => {
-        // Function to fetch stories
-        console.log("recent learning::", activeChild)
-        async function fetchStories(childId: string) {
-            if (!childId) return;
+        // Function to fetch tracks for activeChild
+        const fetchRecents = async () => {
             setLoading(true);
-            const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
-            const { data, error } = await supabase.functions.invoke(`stories/children/${childId}`, {
-                headers: {
-                    Authorization: jwt ? `Bearer ${jwt}` : '',
-                    'Content-Type': 'application/json',
-                },
-            });
-            setLoading(false);
-            if (error) {
-                alert(error)
-                console.error('Error fetching stories:', error.message);
-                return;
+            try {
+                const recentsData = await getAllTracksByChildId(activeChild?.id);
+                setRecents(recentsData.slice(0,3));
+            } finally {
+                setLoading(false);
             }
-            if (data && Array.isArray(data.stories)) {
-                console.log("stories Data::", data)
-                setStoriesData(data.stories);
-            }
+        };
+        if (activeChild?.id) {
+            fetchRecents();
+        } else {
+            setRecents([]);
         }
-
-        fetchStories(activeChild?.id);
-    }, [activeChild])
+    }, [activeChild]);
     return (
         <>
             {loading ? (
@@ -46,6 +37,7 @@ export default function RecentLearning({ activeChild }: {
                     marginBottom: 50,
                 }} />
             ) :
+                recents.length > 0 ?
                 <ThemedView>
                     <ScrollView
                         horizontal
@@ -59,15 +51,15 @@ export default function RecentLearning({ activeChild }: {
                         scrollEventThrottle={16}
                         contentContainerStyle={styles.cardScrollContainer}
                     >
-                        {storiesData
+                        {recents
                             // .filter((ele) => !ele.watched)
                             .map((item, idx) => (
-                                <StoryCard key={idx} num={idx + 1} story={item} />
+                                <StoryCard key={idx} num={idx + 1} recent={item} />
                             ))}
                     </ScrollView>
                     {/* Pagination Dots */}
                     <ThemedView style={styles.pagination}>
-                        {storiesData.map((_, idx) => (
+                        {recents.map((_, idx) => (
                             <ThemedView
                                 key={idx}
                                 style={[
@@ -77,6 +69,10 @@ export default function RecentLearning({ activeChild }: {
                             />
                         ))}
                     </ThemedView>
+                </ThemedView>
+                :
+                <ThemedView style={{flexDirection: 'row', width: '100%', marginVertical: 20, justifyContent: 'center'}}>
+                    <ThemedText style={{color: '#ffffff7a'}}> no recent data </ThemedText>
                 </ThemedView>
             }
         </>
