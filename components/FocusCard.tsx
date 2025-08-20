@@ -55,12 +55,12 @@ export function FocusCard({ focus, handleEditButton, handleViewButton }: { focus
                         <ThemedText style={styles.lengthText}>{formattedDate}</ThemedText>
                     </ThemedView>
                     <ThemedView style={styles.flexRow}>
-                        <TouchableOpacity
+                        {/* <TouchableOpacity
                             style={styles.iconBtn}
                             onPress={() => handleEditButton(focus.id)}
                         >
                             <Image source={editIcon} tintColor={'rgba(122, 193, 198, 1)'}></Image>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                         <ThemedText style={{ color: 'rgba(122, 193, 198, 0.5)' }}> | </ThemedText>
                         <TouchableOpacity
                             style={[styles.iconBtn, styles.iconBtnCircle]}
@@ -149,9 +149,9 @@ export function FocusDetailedCard({ focus }: { focus: any }) {
                                 </ThemedText>
                             </ThemedView>
                             <ThemedView style={styles.flexRow}>
-                                <TouchableOpacity style={styles.iconBtn}>
+                                {/* <TouchableOpacity style={styles.iconBtn}>
                                     <Image source={editIcon} tintColor={'rgba(122, 193, 198, 1)'}></Image>
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                                 <ThemedText style={{ color: 'rgba(122, 193, 198, 0.5)' }}> | </ThemedText>
                                 <TouchableOpacity
                                     onPress={handleBack}
@@ -360,12 +360,12 @@ export function FocusEditCard({ focus }: { focus: any }) {
                                 ) : (
                                     <ThemedText style={styles.lengthLabel}>{name}</ThemedText>
                                 )}
-                                <TouchableOpacity
+                                {/* <TouchableOpacity
                                     style={styles.iconBtn}
                                     onPress={() => setEditName(true)}
                                 >
                                     <Image source={editIcon} tintColor={'rgba(122, 193, 198, 1)'}></Image>
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                             </ThemedView>
                         </ThemedView>
                         <ThemedView style={[styles.flexRow, { justifyContent: 'space-between' }]} >

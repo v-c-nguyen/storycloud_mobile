@@ -7,7 +7,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { useNavigation } from '@react-navigation/native';
 import { Stack, useRouter } from "expo-router";
 import React from 'react';
-import { FlatList, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
 const billingData = [
     {
@@ -48,9 +48,11 @@ const Billing = () => {
     const router = useRouter();
     const [activeTab, setActiveTab] = React.useState('billing');
     const [activeItem, setActiveItem] = React.useState('account');
+
     const handleTabPress = (tabId: string) => {
-        console.log("tabId:", tabId)
         setActiveItem(tabId);
+        if (tabId === 'account') handleItemProcess('billing');
+        else if (tabId === 'content') router.navigate("/(parent)/(profiles)/(content)");
     };
 
     const handleItemProcess = (item: string) => {
@@ -130,7 +132,10 @@ const Billing = () => {
                             <ThemedView style={styles.card}>
                                 <ThemedView style={styles.rowBetween}>
                                     <ThemedText style={styles.label}>Plan</ThemedText>
-                                    <ThemedView style={[styles.value, { flexDirection: 'row' }]}>StoryCloud <ThemedText> | Classroom</ThemedText></ThemedView>
+                                    <ThemedView style={[styles.value, {flexDirection: 'row'}]}>
+                                        <ThemedText style={styles.value}> StoryCloud</ThemedText>
+                                        <ThemedText style={styles.value}> | Classroom</ThemedText>
+                                    </ThemedView>
                                 </ThemedView>
                                 <ThemedView style={styles.rowBetween}>
                                     <ThemedText style={styles.label}>Billing Cycle</ThemedText>
@@ -149,7 +154,7 @@ const Billing = () => {
                             {/* Payment Method */}
                             <ThemedView style={[styles.flexRow]}>
                                 <ThemedText style={styles.sectionTitle}>Payment Method</ThemedText>
-                                <Image source={stripeIcon} style={[styles.icon24, {marginBottom: 30}]}></Image>
+                                <Image source={stripeIcon} style={[styles.icon24, { marginBottom: 30 }]}></Image>
                             </ThemedView>
                             <ThemedView style={styles.card}>
                                 <ThemedView style={styles.cardRow}>
@@ -161,10 +166,10 @@ const Billing = () => {
                                         <ThemedText style={[styles.cardText, { fontWeight: 700 }]}>MasterCard</ThemedText>
                                         <ThemedText style={styles.cardText}>**** 3425</ThemedText>
                                     </ThemedView>
-                                        <TouchableOpacity style={styles.changeButton} onPress={() => router.push('./PaymentMethod')}>
-                                            <Image source={refreshIcon} />
-                                            <ThemedText style={styles.changeBtnText}>Change</ThemedText>
-                                        </TouchableOpacity>
+                                    <TouchableOpacity style={styles.changeButton} onPress={() => router.push('./PaymentMethod')}>
+                                        <Image source={refreshIcon} />
+                                        <ThemedText style={styles.changeBtnText}>Change</ThemedText>
+                                    </TouchableOpacity>
                                 </ThemedView>
                                 <ThemedText style={styles.cardExpiry}>02/26</ThemedText>
                             </ThemedView>
@@ -180,31 +185,32 @@ const Billing = () => {
                                     <Image source={swapIcon}></Image>
                                 </ThemedView>
                             </ThemedView>
-                            <FlatList
-                                data={billingData}
-                                style={styles.billingContainer}
-                                keyExtractor={(item) => item.id}
-                                renderItem={({ item }) => (
-                                    <ThemedView style={styles.billingCard}>
-                                        <ThemedView style={styles.details}>
-                                            <ThemedView style={styles.firstrow}>
-                                                <ThemedText style={styles.title}>
-                                                    {item.product} <ThemedText style={styles.pipe}>| {item.category}</ThemedText>
-                                                </ThemedText>
-                                                <Image source={downloadIcon}></Image>
-                                            </ThemedView>
-                                            <ThemedView style={styles.secondrow}>
-                                                <ThemedText style={styles.sub}>{item.price}</ThemedText>
-                                                <ThemedText style={styles.sub}>{item.date}</ThemedText>
-                                                <ThemedView style={styles.status}>
-                                                    <Image source={tickIcon}></Image>
-                                                    <ThemedText style={styles.statusText}>{item.status}</ThemedText>
+
+                            <ThemedView style={styles.billingContainer}>
+                                {
+                                    billingData && billingData.map((item, index) => (
+                                        <ThemedView key={index} style={styles.billingCard}>
+                                            <ThemedView style={styles.details}>
+                                                <ThemedView style={styles.firstrow}>
+                                                    <ThemedText style={styles.title}>
+                                                        {item.product} <ThemedText style={styles.pipe}>| {item.category}</ThemedText>
+                                                    </ThemedText>
+                                                    <Image source={downloadIcon}></Image>
+                                                </ThemedView>
+                                                <ThemedView style={styles.secondrow}>
+                                                    <ThemedText style={styles.sub}>{item.price}</ThemedText>
+                                                    <ThemedText style={styles.sub}>{item.date}</ThemedText>
+                                                    <ThemedView style={styles.status}>
+                                                        <Image source={tickIcon}></Image>
+                                                        <ThemedText style={styles.statusText}>{item.status}</ThemedText>
+                                                    </ThemedView>
                                                 </ThemedView>
                                             </ThemedView>
                                         </ThemedView>
-                                    </ThemedView>
-                                )}
-                            />
+                                    ))
+                                }
+                            </ThemedView>
+
                         </ScrollView>
 
                     </ThemedView>
@@ -233,7 +239,7 @@ const styles = StyleSheet.create({
         position: "relative",
     },
     imgCloudFar: {
-        width: '100%',
+        width: '110%',
         height: '100%',
         position: "absolute",
         top: 0,
@@ -241,7 +247,7 @@ const styles = StyleSheet.create({
         zIndex: -100,
     },
     imgCloudNear: {
-        width: '100%',
+        width: '110%',
         height: '100%',
         position: "absolute",
         top: 42,

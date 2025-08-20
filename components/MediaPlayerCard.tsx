@@ -1,4 +1,6 @@
 import { supabase } from '@/app/lib/supabase';
+import { useStoryStore } from '@/store/storyStore';
+import { useTrackStore } from '@/store/trackStore';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
 import React, { useEffect, useRef, useState } from "react";
@@ -9,22 +11,23 @@ import { ThemedView } from "./ThemedView";
 const { width } = Dimensions.get("window");
 
 type MediaPlayerCardProps = {
-    story: any;
     activeChild: any;
     onAudioEnd: () => void;
 };
 
-export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: MediaPlayerCardProps) {
+export default function MediaPlayerCard({activeChild, onAudioEnd }: MediaPlayerCardProps) {
     // Flag to ignore first playback status update after seek
     const firstStatusUpdate = useRef(true);
     // Track state
-    const [watched, setWatched] = useState(false);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [isPlay, setIsPlay] = useState(false);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [duration, setDuration] = useState(1);
-    const [played, setPlayed] = useState(0);
     const [volume, setVolume] = useState(1);
+    const track = useTrackStore(state => state.activeTrack);
+    const setActiveTrack = useTrackStore(state => state.setActiveTrack)
+    const setPlayed = useTrackStore(state => state.setPlayed)
+    const setDuration = useTrackStore(state => state.setDuration)
+    const setWatched = useTrackStore(state => state.setWatched)
+    const story = useStoryStore((state) => state.listeningStory)
     // Fullscreen state
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
@@ -45,11 +48,6 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
 
     // Fetch track info and set playback state
     useEffect(() => {
-        // If watched is true, set audio as finished
-        if (watched && duration > 0) {
-            setCurrentTime(duration);
-            setIsPlay(false);
-        }
         async function fetchTrack() {
             if (!story?.storyId || !activeChild?.id) return;
             try {
@@ -63,20 +61,42 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
                     body: JSON.stringify({ storyId: story.storyId, childId: activeChild.id })
                 });
                 const result = await response.json();
+                let trackData;
                 if (response.ok && result.data) {
-                    const { played, duration, watched } = result.data;
-                    setWatched(!!watched);
-                    setPlayed(played);
-                    await loadAudio(story ? story.audio_s_2_5 : '', played || 0);
+                    trackData = {
+                        storyId: story.storyId,
+                        childId: activeChild.id,
+                        played: result.data.played,
+                        duration: result.data.duration,
+                        watched: !!result.data.watched,
+                        audioUrl: story.audio_s_2_5
+                    };
                 } else {
-                    // No track info found, load audio with defaults
-                    setWatched(false);
-                    setPlayed(0);
-                    await loadAudio(story ? story.audio_s_2_5 : '', 0);
+                    trackData = {
+                        storyId: story.storyId,
+                        childId: activeChild.id,
+                        played: 0,
+                        duration: 1,
+                        watched: false,
+                        audioUrl: story.audio_s_2_5
+                    };
                 }
+                setActiveTrack(trackData);
+                console.log(trackData, trackData.audioUrl)
+                await loadAudio(trackData.audioUrl ?? '', trackData.played || 0);
             } catch (e) {
                 // On error, still load audio with defaults
                 console.error('Failed to fetch track info', e);
+                const fallbackTrack = {
+                    storyId: story?.storyId || '',
+                    childId: activeChild?.id || '',
+                    played: 0,
+                    duration: 1,
+                    watched: false,
+                    audioUrl: story ? story.audio_s_2_5 : ''
+                };
+                setActiveTrack(fallbackTrack);
+                await loadAudio(fallbackTrack.audioUrl ?? '', 0);
             }
         }
         fetchTrack();
@@ -126,7 +146,7 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
             }
             // If finished, set watched=true in DB
             if (finished) {
-                await fetch('https://fzmutsehqndgqwprkxrm.supabase.co/functions/v1/track' + story.id, {
+                await fetch('https://fzmutsehqndgqwprkxrm.supabase.co/functions/v1/track' + story.storyId, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -154,7 +174,7 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
                 // Seek to played position if available
                 if (played > 0) {
                     await playbackObject.setPositionAsync(played * 1000);
-                    setCurrentTime(played);
+                    setPlayed(played);
                     firstStatusUpdate.current = true; // Reset flag for next load
                 }
             }
@@ -164,10 +184,9 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
     }
 
     function onPlaybackStatusUpdate(status: any) {
-        console.log("Play function called=========================")
         if (status.isLoaded) {
             // Ignore the first status update after seek
-            setCurrentTime(status.positionMillis / 1000);
+            setPlayed(status.positionMillis / 1000);
             setDuration(status.durationMillis ? status.durationMillis / 1000 : 1);
             setIsPlay(status.isPlaying);
             // Track progress when paused
@@ -195,11 +214,12 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
 
     const handleSeek = async (seconds: number) => {
         if (!sound) return;
-        let newTime = currentTime + seconds;
+        let newTime = (track?.played ?? 0) + seconds;
         if (newTime < 0) newTime = 0;
-        if (newTime > duration) newTime = duration;
+        if (newTime > (track?.duration ?? 0)) newTime = (track?.duration ?? 0);
         await sound.setPositionAsync(newTime * 1000);
     };
+
 
     // Volume control
     const handleVolumeChange = (value: number) => {
@@ -247,8 +267,8 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
                         <Slider
                             style={{ flex: 1, marginRight: 10 }}
                             minimumValue={0}
-                            maximumValue={duration}
-                            value={currentTime}
+                            maximumValue={(track?.duration ?? 0)}
+                            value={(track?.played ?? 0)}
                             minimumTrackTintColor="#F4A672"
                             maximumTrackTintColor="#07324A"
                             thumbTintColor="#F4A672"
@@ -256,7 +276,7 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
                                 if (sound) await sound.setPositionAsync(value * 1000);
                             }}
                         />
-                        <Text style={{ color: '#FFE7A0', fontSize: 16, marginLeft: 10 }}>{formatTime(currentTime)} / {formatTime(duration)}</Text>
+                        <Text style={{ color: '#FFE7A0', fontSize: 16, marginLeft: 10 }}>{formatTime((track?.played ?? 0))} / {formatTime((track?.duration ?? 0))}</Text>
                         <TouchableOpacity style={{ marginLeft: 10 }}>
                             <Image source={require("@/assets/images/icons/volume.png")} style={{ width: 28, height: 28, tintColor: "#FFE7A0" }} />
                         </TouchableOpacity>
@@ -281,7 +301,7 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
                     >
                         <Image
                             source={require("@/assets/images/parent/sample-card-image.png")}
-                            style={{ width: '100%', aspectRatio: 16/9, resizeMode: 'stretch', borderColor: 'rgba(250, 248, 248, 0.2)' }}
+                            style={{ width: '100%', aspectRatio: 16 / 9, resizeMode: 'stretch', borderColor: 'rgba(250, 248, 248, 0.2)' }}
                         />
                     </TouchableOpacity>
                 </View>
@@ -298,7 +318,7 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
                 {/* Image */}
                 <Image
                     source={require("@/assets/images/parent/sample-card-image.png")} // Replace with your image
-                    style={[styles.cardImage, isFullscreen && {width: '100%', borderRadius: 0, borderWidth: 0}]}
+                    style={[styles.cardImage, isFullscreen && { width: '100%', borderRadius: 0, borderWidth: 0 }]}
                     resizeMode="cover"
                 />
                 <ThemedView style={[styles.pauseStyle, (isPlay || isFullscreen) && { display: 'none' }]}>
@@ -315,8 +335,8 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
                         <Slider
                             style={styles.slider}
                             minimumValue={0}
-                            maximumValue={duration}
-                            value={currentTime}
+                            maximumValue={(track?.duration ?? 0)}
+                            value={(track?.played ?? 0)}
                             minimumTrackTintColor="#F4A672"
                             maximumTrackTintColor="#07324A"
                             thumbTintColor="#F4A672"
@@ -324,7 +344,7 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
                                 if (sound) await sound.setPositionAsync(value * 1000);
                             }}
                         />
-                        <Text style={styles.timeText}>{formatTime(currentTime)} / {formatTime(duration)}</Text>
+                        <Text style={styles.timeText}>{formatTime((track?.played ?? 0))} / {formatTime((track?.duration ?? 0))}</Text>
                         <View style={styles.volumeBarContainer}>
                             <Image source={require("@/assets/images/icons/volume.png")} style={styles.volumeIcon} />
                             <Slider
@@ -345,7 +365,7 @@ export default function MediaPlayerCard({ story, activeChild, onAudioEnd }: Medi
                 </View>
 
                 {/* Controls */}
-                <View style={[styles.controlsRow,  isFullscreen && styles.controlsRow_FS]}>
+                <View style={[styles.controlsRow, isFullscreen && styles.controlsRow_FS]}>
                     <TouchableOpacity style={styles.sideButton} onPress={() => handleSeek(-10)}>
                         <Image source={require("@/assets/images/icons/rewind.png")} style={styles.sideIcon} />
                     </TouchableOpacity>

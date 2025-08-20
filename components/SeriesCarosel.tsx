@@ -81,7 +81,7 @@ export default function SeriesCarousel({ mode, activeChild, setActiveStoryId }: 
 
     useEffect(() => {
         // Function to fetch stories
-        
+
         const fetchRecents = async () => {
             setLoading(true);
             try {
@@ -129,7 +129,7 @@ export default function SeriesCarousel({ mode, activeChild, setActiveStoryId }: 
             const newIndex = activeIndex + 1;
             flatListRef.current?.scrollToIndex({ index: newIndex, animated: true });
             setActiveIndex(newIndex);
-            
+
             setActiveStoryId(recents[newIndex].stories.storyId);
         }
     };
@@ -153,108 +153,113 @@ export default function SeriesCarousel({ mode, activeChild, setActiveStoryId }: 
             {loading ? (
                 <ActivityIndicator color="#ffffff" style={{ zIndex: 999, marginVertical: 50 }} />
             ) : (
-                <ThemedView style={styles.container}>
-                    <FlatList
-                        ref={flatListRef}
-                        data={recents}
-                        keyExtractor={(_, idx) => idx.toString()}
-                        horizontal
-                        pagingEnabled
-                        showsHorizontalScrollIndicator={false}
-                        onScroll={handleScroll}
-                        scrollEventThrottle={16}
-                        renderItem={({ item, index }) => (
-                            <ThemedView style={styles.card}>
-                                {/* Top number circle */}
-                                <ThemedView style={{ paddingHorizontal: 16 }}>
-                                    <ThemedView style={styles.topCircle}>
-                                        <ThemedText style={styles.topCircleText}>{index + 1}</ThemedText>
-                                    </ThemedView>
-                                    {/* Adventure Title */}
-
-                                    <ThemedText style={styles.adventureHeader}>{item?.stories?.seriesCategory}</ThemedText>
-                                    {/* Main Title */}
-                                    <ThemedText style={styles.mainTitle}>{item?.stories?.storyTitle}</ThemedText>
-                                    {/* Subtitle */}
-                                    <ThemedText style={styles.subtitle}>{item?.stories?.descriptionParent}</ThemedText>
-                                </ThemedView>
-                                {/* Image with play button and balloon */}
-                                <ThemedView style={{ width: '100%', height: 250 }}>
-                                    <ThemedView style={styles.imageWrap}>
-                                        <Image source={item?.stories?.image ?? require('@/assets/images/parent/sample-card-image.png')} style={styles.cardImage} resizeMode="cover" />
-                                        <ThemedView style={styles.overlayBalloon}>
-                                            <Image source={require('@/assets/images/parent/balloon.png')} style={styles.balloonIcon} />
+                recents.length > 0 ?
+                    <ThemedView style={styles.container}>
+                        <FlatList
+                            ref={flatListRef}
+                            data={recents}
+                            keyExtractor={(_, idx) => idx.toString()}
+                            horizontal
+                            pagingEnabled
+                            showsHorizontalScrollIndicator={false}
+                            onScroll={handleScroll}
+                            scrollEventThrottle={16}
+                            renderItem={({ item, index }) => (
+                                <ThemedView style={styles.card}>
+                                    {/* Top number circle */}
+                                    <ThemedView style={{ paddingHorizontal: 16 }}>
+                                        <ThemedView style={styles.topCircle}>
+                                            <ThemedText style={styles.topCircleText}>{index + 1}</ThemedText>
                                         </ThemedView>
-                                        <TouchableOpacity style={styles.playButton} onPress={() => handlePlayButton(item.stories.storyId)}>
-                                            <Image source={require('@/assets/images/parent/play.png')} style={styles.playIcon} />
-                                        </TouchableOpacity>
-                                    </ThemedView>
-                                    {/* Time Selection */}
-                                    <ThemedView style={styles.timeBar}>
-                                        <ThemedView style={{ width: '100%' }}>
-                                            {item.watched ? (
-                                                <ThemedView style={styles.progressRow}>
-                                                    <ThemedView style={{ width: '90%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                                                        <Image
-                                                            source={require('@/assets/images/kid/icon-check.png')}
-                                                            resizeMode="cover"
-                                                            style={[styles.checkIcon, { tintColor: `${cardStyles[1].textColor}` }]}
-                                                        />
-                                                        <ThemedText style={[styles.storyTime, { color: cardStyles[1].textColor }]}>Watched</ThemedText>
+                                        {/* Adventure Title */}
 
-                                                        <ThemedView style={[
-                                                            styles.progressBarFilled,
-                                                            { borderColor: cardStyles[1].textColor, backgroundColor: cardStyles[1].progressColor, flex: 1 }
-                                                        ]} />
-                                                    </ThemedView>
-                                                </ThemedView>
-                                            ) : (
-                                                <ThemedView style={styles.progressRow}>
-                                                    <ThemedView style={{ width: '90%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                                                        <ThemedText style={[styles.storyTime, { color: cardStyles[1].textColor }]}>{FromSec(item.played)}</ThemedText>
-                                                        <ThemedView style={styles.progressBarWrap}>
+                                        <ThemedText style={styles.adventureHeader}>{item?.stories?.seriesCategory}</ThemedText>
+                                        {/* Main Title */}
+                                        <ThemedText style={styles.mainTitle}>{item?.stories?.storyTitle}</ThemedText>
+                                        {/* Subtitle */}
+                                        <ThemedText style={styles.subtitle}>{item?.stories?.descriptionParent}</ThemedText>
+                                    </ThemedView>
+                                    {/* Image with play button and balloon */}
+                                    <ThemedView style={{ width: '100%', height: 250 }}>
+                                        <ThemedView style={styles.imageWrap}>
+                                            <Image source={item?.stories?.image ?? require('@/assets/images/parent/sample-card-image.png')} style={styles.cardImage} resizeMode="cover" />
+                                            <ThemedView style={styles.overlayBalloon}>
+                                                <Image source={require('@/assets/images/parent/balloon.png')} style={styles.balloonIcon} />
+                                            </ThemedView>
+                                            <TouchableOpacity style={styles.playButton} onPress={() => handlePlayButton(item.stories.storyId)}>
+                                                <Image source={require('@/assets/images/parent/play.png')} style={styles.playIcon} />
+                                            </TouchableOpacity>
+                                        </ThemedView>
+                                        {/* Time Selection */}
+                                        <ThemedView style={styles.timeBar}>
+                                            <ThemedView style={{ width: '100%' }}>
+                                                {item.watched ? (
+                                                    <ThemedView style={styles.progressRow}>
+                                                        <ThemedView style={{ width: '90%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                                                            <Image
+                                                                source={require('@/assets/images/kid/icon-check.png')}
+                                                                resizeMode="cover"
+                                                                style={[styles.checkIcon, { tintColor: `${cardStyles[1].textColor}` }]}
+                                                            />
+                                                            <ThemedText style={[styles.storyTime, { color: cardStyles[1].textColor }]}>Watched</ThemedText>
+
                                                             <ThemedView style={[
                                                                 styles.progressBarFilled,
-                                                                { borderColor: cardStyles[1].textColor, backgroundColor: cardStyles[1].progressColor, width: `${(item.played ?? 0) * 100 / (item.duration ?? 1)}%` }
-                                                            ]} />
-                                                            <ThemedView style={[
-                                                                styles.progressBarOutline,
-                                                                { borderColor: cardStyles[1].textColor, backgroundColor: cardStyles[1].bgColor, width: `${100 - (item.played ?? 0) * 100 / (item.duration ?? 1)}%` }
+                                                                { borderColor: cardStyles[1].textColor, backgroundColor: cardStyles[1].progressColor, flex: 1 }
                                                             ]} />
                                                         </ThemedView>
-                                                        <ThemedText style={[styles.storyTime, { color: cardStyles[1].textColor }]}>{FromSec((item.duration ?? 0) - (item.played ?? 0))}</ThemedText>
                                                     </ThemedView>
-                                                </ThemedView>
-                                            )}
+                                                ) : (
+                                                    <ThemedView style={styles.progressRow}>
+                                                        <ThemedView style={{ width: '90%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                                                            <ThemedText style={[styles.storyTime, { color: cardStyles[1].textColor }]}>{FromSec(item.played)}</ThemedText>
+                                                            <ThemedView style={styles.progressBarWrap}>
+                                                                <ThemedView style={[
+                                                                    styles.progressBarFilled,
+                                                                    { borderColor: cardStyles[1].textColor, backgroundColor: cardStyles[1].progressColor, width: `${(item.played ?? 0) * 100 / (item.duration ?? 1)}%` }
+                                                                ]} />
+                                                                <ThemedView style={[
+                                                                    styles.progressBarOutline,
+                                                                    { borderColor: cardStyles[1].textColor, backgroundColor: cardStyles[1].bgColor, width: `${100 - (item.played ?? 0) * 100 / (item.duration ?? 1)}%` }
+                                                                ]} />
+                                                            </ThemedView>
+                                                            <ThemedText style={[styles.storyTime, { color: cardStyles[1].textColor }]}>{FromSec((item.duration ?? 0) - (item.played ?? 0))}</ThemedText>
+                                                        </ThemedView>
+                                                    </ThemedView>
+                                                )}
+                                            </ThemedView>
                                         </ThemedView>
                                     </ThemedView>
                                 </ThemedView>
-                            </ThemedView>
-                        )}
-                    />
+                            )}
+                        />
 
-                    {/* Dots */}
-                    <ThemedView style={styles.cardFooter}>
-                        <TouchableOpacity onPress={handleLeftArrow}>
-                            <Image source={require('@/assets/images/icons/arrow-left.png')} style={styles.leftBtn} />
-                        </TouchableOpacity>
-                        <ThemedView style={styles.dotsWrap}>
-                            {recents.map((_, idx) => (
-                                <TouchableOpacity key={idx} onPress={() => handleDotPress(idx)}>
-                                    <ThemedView
-                                        style={[
-                                            styles.dot,
-                                            activeIndex === idx && styles.dotActive,
-                                        ]}
-                                    />
-                                </TouchableOpacity>
-                            ))}
+                        {/* Dots */}
+                        <ThemedView style={styles.cardFooter}>
+                            <TouchableOpacity onPress={handleLeftArrow}>
+                                <Image source={require('@/assets/images/icons/arrow-left.png')} style={styles.leftBtn} />
+                            </TouchableOpacity>
+                            <ThemedView style={styles.dotsWrap}>
+                                {recents.map((_, idx) => (
+                                    <TouchableOpacity key={idx} onPress={() => handleDotPress(idx)}>
+                                        <ThemedView
+                                            style={[
+                                                styles.dot,
+                                                activeIndex === idx && styles.dotActive,
+                                            ]}
+                                        />
+                                    </TouchableOpacity>
+                                ))}
+                            </ThemedView>
+                            <TouchableOpacity onPress={handleRightArrow}>
+                                <Image source={require('@/assets/images/icons/arrow-right.png')} style={styles.rightBtn} />
+                            </TouchableOpacity>
                         </ThemedView>
-                        <TouchableOpacity onPress={handleRightArrow}>
-                            <Image source={require('@/assets/images/icons/arrow-right.png')} style={styles.rightBtn} />
-                        </TouchableOpacity>
                     </ThemedView>
-                </ThemedView>
+                    :
+                    <ThemedView style={{ flexDirection: 'row', width: '100%', marginVertical: 30, justifyContent: 'center' }}>
+                        <ThemedText style={{ color: '#ffffff7a' }}> no recent data </ThemedText>
+                    </ThemedView>
             )
             }
         </ThemedView>

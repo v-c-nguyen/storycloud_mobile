@@ -1,7 +1,7 @@
 import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
-import { SeriesCard, StoryCard2 } from "@/components/Cards";
 import Header from "@/components/Header";
+import SeriesListWithBadge from "@/components/parent/learning/library/SeriesListWithBadge";
 import { PatternBackground } from "@/components/PatternBackground";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -15,8 +15,7 @@ import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
-  View,
+  TouchableOpacity
 } from "react-native";
 
 const seriesData = [
@@ -184,7 +183,7 @@ export default function SeriesLibrary() {
 
             {/* Header */}
             <ThemedView style={styles.topRow}>
-              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('./(parent)/search-screen')}>
+              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/(parent)/search-screen')}>
                 <Image source={searchIcon} tintColor={'white'} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>
@@ -250,116 +249,12 @@ export default function SeriesLibrary() {
                 </ThemedView>
               </TouchableOpacity>
             </Modal>
-            {selectedSeries ? (
-              <ThemedView style={styles.selectionContainer}>
-                <View style={styles.detailsSection}>
-                  <View style={styles.selectionHeaderRow}>
-                    <View>
-                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleLarge , {lineHeight: 40}]}>{selectedSeries}</ThemedText>
-                      <ThemedText style={[styles.sectionTitle, styles.selectionTitleSmall]}>{"Brand new stories and fun"}</ThemedText>
-                    </View>
-                    <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedSeries(null)}>
-                      <Image
-                        source={require("@/assets/images/kid/arrow-down.png")}
-                        style={styles.closeArrow}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.statsContainer}>
-                    <ThemedText style={styles.statsText}>
-                      ALL
-                    </ThemedText>
-                    <View style={styles.divider} />
-                    <View style={styles.statsIconContainer}>
-                      <Image
-                        source={require("@/assets/images/kid/icon-check.png")}
-                        style={styles.statsIcon}
-                        resizeMode="contain"
-                      />
-                      <ThemedText style={styles.statsTextOrange}>
-                        10 SERIES
-                      </ThemedText>
-                    </View>
-                    <View style={styles.divider} />
-                    <ThemedText style={styles.statsText}>
-                      101 STORIES
-                    </ThemedText>
-                  </View>
-                </View>
-                <ScrollView
-                  horizontal={false}
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContent}
-                >
-                  {storiesData
-                    .filter((ele) => !ele.watched)
-                    .map((item, idx) => (
-                      <TouchableOpacity key={idx} activeOpacity={0.9} onPress={() => { router.push(`./details-screen?from=Series`) }}>
-                        <StoryCard2 {...item} />
-                      </TouchableOpacity>
-                    ))}
-                </ScrollView>
-              </ThemedView>
-            ) : (
-              <ThemedView style={styles.bottomPadding}>
-                {/* Featured Series */}
-                <View style={styles.headerTitleContainer}>
-                  <SectionHeader title="Featured Series" desc="Popular series loved by kids" link="continue" />
-                  <TouchableOpacity
-                    onPress={() => handleStoryItem("Featured Series")}
-                  >
-                    <Image
-                      source={require("@/assets/images/kid/arrow-right.png")}
-                      style={styles.arrowIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                >
-                  {seriesData.map((item, idx) => (
-                    <SeriesCard key={idx} {...item} />
-                  ))}
-                </ScrollView>
 
-                {/* New Series */}
-                <View style={styles.headerTitleContainer}>
-                  <SectionHeader title="New Series" desc="Fresh adventures to explore" link="continue" />
-                  <TouchableOpacity
-                    onPress={() => handleStoryItem("New Series")}
-                  >
-                    <Image
-                      source={require("@/assets/images/kid/arrow-right.png")}
-                      style={styles.arrowIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                >
-                  {seriesData.slice(0, 3).map((item, idx) => (
-                    <SeriesCard key={idx} {...item} />
-                  ))}
-                </ScrollView>
-
-                {/* All Series */}
-                <SectionHeader title="All Series" desc="Complete collection of series" link="continue" />
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                >
-                  {seriesData.map((item, idx) => (
-                    <SeriesCard key={idx} {...item} />
-                  ))}
-                </ScrollView>
-              </ThemedView>
-            )}
+            <ThemedView style={styles.bottomPadding}>
+                  <SeriesListWithBadge seriesCategories={categories} selectedSeries={selectedSeries} setSelectedSeries={setSelectedSeries} />
+           </ThemedView>
           </ScrollView>
+
 
           {/* Sticky Bottom Navigation */}
           <ThemedView

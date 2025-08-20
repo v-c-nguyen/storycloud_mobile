@@ -9,11 +9,12 @@ export default function ParentLayout() {
   return (
     <Stack
     >
-      <Stack.Screen name='search-screen' />
       <Stack.Screen name="(dashboard)" options={{ headerShown: false }}/>
       <Stack.Screen name="(learning)" options={{ headerShown: false }}/>
       <Stack.Screen name="(listen)" options={{ headerShown: false }}/>
       <Stack.Screen name="(profiles)" options={{ headerShown: false }}/>
+      
+      <Stack.Screen name='search-screen' />
     </Stack>
   );
 }

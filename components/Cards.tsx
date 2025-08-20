@@ -472,7 +472,7 @@ export function StoryCard2({
     }
   };
   return (
-    <ThemedView style={[styles.storyCard, { backgroundColor: bgColor }]}>
+    <ThemedView style={[styles.storyCard2, { backgroundColor: bgColor }]}>
       <ThemedView style={styles.storyCardTopRow}>
         <ThemedText style={[styles.storyNumber, { color: textColor }]}>#{number}</ThemedText>
         <ThemedText style={[styles.storyLabel, { color: textColor }]}>Story</ThemedText>
@@ -487,7 +487,7 @@ export function StoryCard2({
         }
       </ThemedView>
       <ThemedText style={[styles.storySeries, { color: subTextColor }]}>{seriesTitle}</ThemedText>
-      <ThemedText style={[styles.storyTitle, { color: textColor }]}>{storyTitle}</ThemedText>
+      <ThemedText style={[styles.storyTitle2, { color: textColor }]}>{storyTitle}</ThemedText>
       <ThemedView style={styles.storyImageWrap}>
         {image && (<Image source={imageGen(image)} style={styles.storyImage} />)}
         <TouchableOpacity style={styles.storyPlayBtn}>
@@ -589,12 +589,71 @@ export function SeriesCard({ title, count, image, isFavorite }: SeriesInterface)
   );
 }
 
+
+interface SeriesInterface2 {
+  name: string,
+  episode_count: number,
+  image: string,
+  isFavorite: boolean
+}
+export function SeriesCard2({ name, episode_count, image, isFavorite }: SeriesInterface2) {
+  const imageGen = (img: string) => {
+    switch (img) {
+      case "1":
+        return require('@/assets/images/kid/series-back-1.png');
+      case "2":
+        return require('@/assets/images/kid/series-back-2.png');
+      case "3":
+        return require('@/assets/images/kid/series-back-3.png');
+      case "4":
+        return require('@/assets/images/kid/series-back-4.png');
+      case "5":
+        return require('@/assets/images/kid/series-back-5.png');
+      default:
+        return null;
+    }
+  };
+  return (
+    <ThemedView style={styles.seriesCard}>
+      <ThemedView style={styles.favActiveCircle}></ThemedView>
+      {isFavorite && (
+        <Image
+          source={require('@/assets/images/kid/icon-heart.png')}
+          style={[styles.storyFavIcon, { position: 'absolute', top: 20, right: 22 }]}
+        />
+      )}
+      <ThemedText style={styles.seriesLabel}>Series</ThemedText>
+
+      <ThemedText style={styles.seriesTitle}>{name}</ThemedText>
+      <Image source={imageGen('1')} style={styles.seriesImage} />
+      <ThemedText style={styles.seriesCount}>{episode_count} Stories</ThemedText>
+    </ThemedView>
+  );
+}
+
 const styles = StyleSheet.create({
   // Card styles for StoryCard and SeriesCard
   storyCard: {
     width: 290,
     borderRadius: 10,
     height: '100%',
+    padding: 0,
+    marginHorizontal: 5,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
+    justifyContent: "flex-start",
+    backgroundColor: "#fff",
+    borderColor: '#add7da38',
+    borderWidth: 1,
+    marginBottom: 8,
+    position: 'relative',
+    display: 'flex'
+  },
+  storyCard2: {
+    width: 290,
+    borderRadius: 10,
     padding: 0,
     marginHorizontal: 5,
     shadowColor: "#000",
@@ -682,6 +741,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     flexGrow: 1
+  },
+
+
+  storyTitle2: {
+    fontSize: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontStyle: 'italic',
+    fontWeight: '700',
+    textAlign: 'center',
+    lineHeight: 24,
+    flexGrow: 1,
+    marginBottom: 30
   },
   progressRow: {
     width: '100%',

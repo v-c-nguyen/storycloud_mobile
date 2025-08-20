@@ -11,10 +11,18 @@ export interface Story {
     played?: number,
     watched?: boolean
   }
+  audio_s_2_5?: string; // Audio URL for the story
+  audio_p_2_5?: string; // Audio URL for the story
+  audio_s_6_9?: string; // Audio URL for the story
+  audio_p_6_9?: string; // Audio URL for the story
 }
 
 interface StoryStoreState {
   stories: Story[];
+  listeningStory: Story | null; // Currently listening story
+  setCurrentStory: (story: Story) => void; // Optional setter for current story
+  currentIndex: number; // Optional current index
+  setCurrentIndex: (index: number) => void; // Optional setter for current index
   setStories: (stories: Story[]) => void;
   updateStory: (id: string, updates: Partial<Story>) => void;
   markWatched: (id: string) => void;
@@ -24,7 +32,11 @@ interface StoryStoreState {
 
 export const useStoryStore = create<StoryStoreState>((set, get) => ({
   stories: [],
+  currentIndex: 0, // Initialize with no current index
+  setCurrentIndex: (index) => set({ currentIndex: index }),
+  listeningStory: null, // Initialize with no story being listened to
   setStories: (stories) => set({ stories }),
+  setCurrentStory: (story) => set({ listeningStory: story }),
   updateStory: (id, updates) => set(state => ({
     stories: state.stories.map(story =>
       story.storyId === id ? { ...story, ...updates } : story

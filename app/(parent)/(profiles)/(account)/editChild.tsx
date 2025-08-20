@@ -61,7 +61,7 @@ const EditChild = () => {
         const updatedChild = {
             ...kid,
             name: firstName + (kid.name?.split(' ')[1] ? ' ' + kid.name.split(' ')[1] : ''),
-            avatar_url: kid.avatar_url || 'Mia.svg',
+            avatar_url: kid.avatar_url || '',
             age: Number(age),
             mode: kid.mode,
         };

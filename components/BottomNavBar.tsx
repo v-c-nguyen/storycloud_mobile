@@ -31,7 +31,9 @@ export default function BottomNavBar({
           return `${rolePrefix}/(profiles)/(account)`;
       }
     } else {
+      console.log(item.name)
       switch (item.name) {
+        
         case "Dashboard":
           return `${rolePrefix}/(dashboard)`;
         case "Explore":
@@ -230,7 +232,7 @@ const styles = StyleSheet.create({
   cloudGroup: {
     position: "absolute",
     width: "100%",
-    height: 243,
+    height: 250,
     left: 0,
     top: -64,
     zIndex: 10

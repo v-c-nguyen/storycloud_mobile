@@ -35,6 +35,7 @@ const information_circle = require('@/assets/images/parent/information_circle.pn
 const plusIcon = require('@/assets/images/parent/icon-plus.png')
 
 const AccountSettings = () => {
+    const router = useRouter();
     const { user, setUser } = useUser();
 
     const [fname, setFName] = React.useState(user?.name.split(' ')[0] ?? '');
@@ -42,7 +43,6 @@ const AccountSettings = () => {
     const [pnumber, setPNumber] = React.useState(user?.phonenumber ?? '');
     const children = useChildrenStore((state: any) => state.children);
     const [activeChild, setActiveChild] = React.useState(children[0]);
-    const router = useRouter();
     const [activeTab, setActiveTab] = React.useState('account');
     const [avatar, setAvatar] = React.useState(user?.avatar_url || null);
     const [uploading, setUploading] = React.useState(false);
@@ -92,7 +92,8 @@ const AccountSettings = () => {
     }
 
     const handleTabPress = (tabId: string) => {
-        setActiveTab(tabId);
+        if (tabId === 'account') handleItemProcess('account');
+        else if (tabId === 'content') router.navigate("/(parent)/(profiles)/(content)");
     };
 
     const handleItemProcess = (item: string) => {
@@ -352,7 +353,7 @@ const styles = StyleSheet.create({
         position: "relative",
     },
     imgCloudFar: {
-        width: '100%',
+        width: '110%',
         height: '100%',
         position: "absolute",
         top: 0,
@@ -360,7 +361,7 @@ const styles = StyleSheet.create({
         zIndex: -100,
     },
     imgCloudNear: {
-        width: '100%',
+        width: '110%',
         height: '100%',
         position: "absolute",
         top: 42,

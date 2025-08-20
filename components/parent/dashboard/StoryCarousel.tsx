@@ -1,5 +1,6 @@
 import { getAllTracksByChildId } from "@/api/track";
 import { StoryCard } from "@/components/Cards";
+import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import React, { useEffect } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet } from "react-native";
@@ -36,6 +37,7 @@ export default function RecentLearning({ activeChild }: {
                     marginBottom: 50,
                 }} />
             ) :
+                recents.length > 0 ?
                 <ThemedView>
                     <ScrollView
                         horizontal
@@ -67,6 +69,10 @@ export default function RecentLearning({ activeChild }: {
                             />
                         ))}
                     </ThemedView>
+                </ThemedView>
+                :
+                <ThemedView style={{flexDirection: 'row', width: '100%', marginVertical: 20, justifyContent: 'center'}}>
+                    <ThemedText style={{color: '#ffffff7a'}}> no recent data </ThemedText>
                 </ThemedView>
             }
         </>

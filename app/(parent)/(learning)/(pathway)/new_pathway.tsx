@@ -33,7 +33,7 @@ export default function AddPathway() {
     const [description, setDescription] = React.useState('');
     const [length, setLength] = React.useState('');
     const [targets, setTargets] = React.useState<{ id: string, name: string }[]>([]);
-    const [children, setChildren] = React.useState<Child[]>([]);
+    const [children, setChildren] = React.useState<any[]>([]);
 
     function handleCreateButtonClicked(mode: number) {
         setStep(2);

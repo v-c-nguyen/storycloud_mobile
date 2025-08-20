@@ -232,13 +232,7 @@ export default function LearningLibrary() {
       setSelectedSeries(item);
     }
   }
-
-
-
-
-
-
-
+  
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -258,7 +252,7 @@ export default function LearningLibrary() {
             <Header icon={learningIcon} role="parent" title="Learning" theme="dark"></Header>
             {/* Header */}
             <ThemedView style={styles.topRow}>
-              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('./(parent)/search-screen')}>
+              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/(parent)/search-screen')}>
                 <Image source={searchIcon} tintColor={'white'} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>

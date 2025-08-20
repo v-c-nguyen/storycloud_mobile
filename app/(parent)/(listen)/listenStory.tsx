@@ -1,4 +1,4 @@
-import { supabase } from '@/app/lib/supabase';
+import { getSeriesByStoryId } from '@/api/series';
 import BottomNavBar from '@/components/BottomNavBar';
 import Header from '@/components/Header';
 import MediaPlayerCard from '@/components/MediaPlayerCard';
@@ -7,6 +7,9 @@ import AdventureStoryCarousel from '@/components/StoryCarousel';
 import { ThemedView } from '@/components/ThemedView';
 import { modesData } from '@/data/parent/dashboardData';
 import { useChildrenStore } from '@/store/childrenStore';
+import { useSeriesStore } from '@/store/seriesStore';
+import { useStoryStore } from '@/store/storyStore';
+import { useTrackStore } from '@/store/trackStore';
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
@@ -34,35 +37,48 @@ export default function ListenStory() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const storyId = typeof params.storyId === 'string' ? params.storyId : '';
-  const [story, setStory] = React.useState<any>(null);
+  const currentStory = useStoryStore((state) => state.listeningStory);
+  const setCurrentStory = useStoryStore((state) => state.setCurrentStory);
   const [loading, setLoading] = React.useState(false);
   const modes = modesData;
   const [modalVisible, setModalVisible] = React.useState(false);
   const { activeChild, setActiveChild } = useChildrenStore();
   const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
-  const [stories,  setStories] = React.useState<any>([]);
+  const series = useSeriesStore((state) => state.series);
+  const setSeries = useSeriesStore((state) => state.setSeries);
+  const setStories = useStoryStore((state) => state.setStories);
+  const stories = useStoryStore((state) => state.stories)
+  const setActiveTrack = useTrackStore((state) => state.setActiveTrack);
 
   React.useEffect(() => {
-    async function fetchStory() {
-      if (!storyId) return;
+    async function fetchSeries() {
       setLoading(true);
-      const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
-      const { data, error } = await supabase.functions.invoke(`stories/${storyId}`, {
-        headers: {
-          Authorization: jwt ? `Bearer ${jwt}` : '',
-          'Content-Type': 'application/json',
-        },
-      });
-      setLoading(false);
-      if (error) {
-        console.error('Error fetching story:', error.message);
-        return;
-      }
-      if (data) {
-        setStory(data);
+      try {
+        if (!activeChild) {
+          setLoading(false);
+          return;
+        }
+        const data = await getSeriesByStoryId(storyId, activeChild.id);
+        if (data) {
+          setSeries(data.series);
+          setStories(data.stories);
+          const index = data.stories.findIndex((story: any) => story.storyId === storyId);
+          setCurrentCardIndex(index)
+          setCurrentStory(data.stories[index])
+          console.log("currentStory:", currentStory)
+        }
+      } catch (error) {
+        console.error('Error fetching series:', error);
+      } finally {
+        setLoading(false);
       }
     }
-    fetchStory();
+    if (storyId) {
+      fetchSeries();
+    } else {
+      setSeries([]);
+      setStories([]);
+    }
   }, [storyId]);
 
 
@@ -76,36 +92,18 @@ export default function ListenStory() {
   }
 
   const onWatchAgain = async () => {
-    setModalVisible(false);
     // Reset watched and played for the current story in backend
-    if (!storyId || !activeChild?.id) return;
-    try {
-      const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
-      // Call backend to reset track info
-      const result = await fetch('https://fzmutsehqndgqwprkxrm.supabase.co/functions/v1/track', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: jwt ? `Bearer ${jwt}` : '',
-        },
-        body: JSON.stringify({
-          storyId,
-          childId: activeChild.id,
-          playedTime: 0,
-          totalTime: story?.duration ?? 1,
-          finished: false,
-        })
-      });
+    setActiveTrack({
+      storyId: currentStory?.storyId || '',
+      childId: activeChild?.id || '',
+      played: 0,
+      duration: 1,
+      watched: false,
+      audioUrl: currentStory ? currentStory.audio_s_2_5 : '',
+      again: true
+    })
+    setModalVisible(false);
 
-      const data = result.json();
-      // Optionally reload the story or audio
-      // If you want to reload the audio, you may need to trigger a state update or reload MediaPlayerCard
-      // For example, you could setStory(null) and then refetch story
-      // setStory(null);
-      // fetchStory();
-    } catch (e) {
-      console.error('Failed to reset track for watch again', e);
-    }
   }
 
   return (
@@ -144,11 +142,10 @@ export default function ListenStory() {
               <MediaPlayerCard
                 onAudioEnd={() => setModalVisible(true)}
                 activeChild={activeChild}
-                story={story}
               />
 
-              <AdventureStoryCarousel 
-                storyId={storyId} 
+              <AdventureStoryCarousel
+                storyId={storyId}
                 activeChild={activeChild}
               />
 

@@ -1,6 +1,8 @@
-import { StoryCard1 } from "@/components/Cards";
+import { SeriesCard2 } from "@/components/Cards";
 import { ThemedView } from "@/components/ThemedView";
+import { useSeriesStore } from "@/store/seriesStore";
 import { useStoryStore } from "@/store/storyStore";
+import { useRouter } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet } from "react-native";
 
@@ -10,9 +12,10 @@ interface StoryItemsProps {
 const StoryItems: React.FC<StoryItemsProps> = ({
     seriesCategory
 }) => {
+    const router = useRouter();
     const [loading, setLoading] = React.useState(false);
     const stories = useStoryStore(state => state.stories);
-
+    const series = useSeriesStore(state => state.series);
 
     function normalize(str: string) {
         return str.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
@@ -26,10 +29,16 @@ const StoryItems: React.FC<StoryItemsProps> = ({
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.horizontalScrollContent}
             >
-                {stories
-                    .filter(story => normalize(story.seriesCategory) === normalize(seriesCategory))
+                {series
+                    .filter(story => normalize(story.series_category) === normalize(seriesCategory))
                     .map((item, idx) => (
-                        <StoryCard1 key={idx} num={idx + 1} story={item} />
+                        <SeriesCard2 
+                            key={idx}
+                            name={item.name}
+                            episode_count={item.episode_count ?? 0}
+                            image={item.image ?? ""}
+                            isFavorite={item.isFavorite ?? false}
+                        />
                     ))}
             </ScrollView>
         </ThemedView>
