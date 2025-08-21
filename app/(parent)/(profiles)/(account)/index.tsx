@@ -69,7 +69,6 @@ const AccountSettings = () => {
                 return;
             }
             if (data) {
-                console.log(data.data)
                 setUser(data.data);
                 const user = data.data
                 setFName(user.name?.split(' ')[0] ?? '');
