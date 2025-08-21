@@ -24,10 +24,16 @@ export default function KidAuthSuccess() {
             />
             <ThemedView style={styles.subContainer}>
               {/* Background pattern */}
-              {/* <Image
-          source={require("@/assets/images/auth/back-pattern.png")}
-          style={{ position: "absolute", width: "100%", height: "100%" }}
-        /> */}
+              <Image
+                source={require("@/assets/images/auth/back-pattern.png")}
+                style={styles.backPattern}
+                contentFit='fill'
+              />
+              <Image
+                source={require("@/assets/images/auth/back-pattern.png")}
+                style={[styles.backPattern, { top: '70%' }]}
+                contentFit='fill'
+              />
               <Image
                 source={require("@/assets/images/auth/kid-cong.png")}
                 style={styles.topImage}
@@ -56,6 +62,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: "relative",
+  },
+  backPattern: {
+    position: "absolute", width: "110%", height: "70%", tintColor: "#053b4a1a"
   },
   subContainer: {
     marginTop: 60,

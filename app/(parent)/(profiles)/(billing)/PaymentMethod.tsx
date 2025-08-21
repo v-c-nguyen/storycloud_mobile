@@ -23,7 +23,7 @@ export default function PaymentMethod() {
     };
 
     function handleBackBtn() {
-        router.back()
+        router.push('/(parent)/(profiles)/(billing)')
     }
 
     return (
@@ -71,13 +71,13 @@ export default function PaymentMethod() {
                                     <Image source={stripeIcon} style={[styles.icon24, { marginBottom: 30 }]}></Image>
                                 </ThemedView>
                                 <ThemedView style={[styles.card, styles.flexCol, styles.justifyBetween, { borderColor: 'rgba(5, 59, 74, 0.6)' }]}>
-                                    <ThemedView style={styles.cardRow}>
-                                        <ThemedView style={styles.flexRow}>
+                                    <ThemedView style={[styles.cardRow, styles.flexRow]}>
+                                        <ThemedView style={[styles.flexRow]}>
                                             <Image
                                                 source={require('@/assets/images/parent/icon-paymentCard.png')}
                                                 style={styles.cardIcon}
                                             />
-                                            <ThemedText style={styles.cardText}>**** 3425</ThemedText>
+                                            <ThemedText style={styles.cardText_Card}>**** 3425</ThemedText>
                                         </ThemedView>
                                         <TouchableOpacity>
                                             <ThemedView style={[styles.iconButton, styles.iconButtonWithBack]}>
@@ -213,6 +213,7 @@ const styles = StyleSheet.create({
     },
     cardIcon: { width: 52, height: 52, resizeMode: 'contain', borderBottomWidth: 1, borderColor: 'rgba(173, 215, 218, 1)' },
     cardText: { fontSize: 16, fontWeight: '400', color: 'rgba(5, 59, 74, 1)', flex: 1, marginLeft: 10 },
+    cardText_Card: { fontSize: 16, fontWeight: '400', color: 'rgba(5, 59, 74, 1)', marginLeft: 10 },
     changeButton: {
         display: 'flex',
         flexDirection: 'row',

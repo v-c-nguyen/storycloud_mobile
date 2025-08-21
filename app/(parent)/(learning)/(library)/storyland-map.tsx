@@ -1,5 +1,4 @@
 
-import { supabase } from "@/app/lib/supabase";
 import BottomNavBar from "@/components/BottomNavBar";
 import { SeriesCard, StoryCard2 } from "@/components/Cards";
 import Header from "@/components/Header";
@@ -9,7 +8,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { storyOptionsData } from "@/data/libraryData";
 import { Stack, router } from "expo-router";
-import React, { useEffect } from "react";
+import React from "react";
 import {
   FlatList,
   Image,
@@ -112,35 +111,33 @@ export default function StorylandMapLibrary() {
   const [dropdownVisible, setDropdownVisible] = React.useState(false);
   const [selectedSeries, setSelectedSeries] = React.useState<string | null>(null);
 
-  useEffect(() => {
-    setLoading(true);
-    async function fetchMapRegions() {
-      try {
-        const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
-        const { data, error } = await supabase.functions.invoke('map-regions', {
-          method: 'GET',
-          headers: {
-            Authorization: jwt ? `Bearer ${jwt}` : '',
-          },
-        });
-        if (error) {
-          console.error('Error fetching map regions:', error.message);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   async function fetchMapRegions() {
+  //     try {
+  //       const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+  //       const { data, error } = await supabase.functions.invoke('map-regions', {
+  //         method: 'GET',
+  //         headers: {
+  //           Authorization: jwt ? `Bearer ${jwt}` : '',
+  //         },
+  //       });
+  //       if (error) {
+  //         console.error('Error fetching map regions:', error.message);
 
-        } else if (data && Array.isArray(data.data)) {
-          console.log("Map Regions::", data.data)
-          setMapRegions(data.data);
-        }
-      } catch (e) {
-        console.error('Error fetching map regions:', e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchMapRegions();
-  }, []);
+  //       } else if (data && Array.isArray(data.data)) {
+  //         setMapRegions(data.data);
+  //       }
+  //     } catch (e) {
+  //       console.error('Error fetching map regions:', e);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+  //   fetchMapRegions();
+  // }, []);
 
   function handleItemSelection(item: string) {
-    console.log("item selected::", item)
     setActiveItem(item)
     setDropdownVisible(false)
     

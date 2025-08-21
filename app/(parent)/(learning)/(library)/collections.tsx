@@ -170,9 +170,10 @@ export default function CollectionsLibrary() {
       <SafeAreaView style={styles.safeAreaContainer}>
         <ThemedView style={styles.themedViewContainer}>
           <ScrollView
-            style={styles.rootContainer}
+            style={[styles.rootContainer]}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollViewContent}
+            
           >
             {/* Top background */}
             <Image

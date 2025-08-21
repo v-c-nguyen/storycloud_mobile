@@ -1,5 +1,6 @@
+import { Image } from "expo-image";
 import { RelativePathString, useRouter } from "expo-router";
-import { Image, StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { childHooterData, HooterItem, parentHooterData } from "../data/layoutData";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
@@ -54,7 +55,9 @@ export default function BottomNavBar({
       {image &&
         <Image
           source={require("@/assets/images/kid/cloud-group-bottom.png")}
+          pointerEvents="none"
           style={[styles.cloudGroup, theme == 'darkImage' && { tintColor: 'rgba(5, 59, 74, 1)' }]}
+          contentFit="fill"
         >
         </Image>
       }
@@ -232,9 +235,9 @@ const styles = StyleSheet.create({
   cloudGroup: {
     position: "absolute",
     width: "100%",
-    height: 250,
+    height: '100%',
     left: 0,
-    top: -64,
+    top: 0,
     zIndex: 10
   },
   bottomNavBar: {

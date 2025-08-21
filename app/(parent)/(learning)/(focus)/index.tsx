@@ -169,7 +169,7 @@ export default function Index() {
                             showsHorizontalScrollIndicator={false}
                         />
 
-                        <ThemedView style={{ marginBottom: 50 }}>
+                        <ThemedView style={{ paddingBottom: 60, marginBottom: 60}}>
                             {loading ? (
                                 <ThemedText>Loading focus modes...</ThemedText>
                             ) : focusModes?.length > 0 ? (

@@ -1,11 +1,11 @@
 import { supabase } from '@/app/lib/supabase';
+import AvatarUploader from '@/components/AvatarUploader/AvatarUploader';
 import BottomNavBar from '@/components/BottomNavBar';
 import Header from '@/components/Header';
 import { ModeList } from '@/components/ModeList';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useChildrenStore } from '@/store/childrenStore';
-import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
@@ -32,7 +32,6 @@ const EditChild = () => {
     const [kid, setKid] = React.useState(children[childIndex] || children[0] || {});
     const [firstName, setFirstName] = React.useState(kid.name ?? '');
     const [age, setAge] = React.useState(kid.age?.toString() ?? '');
-    const [uploading, setUploading] = React.useState(false);
     const [avatar, setAvatar] = React.useState(kid.avatar_url ?? '');
     // For ModeList, update mode in kid state
     const handleModeChange = (newKid: any) => {
@@ -61,7 +60,7 @@ const EditChild = () => {
         const updatedChild = {
             ...kid,
             name: firstName + (kid.name?.split(' ')[1] ? ' ' + kid.name.split(' ')[1] : ''),
-            avatar_url: kid.avatar_url || '',
+            avatar_url: avatar || '',
             age: Number(age),
             mode: kid.mode,
         };
@@ -89,46 +88,15 @@ const EditChild = () => {
             alert('Error updating child: ' + error);
         }
     }
-// Avatar upload handler
-    const handleUploadAvatar = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!permissionResult.granted) {
-            alert('Permission to access media library is required!');
-            return;
-        }
-        const pickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-        });
-        if (pickerResult.canceled || !pickerResult.assets || !pickerResult.assets[0].uri) return;
-        setUploading(true);
-        try {
-            const uri = pickerResult.assets[0].uri;
-            const fileName = `child_${Date.now()}.jpg`;
-            const response = await fetch(uri);
-            const blob = await response.blob();
-            // Upload to Supabase Storage
-            const { data, error } = await supabase.storage.from('avatars').upload(fileName, blob, {
-                cacheControl: '3600',
-                upsert: true,
-                contentType: 'image/jpeg',
-            });
-            if (error) throw error;
-            // Get public URL
-            const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
-            const publicUrl = publicUrlData?.publicUrl;
-            setAvatar(publicUrl);
-            setKid((prev) => ({ ...prev, avatar_url: publicUrl }));
-        } catch (e: any) {
-            alert('Upload failed: ' + (e.message || e));
-        } finally {
-            setUploading(false);
-        }
-    };
+    // Avatar upload handler
+
     function handleCancelButton() {
         router.push('../')
+    }
+
+
+    const onUpload = async (publicUrl: string) => {
+        setAvatar(publicUrl)
     }
     return (
         <>
@@ -155,16 +123,15 @@ const EditChild = () => {
 
                             <ThemedView style={styles.avatarWrapper}>
                                 <Image
-                                    source={avatar ? {uri: avatar}: require('@/assets/images/parent/avatar-parent-2.png')}
+                                    source={avatar ? { uri: avatar } : require('@/assets/images/parent/avatar-parent-2.png')}
                                     style={styles.avatar}
                                 />
                             </ThemedView>
-
-                            <TouchableOpacity style={styles.uploadButton} onPress={handleUploadAvatar}>
-                                <Image source={downloadIcon} />
-                                <ThemedText style={styles.uploadButtonText}>{uploading ? 'Uploading...' : ' Upload New Image'}</ThemedText>
-                            </TouchableOpacity>
-
+                            <ThemedView style={{flexDirection: 'row', justifyContent:'center'}}>
+                                <AvatarUploader
+                                    onUpload={(publicUrl) => onUpload(publicUrl)}
+                                />
+                            </ThemedView>
                             <ThemedText style={styles.recommendationText}>
                                 At least 800x800px recommended{'\n'}
                                 JPG or PNG and GIF is allowed,

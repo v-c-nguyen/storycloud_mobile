@@ -65,7 +65,6 @@ export default function ListenStory() {
           const index = data.stories.findIndex((story: any) => story.storyId === storyId);
           setCurrentCardIndex(index)
           setCurrentStory(data.stories[index])
-          console.log("currentStory:", currentStory)
         }
       } catch (error) {
         console.error('Error fetching series:', error);
@@ -87,7 +86,10 @@ export default function ListenStory() {
   };
 
   const onNext = () => {
+    setCurrentStory(stories[currentCardIndex + 1]);
     
+    setCurrentCardIndex(currentCardIndex + 1);
+
     setModalVisible(false);
   }
 

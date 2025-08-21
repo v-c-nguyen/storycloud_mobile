@@ -1,5 +1,5 @@
 import { supabase } from '@/app/lib/supabase';
-import { useUser } from '@/app/lib/UserContext';
+import AvatarUploader from '@/components/AvatarUploader/AvatarUploader';
 import BottomNavBar from '@/components/BottomNavBar';
 import DropDownMenu from '@/components/DropDownMenu';
 import Header from '@/components/Header';
@@ -9,7 +9,6 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useChildrenStore } from '@/store/childrenStore';
 import { Image } from 'expo-image';
-import * as ImagePicker from 'expo-image-picker';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import {
@@ -18,7 +17,6 @@ import {
     TextInput,
     TouchableOpacity
 } from 'react-native';
-
 
 interface Kid {
     id: string;
@@ -34,28 +32,52 @@ const cakeIcon = require('@/assets/images/parent/icon-cake.png')
 const information_circle = require('@/assets/images/parent/information_circle.png')
 const plusIcon = require('@/assets/images/parent/icon-plus.png')
 
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || 'YOUR_SUPABASE_URL'
+type User = {
+    id: string;
+    email: string;
+    name: string;
+    avatar_url?: string;
+    phonenumber?: string;
+    // Add other user fields as needed
+};
 const AccountSettings = () => {
     const router = useRouter();
-    const { user, setUser } = useUser();
+    const [user, setUser] = React.useState<User>({ id: '', email: '', name: '' });
 
-    const [fname, setFName] = React.useState(user?.name.split(' ')[0] ?? '');
-    const [lname, setLName] = React.useState(user?.name.split(' ')[1] ?? '');
-    const [pnumber, setPNumber] = React.useState(user?.phonenumber ?? '');
+    const [fname, setFName] = React.useState('');
+    const [lname, setLName] = React.useState('');
+    const [pnumber, setPNumber] = React.useState('');
     const children = useChildrenStore((state: any) => state.children);
     const [activeChild, setActiveChild] = React.useState(children[0]);
     const [activeTab, setActiveTab] = React.useState('account');
-    const [avatar, setAvatar] = React.useState(user?.avatar_url || null);
-    const [uploading, setUploading] = React.useState(false);
+    const [avatar, setAvatar] = React.useState('');
     const setChildren = useChildrenStore((state: any) => state.setChildren);
 
     useEffect(() => {
         // Prefill parent info when user changes
-        if (user) {
-            setFName(user.name.split(' ')[0] ?? '');
-            setLName(user.name.split(' ')[1] ?? '');
-            setPNumber(user.phonenumber ?? '');
+        async function getUser() {
+            const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
+            const { data, error } = await supabase.functions.invoke('user/getUser', {
+                method: 'GET',
+                headers: {
+                    Authorization: jwt ? `Bearer ${jwt}` : '',
+                },
+            });
+            if (error) {
+                alert('Error fetching children:' + error.message);
+                return;
+            }
+            if (data) {
+                console.log(data.data)
+                setUser(data.data);
+                const user = data.data
+                setFName(user.name?.split(' ')[0] ?? '');
+                setLName(user.name?.split(' ')[1] ?? '');
+                setPNumber(user.phone_number ?? '');
+                setAvatar(user?.avatar_url || null)
+            }
         }
-
         // Fetch children data from Supabase edge function and sync Zustand store
         async function fetchChildren() {
             if (!user?.id) return;
@@ -75,10 +97,10 @@ const AccountSettings = () => {
                 setActiveChild(data.data[0]);
             }
         }
+        getUser()
         fetchChildren();
+    }, []);
 
-
-    }, [user]);
 
     function handleAddButton() {
         if (children.length < 4) {
@@ -90,7 +112,6 @@ const AccountSettings = () => {
         const index = children.findIndex((c: any) => c.id === kid.id);
         router.push(`./editChild?index=${index}`);
     }
-
     const handleTabPress = (tabId: string) => {
         if (tabId === 'account') handleItemProcess('account');
         else if (tabId === 'content') router.navigate("/(parent)/(profiles)/(content)");
@@ -117,61 +138,22 @@ const AccountSettings = () => {
 
     }
 
+    const onUpload = async (publicUrl: string) => {
+        // Update user profile in DB
+        const { error: updateError } = await supabase
+            .from('users')
+            .update({ avatar_url: publicUrl })
+            .eq('id', user?.id);
+        if (updateError) throw updateError;
+
+        setAvatar(publicUrl)
+    }
+
     const tabs = [
         { id: 'account', label: 'Account', icon: require("@/assets/images/parent/icon-profile.png") },
         { id: 'content', label: 'Content', icon: require("@/assets/images/parent/icon-content.png") }
     ];
-    // Avatar upload handler
-    const handleUploadAvatar = async () => {
-        // Ask for permission
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!permissionResult.granted) {
-            alert('Permission to access media library is required!');
-            return;
-        }
-        // Pick image
-        const pickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-        });
-        if (pickerResult.canceled || !pickerResult.assets || !pickerResult.assets[0].uri) return;
-        setUploading(true);
-        try {
-            const uri = pickerResult.assets[0].uri;
-            const fileName = `${user?.id}_${Date.now()}.jpg`;
-            const response = await fetch(uri);
-            const blob = await response.blob();
-            // Upload to Supabase Storage
-            const { data, error } = await supabase.storage.from('avatars').upload(fileName, blob, {
-                cacheControl: '3600',
-                upsert: true,
-                contentType: 'image/jpeg',
-            });
-            if (error) throw error;
-            // Get public URL
-            const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
-            const publicUrl = publicUrlData?.publicUrl;
-            // Update user profile in DB
-            const { error: updateError } = await supabase
-                .from('users')
-                .update({ avatar_url: publicUrl })
-                .eq('id', user?.id);
-            if (updateError) throw updateError;
-            setAvatar(publicUrl);
 
-            // Update Zustand store (if you have a setUser or similar method)
-            if (user && typeof user === 'object') {
-                // If you have a setUser method in your UserContext or Zustand, call it here
-                setUser({ ...user, avatar_url: publicUrl });
-            }
-        } catch (e: any) {
-            alert('Upload failed: ' + (e));
-        } finally {
-            setUploading(false);
-        }
-    };
 
     return (
         <>
@@ -241,11 +223,11 @@ const AccountSettings = () => {
                                         />
                                     </ThemedView>
 
-                                    <TouchableOpacity style={styles.uploadButton} onPress={handleUploadAvatar} disabled={uploading}>
-                                        <Image source={downloadIcon} style={styles.icon_18}/>
-                                        <ThemedText style={styles.uploadButtonText}>{uploading ? ' Uploading...' : ' Upload New Image'}</ThemedText>
-                                    </TouchableOpacity>
-
+                                    <AvatarUploader
+                                        user={user}
+                                        setUser={setUser}
+                                        onUpload={(publicUrl) => onUpload(publicUrl)}
+                                    />
                                     <ThemedText style={styles.recommendationText}>
                                         At least 800x800px recommended{'\n'}
                                         JPG or PNG and GIF is allowed,
@@ -293,7 +275,7 @@ const AccountSettings = () => {
                                         {children.map((kid: Kid, index: number) => (
                                             <ThemedView key={index} style={styles.kidContainer}>
                                                 <ThemedView style={styles.header}>
-                                                    <Image source={kid.avatar_url? {uri: kid.avatar_url }: require('@/assets/images/parent/avatar-parent-2.png')} style={styles.kid_avatar} />
+                                                    <Image source={kid.avatar_url ? { uri: kid.avatar_url } : require('@/assets/images/parent/avatar-parent-2.png')} style={styles.kid_avatar} />
                                                     <ThemedText style={styles.name}>{kid.name}</ThemedText>
                                                     <ThemedView style={styles.infoIcons}>
                                                         <Image source={cakeIcon} style={{ width: 20, height: 20 }} />
@@ -318,7 +300,7 @@ const AccountSettings = () => {
                                             style={[styles.addButton, children.length >= 4 && { display: 'none' }]}
                                             onPress={handleAddButton}
                                         >
-                                            <Image source={plusIcon} style={{width: 18, height: 18}}/>
+                                            <Image source={plusIcon} style={{ width: 18, height: 18 }} />
                                             <ThemedText style={{ fontSize: 16, color: '#053B4A' }}>Add One More Kid</ThemedText>
                                         </TouchableOpacity>
                                     </ThemedView>
@@ -353,7 +335,7 @@ const styles = StyleSheet.create({
         position: "relative",
     },
     imgCloudFar: {
-        width: '110%',
+        width: '112%',
         height: '100%',
         position: "absolute",
         top: 0,
@@ -361,7 +343,7 @@ const styles = StyleSheet.create({
         zIndex: -100,
     },
     imgCloudNear: {
-        width: '110%',
+        width: '112%',
         height: '100%',
         position: "absolute",
         top: 42,

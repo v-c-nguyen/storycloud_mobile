@@ -1,11 +1,11 @@
 import { supabase } from '@/app/lib/supabase';
+import AvatarUploader from '@/components/AvatarUploader/AvatarUploader';
 import BottomNavBar from '@/components/BottomNavBar';
 import Header from '@/components/Header';
 import { ModeList } from '@/components/ModeList';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useChildrenStore } from '@/store/childrenStore';
-import * as ImagePicker from 'expo-image-picker';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
@@ -47,7 +47,7 @@ const AddChild = () => {
         const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
 
         // Validate required fields
-        if (!firstName.trim() ) {
+        if (!firstName.trim()) {
             alert('Please enter both first and last name.');
             return;
         }
@@ -62,7 +62,7 @@ const AddChild = () => {
         // Use entered values and correct field names
         const childData = {
             name: firstName.trim(),
-            avatar_url: child.avatar_url || "", // fallback to default
+            avatar_url: avatar || "", // fallback to default
             age: Number(age),
             mode: child.mode,
         };
@@ -96,45 +96,10 @@ const AddChild = () => {
     function handleCancelButton() {
         router.push('../')
     }
-    // Avatar upload handler
-    const handleUploadAvatar = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!permissionResult.granted) {
-            alert('Permission to access media library is required!');
-            return;
-        }
-        const pickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-        });
-        if (pickerResult.canceled || !pickerResult.assets || !pickerResult.assets[0].uri) return;
-        setUploading(true);
-        try {
-            const uri = pickerResult.assets[0].uri;
-            const fileName = `child_${Date.now()}.jpg`;
-            const response = await fetch(uri);
-            const blob = await response.blob();
-            // Upload to Supabase Storage
-            const { data, error } = await supabase.storage.from('avatars').upload(fileName, blob, {
-                cacheControl: '3600',
-                upsert: true,
-                contentType: 'image/jpeg',
-            });
-            if (error) throw error;
-            // Get public URL
-            const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
-            const publicUrl = publicUrlData?.publicUrl;
-            setAvatar(publicUrl);
-            setChild((prev) => ({ ...prev, avatar_url: publicUrl }));
-        } catch (e: any) {
-            alert('Upload failed: ' + (e.message || e));
-        } finally {
-            setUploading(false);
-        }
-    };
 
+    const onUpload = async (publicUrl: string) => {
+        setAvatar(publicUrl)
+    }
     return (
         <>
             <Stack.Screen options={{ headerShown: false }} />
@@ -166,11 +131,11 @@ const AddChild = () => {
                                 />
                             </ThemedView>
 
-                            <TouchableOpacity style={styles.uploadButton} onPress={handleUploadAvatar} disabled={uploading}>
-                                <Image source={downloadIcon} />
-                                <ThemedText style={styles.uploadButtonText}>{uploading ? 'Uploading...' : ' Upload New Image'}</ThemedText>
-                            </TouchableOpacity>
-
+                            <ThemedView style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                <AvatarUploader
+                                    onUpload={(publicUrl) => onUpload(publicUrl)}
+                                />
+                            </ThemedView>
                             <ThemedText style={styles.recommendationText}>
                                 At least 800x800px recommended{'\n'}
                                 JPG or PNG and GIF is allowed,

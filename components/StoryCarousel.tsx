@@ -30,7 +30,6 @@ export default function AdventureStoryCarousel({ storyId, activeChild }: { story
     };
 
     useEffect(() => {
-        console.log(series)
         const index = stories.findIndex((story: any) => story.storyId === storyId);
         setCurrentCardIndex(index)
         scrollToStep(index);

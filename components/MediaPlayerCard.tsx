@@ -4,18 +4,18 @@ import { useTrackStore } from '@/store/trackStore';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Modal, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 
-const { width } = Dimensions.get("window");
+// ...existing code...
 
 type MediaPlayerCardProps = {
     activeChild: any;
     onAudioEnd: () => void;
 };
 
-export default function MediaPlayerCard({activeChild, onAudioEnd }: MediaPlayerCardProps) {
+export default function MediaPlayerCard({ activeChild, onAudioEnd }: MediaPlayerCardProps) {
     // Flag to ignore first playback status update after seek
     const firstStatusUpdate = useRef(true);
     // Track state
@@ -30,19 +30,10 @@ export default function MediaPlayerCard({activeChild, onAudioEnd }: MediaPlayerC
     const story = useStoryStore((state) => state.listeningStory)
     // Fullscreen state
     const [isFullscreen, setIsFullscreen] = useState(false);
-    const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
-
-    useEffect(() => {
-        const handleOrientation = () => {
-            const { width, height } = Dimensions.get('window');
-            setOrientation(width > height ? 'landscape' : 'portrait');
-        };
-        const subscription = Dimensions.addEventListener('change', handleOrientation);
-        handleOrientation();
-        return () => {
-            subscription?.remove();
-        };
-    }, []);
+    const { width, height } = useWindowDimensions();
+    const orientation: 'portrait' | 'landscape' = width > height ? 'landscape' : 'portrait';
+    // Use orientation to conditionally apply styles
+    // Example: const containerStyle = orientation === 'landscape' ? styles.landscapeContainer : styles.portraitContainer;
 
     // Remove unused audioUrl state
 
@@ -117,7 +108,6 @@ export default function MediaPlayerCard({activeChild, onAudioEnd }: MediaPlayerC
         console.log("savePlayProgressToDB function called")
 
         try {
-            console.log("activeChild:", activeChild)
             const jwt = supabase.auth.getSession && (await supabase.auth.getSession())?.data?.session?.access_token;
 
             // Save play progress to track table
@@ -136,18 +126,16 @@ export default function MediaPlayerCard({activeChild, onAudioEnd }: MediaPlayerC
                 })
             });
             const data = await fetchResponse.json();
-            console.log(data);
             if (fetchResponse.ok && data) {
                 // Add to Zustand store
-                console.log(data.data)
                 // Redirect on success
             } else {
                 alert(data?.error || 'Failed to save track');
             }
             // If finished, set watched=true in DB
             if (finished) {
-                await fetch('https://fzmutsehqndgqwprkxrm.supabase.co/functions/v1/track' + story.storyId, {
-                    method: 'PATCH',
+                await fetch('https://fzmutsehqndgqwprkxrm.supabase.co/functions/v1/track', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: jwt ? `Bearer ${jwt}` : '',
@@ -191,10 +179,13 @@ export default function MediaPlayerCard({activeChild, onAudioEnd }: MediaPlayerC
             setIsPlay(status.isPlaying);
             // Track progress when paused
             if (!status.isPlaying && !status.didJustFinish && status.positionMillis > 0) {
+
+                console.log("Paused!!!", status.isPlaying, status.didJustFinish, status.positionMillis)
                 savePlayProgressToDB({ playedTime: status.positionMillis / 1000, totalTime: status.durationMillis ? status.durationMillis / 1000 : 1 });
             }
             // Detect when audio finishes
             if (status.didJustFinish && !status.isPlaying) {
+                console.log("Finished!!!", status.didJustFinish, status.isPlaying)
                 savePlayProgressToDB({ playedTime: status.durationMillis ? status.durationMillis / 1000 : 1, totalTime: status.durationMillis ? status.durationMillis / 1000 : 1, finished: true });
                 if (onAudioEnd) {
                     onAudioEnd();
@@ -306,7 +297,8 @@ export default function MediaPlayerCard({activeChild, onAudioEnd }: MediaPlayerC
                     </TouchableOpacity>
                 </View>
             </Modal>
-            <View style={styles.container}>
+
+            <View style={[styles.container, orientation == 'landscape' && { display: 'none' }]}>
                 {/* Header */}
                 <View style={styles.header}>
                     <Text style={styles.headerAdventure}>{story?.seriesCategory}</Text>

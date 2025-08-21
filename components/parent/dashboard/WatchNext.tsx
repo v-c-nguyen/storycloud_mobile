@@ -52,7 +52,7 @@ export default function WatchNext({ activeChild }: { activeChild: any }) {
                         contentContainerStyle={styles.cardScrollContainer}
                     >
                         {storiesData
-                            // .filter((ele) => !ele.watched)
+                            .filter((ele) => !ele.watched)
                             .map((item, idx) => (
                                 <StoryCard1
                                     key={idx}

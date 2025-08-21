@@ -13,10 +13,17 @@ export default function ParentalAuthFeature() {
       <Stack.Screen options={{ headerShown: false }} />
       <ThemedView style={styles.container}>
         {/* Background pattern */}
-        {/* <Image
-        source={require("@/assets/images/auth/back-pattern.png")}
-        style={{ position: "absolute", width: "100%", height: "100%" }}
-      /> */}
+
+        <Image
+          source={require("@/assets/images/auth/back-pattern.png")}
+          style={styles.backPattern}
+          contentFit='fill'
+        />
+        <Image
+          source={require("@/assets/images/auth/back-pattern.png")}
+          style={[styles.backPattern, { top: '70%' }]}
+          contentFit='fill'
+        />
 
         <ThemedView style={styles.subContainer}>
           {/* Title */}
@@ -113,6 +120,9 @@ const styles = StyleSheet.create({
     fontSize: 42,
     fontWeight: "700",
     lineHeight: 46.2
+  },
+  backPattern: {
+    position: "absolute", width: "110%", height: "70%", tintColor: "#053b4a1a"
   },
   description: {
     color: "#053B4A",

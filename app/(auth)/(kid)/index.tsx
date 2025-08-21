@@ -21,10 +21,16 @@ export default function KidAuthHome() {
       <ThemedView style={styles.safe}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <ThemedView style={styles.root}>
-            {/* <Image
-          source={require("@/assets/images/auth/back-pattern.png")}
-          style={{ position: "absolute", width: "100%", height: "100%" }}
-        /> */}
+            <Image
+              source={require("@/assets/images/auth/back-pattern.png")}
+              style={styles.backPattern}
+              contentFit='fill'
+            />
+            <Image
+              source={require("@/assets/images/auth/back-pattern.png")}
+              style={[styles.backPattern, { top: '70%' }]}
+              contentFit='fill'
+            />
             {/* Background pattern (optional, can use SVG or ImageBackground) */}
             <Image
               source={require("@/assets/images/auth/kid-top.png")}
@@ -87,6 +93,9 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: "#F8ECAE",
+  },
+  backPattern: {
+    position: "absolute", width: "110%", height: "70%", tintColor: "#053b4a1a"
   },
   root: {
     flex: 1,

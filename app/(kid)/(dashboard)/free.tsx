@@ -217,7 +217,7 @@ export default function FreeModeHome() {
                     </ThemedText>
                   </TouchableOpacity>
                   <Image
-                    source={require("@/assets/images/kid/cloud-group-bottom.svg")}
+                    source={require("@/assets/images/kid/cloud-group-bottom.png")}
                     style={[styles.imgCloudFar, { transform: [{ rotate: '180deg' }]}]}
                     resizeMode="cover"
                   />

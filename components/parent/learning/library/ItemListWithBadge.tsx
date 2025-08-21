@@ -59,7 +59,6 @@ const ItemListWidthBadge: React.FC<ItemListWithBadgeProps> = ({
 
     // useEffect(() => {
     //     // If selectedSeries is provided, use it; otherwise, use categoriesWithStories
-    //     console.log(selectedSeries)
     //     if (selectedSeries && selectedSeries.length > 0)
     //         setCategores(selectedSeries)
     //     else
@@ -79,7 +78,7 @@ const ItemListWidthBadge: React.FC<ItemListWithBadgeProps> = ({
         }
     }
     return (
-        <ThemedView>
+        <ThemedView style={{ paddingBottom: 55 }}>
             {
 
                 categoriesWithStories.map((category, index) => (
@@ -95,7 +94,7 @@ const ItemListWidthBadge: React.FC<ItemListWithBadgeProps> = ({
                                 />
                             </TouchableOpacity>
                         </ThemedView>
-                        <StoryItems key={index} seriesCategory={category.name} />
+                        <StoryItems key={index} seriesCategory={category.name} tag="stories"/>
                     </ThemedView>
                 ))
             }

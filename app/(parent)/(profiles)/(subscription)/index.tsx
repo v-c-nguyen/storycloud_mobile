@@ -7,12 +7,12 @@ import { TabBar } from '@/components/TabBar';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Stack, useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useState } from 'react';
 import {
     Alert,
     Dimensions,
     Image,
-    Linking,
     Platform, ScrollView,
     StyleSheet,
     Switch,
@@ -106,8 +106,8 @@ export default function SubscriptionPlansScreen() {
                     body: JSON.stringify({
                         plan: plan.name,
                         interval: isMonthly ? 'month' : 'year',
-                        success_url: `${domain}/(parent)/(profiles)/(subscription)`,
-                        cancel_url: `${domain}/(parent)/(profiles)/(subscription)`,
+                        success_url: `myapp://subscription-success`,
+                        cancel_url: `myapp://subscription-cancel`,
                     }),
                 });
 
@@ -118,8 +118,11 @@ export default function SubscriptionPlansScreen() {
                     return;
                 }
 
-                // Open Stripe Checkout in the browser
-                Linking.openURL(url);
+                // Open Stripe Checkout in an in-app browser
+                const result = await WebBrowser.openAuthSessionAsync(url, `myapp://subscription-success`);
+                if (result.type === 'success') {
+                    setModalVisible(true);
+                }
 
             } catch (err: any) {
                 Alert.alert('Stripe Error', err.message || 'Could not start checkout.');
@@ -329,7 +332,7 @@ const styles = StyleSheet.create({
         position: "relative",
     },
     imgCloudFar: {
-        width: '110%',
+        width: '112%',
         height: '100%',
         position: "absolute",
         top: 0,
@@ -337,7 +340,7 @@ const styles = StyleSheet.create({
         zIndex: -100,
     },
     imgCloudNear: {
-        width: '110%',
+        width: '112%',
         height: '100%',
         position: "absolute",
         top: 42,

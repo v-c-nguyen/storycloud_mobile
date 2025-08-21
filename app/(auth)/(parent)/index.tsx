@@ -5,66 +5,72 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Link, Stack } from 'expo-router';
 
-const {width, height} = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 export default function ParentAuthScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-        <ThemedView style={styles.container}>
-          {/* Decorative background shapes would go here if needed */}
+      <ThemedView style={styles.container}>
+        {/* Decorative background shapes would go here if needed */}
 
-          {/* <Image
-        source={require("@/assets/images/auth/back-pattern.png")}
-        style={{ position: "absolute", width: "100%", height: "100%" }}
-      /> */}
-          {/* Top Icon */}
+        <Image
+          source={require("@/assets/images/auth/back-pattern.png")}
+          style={styles.backPattern}
+          contentFit='fill'
+        />
+        <Image
+          source={require("@/assets/images/auth/back-pattern.png")}
+          style={[styles.backPattern, { top: '70%' }]}
+          contentFit='fill'
+        />
+        {/* Top Icon */}
+        <Image
+          source={require("@/assets/images/auth/welcome-star.png")}
+          style={styles.topImage}
+        />
+
+        {/* Title */}
+        <ThemedText style={styles.title}>Hi, there!</ThemedText>
+
+        {/* Subtitle */}
+        <ThemedText style={styles.subtitle}>
+          Before letting your child explore the fun world of StoryCloud, take a
+          few minutes to decide on important parental safety controls.
+        </ThemedText>
+
+        <ThemedView style={styles.illustrationWrap}>
+          {/* Main illustration */}
           <Image
-            source={require("@/assets/images/auth/welcome-star.png")}
-            style={styles.topImage}
+            source={require("@/assets/images/auth/background.png")}
+            style={styles.illustration}
+            contentFit="cover"
           />
-
-          {/* Title */}
-          <ThemedText style={styles.title}>Hi, there!</ThemedText>
-
-          {/* Subtitle */}
-          <ThemedText style={styles.subtitle}>
-            Before letting your child explore the fun world of StoryCloud, take a
-            few minutes to decide on important parental safety controls.
-          </ThemedText>
-
-          <ThemedView style={styles.illustrationWrap}>
-            {/* Main illustration */}
-            <Image
-              source={require("@/assets/images/auth/background.png")}
-              style={styles.illustration}
-              contentFit="cover"
-            />
-            {/* Buttons */}
-            <ThemedView style={styles.buttonRow}>
-              <Link href="../" asChild>
-                <TouchableOpacity style={styles.backButton}>
-                  <Image
-                    source={require("@/assets/images/icons/arrow-left.png")}
-                    style={{ width: 24, height: 24, tintColor: "#ffffff" }}
-                    contentFit="cover"
-                  />
-                  <ThemedText style={styles.backText}>Back</ThemedText>
-                </TouchableOpacity>
-              </Link>
-              <Link href="./verify" asChild>
-                <TouchableOpacity style={styles.nextButton}>
-                  <ThemedText style={styles.nextText}>Next</ThemedText>
-                  <Image
-                    source={require("@/assets/images/icons/arrow-right.png")}
-                    style={{ width: 24, height: 24, tintColor: '#053B4A' }}
-                    contentFit="cover"
-                  />
-                </TouchableOpacity>
-              </Link>
-            </ThemedView>
+          {/* Buttons */}
+          <ThemedView style={styles.buttonRow}>
+            <Link href="../" asChild>
+              <TouchableOpacity style={styles.backButton}>
+                <Image
+                  source={require("@/assets/images/icons/arrow-left.png")}
+                  style={{ width: 24, height: 24, tintColor: "#ffffff" }}
+                  contentFit="cover"
+                />
+                <ThemedText style={styles.backText}>Back</ThemedText>
+              </TouchableOpacity>
+            </Link>
+            <Link href="./verify" asChild>
+              <TouchableOpacity style={styles.nextButton}>
+                <ThemedText style={styles.nextText}>Next</ThemedText>
+                <Image
+                  source={require("@/assets/images/icons/arrow-right.png")}
+                  style={{ width: 24, height: 24, tintColor: '#053B4A' }}
+                  contentFit="cover"
+                />
+              </TouchableOpacity>
+            </Link>
           </ThemedView>
         </ThemedView>
+      </ThemedView>
     </>
   );
 }
@@ -75,7 +81,7 @@ const BUTTON_RADIUS = 70;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: width, 
+    width: width,
     height: height,
     backgroundColor: "#F8ECAE",
     alignItems: "center",
@@ -89,6 +95,9 @@ const styles = StyleSheet.create({
     width: 95,
     height: 100,
     marginTop: 60,
+  },
+  backPattern: {
+    position: "absolute", width: "110%", height: "70%", tintColor: "#053b4a1a"
   },
   title: {
     color: "#053B4A",

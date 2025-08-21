@@ -42,7 +42,6 @@ const SeriesListWithBadge: React.FC<SeriesListWithBadgeProps> = ({
                 return;
             }
             if (data && Array.isArray(data.data)) {
-                console.log("ftch==", data.data)
                 setSeries(data.data);
 
                 // Filter seriesCategories to only those with stories
@@ -61,7 +60,6 @@ const SeriesListWithBadge: React.FC<SeriesListWithBadgeProps> = ({
 
     // useEffect(() => {
     //     // If selectedSeries is provided, use it; otherwise, use categoriesWithStories
-    //     console.log(selectedSeries)
     //     if (selectedSeries && selectedSeries.length > 0)yt
     //         setCategores(selectedSeries)
     //     else
@@ -81,7 +79,7 @@ const SeriesListWithBadge: React.FC<SeriesListWithBadgeProps> = ({
         }
     }
     return (
-        <ThemedView>
+        <ThemedView style={{ paddingBottom: 55 }}>
             {
 
                 categoriesWithStories.map((category, index) => (
@@ -97,7 +95,7 @@ const SeriesListWithBadge: React.FC<SeriesListWithBadgeProps> = ({
                                 />
                             </TouchableOpacity>
                         </ThemedView>
-                        <StoryItems key={index} seriesCategory={category.name} />
+                        <StoryItems key={index} seriesCategory={category.name} tag="series" />
                     </ThemedView>
                 ))
             }

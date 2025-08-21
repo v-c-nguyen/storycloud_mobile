@@ -1,4 +1,4 @@
-import { SeriesCard2 } from "@/components/Cards";
+import { SeriesCard2, StoryCard1 } from "@/components/Cards";
 import { ThemedView } from "@/components/ThemedView";
 import { useSeriesStore } from "@/store/seriesStore";
 import { useStoryStore } from "@/store/storyStore";
@@ -8,9 +8,11 @@ import { ScrollView, StyleSheet } from "react-native";
 
 interface StoryItemsProps {
     seriesCategory: string;
+    tag: string
 }
 const StoryItems: React.FC<StoryItemsProps> = ({
-    seriesCategory
+    seriesCategory,
+    tag
 }) => {
     const router = useRouter();
     const [loading, setLoading] = React.useState(false);
@@ -29,7 +31,7 @@ const StoryItems: React.FC<StoryItemsProps> = ({
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.horizontalScrollContent}
             >
-                {series
+                {tag == "series" && series
                     .filter(story => normalize(story.series_category) === normalize(seriesCategory))
                     .map((item, idx) => (
                         <SeriesCard2 
@@ -38,6 +40,17 @@ const StoryItems: React.FC<StoryItemsProps> = ({
                             episode_count={item.episode_count ?? 0}
                             image={item.image ?? ""}
                             isFavorite={item.isFavorite ?? false}
+                        />
+                    ))}
+
+                {tag == "stories" && stories
+                    .filter(story => normalize(story.seriesCategory) === normalize(seriesCategory))
+                    .map((item, idx) => (
+                        <StoryCard1 
+                            key={idx}
+                            num={idx + 1}
+                            story={item}
+                            onPlay={(storyId: string) => router.push({ pathname: '/(parent)/(listen)/listenStory', params: { storyId } })}
                         />
                     ))}
             </ScrollView>

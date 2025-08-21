@@ -10,45 +10,50 @@ import React from 'react';
 export default function ConfirmResetLink() {
   return (
     <>
-    <Stack.Screen options={{ headerShown: false }} />
-    <ThemedView style={styles.container}>
-      {/* Decorative background shapes would go here if needed */}
+      <Stack.Screen options={{ headerShown: false }} />
+      <ThemedView style={styles.container}>
+        {/* Decorative background shapes would go here if needed */}
 
-      {/* <Image
-        source={require("@/assets/images/auth/back-pattern.png")}
-        style={{ position: "absolute", width: "100%", height: "100%" }}
-      />
-      Top Icon */}
-      <Image
-        source={require("@/assets/images/auth/parent-fullbody.png")}
-        style={styles.topImage}
-      />
+        <Image
+          source={require("@/assets/images/auth/back-pattern.png")}
+          style={styles.backPattern}
+          contentFit='fill'
+        />
+        <Image
+          source={require("@/assets/images/auth/back-pattern.png")}
+          style={[styles.backPattern, { top: '70%' }]}
+          contentFit='fill'
+        />
+        <Image
+          source={require("@/assets/images/auth/parent-fullbody.png")}
+          style={styles.topImage}
+        />
 
-      {/* Title */}
-      <ThemedText style={styles.title}>
-        Reset link <ThemedText type='bigType' style={{ color: "#F4A672" }}>has been sent!</ThemedText>
-      </ThemedText>
-
-      <ThemedView style={styles.illustrationWrap}>
-        {/* Main illustration */}
-        <ThemedText style={styles.mainText}>
-          Please check your inbox and proceed with the link we have sent.
+        {/* Title */}
+        <ThemedText style={styles.title}>
+          Reset link <ThemedText type='bigType' style={{ color: "#F4A672" }}>has been sent!</ThemedText>
         </ThemedText>
-        {/* Buttons */}
-        <ThemedView style={styles.buttonRow}>
-          <Link href="./signin" asChild>
-            <TouchableOpacity style={styles.nextButton}>
-              <ThemedText style={styles.nextText}>Back to Log in</ThemedText>
-              <Image
-                source={require("@/assets/images/icons/arrow-right.png")}
-                style={{ width: 24, height: 24, tintColor: '#053B4A' }}
-                contentFit="cover"
-              />
-            </TouchableOpacity>
-          </Link>
+
+        <ThemedView style={styles.illustrationWrap}>
+          {/* Main illustration */}
+          <ThemedText style={styles.mainText}>
+            Please check your inbox and proceed with the link we have sent.
+          </ThemedText>
+          {/* Buttons */}
+          <ThemedView style={styles.buttonRow}>
+            <Link href="./signin" asChild>
+              <TouchableOpacity style={styles.nextButton}>
+                <ThemedText style={styles.nextText}>Back to Log in</ThemedText>
+                <Image
+                  source={require("@/assets/images/icons/arrow-right.png")}
+                  style={{ width: 24, height: 24, tintColor: '#053B4A' }}
+                  contentFit="cover"
+                />
+              </TouchableOpacity>
+            </Link>
+          </ThemedView>
         </ThemedView>
       </ThemedView>
-    </ThemedView>
     </>
   );
 }
@@ -104,6 +109,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 400,
     lineHeight: 24.3,
+  },
+  backPattern: {
+    position: "absolute", width: "110%", height: "70%" , tintColor:"#053b4a1a"
   },
   buttonRow: {
     width: '100%',

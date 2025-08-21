@@ -32,7 +32,7 @@ export default function WhoAreYouScreen() {
         }
       });
       const result = await response.json();
-      if(!response.ok) {
+      if (!response.ok) {
         Alert.alert(result.message || 'Failed to fetch child details');
         return;
       }
@@ -44,9 +44,9 @@ export default function WhoAreYouScreen() {
         mode: result.data[0].mode || 'free',
         age: result.data[0].age || 0,
       });
-      router.push(`./success?childName=${result.data[0].name}`);      
+      router.push(`./success?childName=${result.data[0].name}`);
     } catch (error) {
-      
+
     }
   }
 
@@ -83,6 +83,17 @@ export default function WhoAreYouScreen() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <ThemedView style={styles.container}>
+
+        <Image
+          source={require("@/assets/images/auth/back-pattern.png")}
+          style={styles.backPattern}
+          contentFit='fill'
+        />
+        <Image
+          source={require("@/assets/images/auth/back-pattern.png")}
+          style={[styles.backPattern, { top: '70%' }]}
+          contentFit='fill'
+        />
         <ThemedView style={styles.subContainer}>
           {/* Title */}
           <ThemedView style={styles.titleContainer}>
@@ -163,6 +174,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     position: "relative",
     paddingHorizontal: 16,
+  },
+  backPattern: {
+    position: "absolute", width: "110%", height: "70%", tintColor: "#053b4a1a"
   },
   subContainer: {
     marginVertical: 60,

@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
         position: "relative",
     },
     imgCloudFar: {
-        width: '110%',
+        width: '112%',
         height: '100%',
         position: "absolute",
         top: 0,
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
         zIndex: -100,
     },
     imgCloudNear: {
-        width: '110%',
+        width: '112%',
         height: '100%',
         position: "absolute",
         top: 42,

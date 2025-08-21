@@ -10,65 +10,69 @@ import React from 'react';
 export default function ParentalAuthInfo() {
   return (
     <>
-    <Stack.Screen options={{ headerShown: false }} />
-    <ThemedView style={styles.container}>
-      {/* Decorative background shapes would go here if needed */}
-
-      {/* <Image
-        source={require("@/assets/images/auth/back-pattern.png")}
-        style={{ position: "absolute", width: "100%", height: "100%" }}
-      />
-      Top Icon */}
-      <Image
-        source={require("@/assets/images/auth/parent-fullbody.png")}
-        style={styles.topImage}
-      />
-
-      {/* Title */}
-      <ThemedText style={styles.title}>
-        With a <ThemedText type='bigType' style={{ color: "#F4A672" }}>parent's</ThemedText> account
-      </ThemedText>
-
-      <ThemedView style={styles.illustrationWrap}>
-        {/* Main illustration */}
+      <Stack.Screen options={{ headerShown: false }} />
+      <ThemedView style={styles.container}>
+        {/* Decorative background shapes would go here if needed */}
         <Image
-          source={require("@/assets/images/auth/background.png")}
-          style={styles.illustration}
-          contentFit="cover"
+          source={require("@/assets/images/auth/back-pattern.png")}
+          style={styles.backPattern}
+          contentFit='fill'
+        />
+        <Image
+          source={require("@/assets/images/auth/back-pattern.png")}
+          style={[styles.backPattern, { top: '70%' }]}
+          contentFit='fill'
+        />
+        <Image
+          source={require("@/assets/images/auth/parent-fullbody.png")}
+          style={styles.topImage}
         />
 
-        <ThemedText style={styles.mainText}>
-          Now you can sign in and create a profile for each kid. If you choose
-          to sign in, you get more controls, whether you want to allow lots of
-          videos or hand pick your own. The next time you sign in to a device,
-          your kids' profiles will be ready to go. Sign in with a parent's
-          account and we'll get started!
+        {/* Title */}
+        <ThemedText style={styles.title}>
+          With a <ThemedText type='bigType' style={{ color: "#F4A672" }}>parent's</ThemedText> account
         </ThemedText>
-        {/* Buttons */}
-        <ThemedView style={styles.buttonRow}>
-          <Link href="./verify" asChild>
-            <TouchableOpacity style={styles.backButton}>
-              <Image
-                source={require("@/assets/images/icons/arrow-left.png")}
-                style={{ width: 24, height: 24, tintColor: "#ffffff" }}
-                contentFit="cover"
-              />
-              <ThemedText style={styles.backText}>Back</ThemedText>
-            </TouchableOpacity>
-          </Link>
-          <Link href="./signin" asChild>
-            <TouchableOpacity style={styles.nextButton}>
-              <ThemedText style={styles.nextText}>Next</ThemedText>
-              <Image
-                source={require("@/assets/images/icons/arrow-right.png")}
-                style={{ width: 24, height: 24, tintColor: '#053B4A' }}
-                contentFit="cover"
-              />
-            </TouchableOpacity>
-          </Link>
+
+        <ThemedView style={styles.illustrationWrap}>
+          {/* Main illustration */}
+          <Image
+            source={require("@/assets/images/auth/background.png")}
+            style={styles.illustration}
+            contentFit="cover"
+          />
+
+          <ThemedText style={styles.mainText}>
+            Now you can sign in and create a profile for each kid. If you choose
+            to sign in, you get more controls, whether you want to allow lots of
+            videos or hand pick your own. The next time you sign in to a device,
+            your kids' profiles will be ready to go. Sign in with a parent's
+            account and we'll get started!
+          </ThemedText>
+          {/* Buttons */}
+          <ThemedView style={styles.buttonRow}>
+            <Link href="./verify" asChild>
+              <TouchableOpacity style={styles.backButton}>
+                <Image
+                  source={require("@/assets/images/icons/arrow-left.png")}
+                  style={{ width: 24, height: 24, tintColor: "#ffffff" }}
+                  contentFit="cover"
+                />
+                <ThemedText style={styles.backText}>Back</ThemedText>
+              </TouchableOpacity>
+            </Link>
+            <Link href="./signin" asChild>
+              <TouchableOpacity style={styles.nextButton}>
+                <ThemedText style={styles.nextText}>Next</ThemedText>
+                <Image
+                  source={require("@/assets/images/icons/arrow-right.png")}
+                  style={{ width: 24, height: 24, tintColor: '#053B4A' }}
+                  contentFit="cover"
+                />
+              </TouchableOpacity>
+            </Link>
+          </ThemedView>
         </ThemedView>
       </ThemedView>
-    </ThemedView>
     </>
   );
 }
@@ -84,6 +88,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     paddingHorizontal: 16,
     position: "relative",
+  },
+  backPattern: {
+    position: "absolute", width: "110%", height: "70%", tintColor: "#053b4a1a"
   },
   topImage: {
     top: 0,
